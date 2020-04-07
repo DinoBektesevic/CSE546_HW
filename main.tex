@@ -27,12 +27,7 @@
 \newcommand{\R}{\field{R}} % real domain
 % \newcommand{\C}{\field{C}} % complex domain
 \newcommand{\F}{\field{F}} % functional domain
-
-
- 
-
 \newcommand{\T}{^{\textrm T}} % transpose
-
 \def\diag{\text{diag}}
 
 %% operator in linear algebra, functional analysis
@@ -72,9 +67,9 @@ Denoting $X=1$ as test result being positive and $Y=1$ as actually having the di
     &= \frac{0.99\cdot0.0001}{0.99\cdot0.0001 + 0.01*0.9999} \\
     &= 0.0098 \approx 1\%
 \end{align*}
-since we are given that $P(X=1|Y=1)=0.99$ and $P(Y=1)=1/10000=0.0001$ from which it follows that $P(Y=0)=1-P(Y=1)=0.9999$ and $P(X=1|Y=0)=1-P(X=1|Y=1)=0.01$
-
-
+since we are given that $P(X=1|Y=1)=P(X=0|Y=0)=0.99$ and $P(Y=1)=1/10000=0.0001$ from which it follows that $P(Y=0)=1-P(Y=1)=0.9999$ and $P(X=1|Y=0)=1-P(X=0|Y=0)=0.01$
+\newline
+\newline
 A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\text{Cov}(X,Y)=\E[(X-\E[X])(Y-\E[Y])]$. You may assume $X$ and $Y$ take on a discrete values if you find that is easier to work with.
     \begin{enumerate}
          \item \points{1} If $\E[Y|X=x] = x$ show that $\text{Cov}(X,Y) = \E[(X-\E[X])^2]$. 
@@ -97,13 +92,13 @@ A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\tex
              \begin{align*}
                  \text{Cov}(X,Y) = E(X,Y) - E(X)E(Y) = E(X)E(Y) - E(X)E(Y) = 0
              \end{align*}
-\end{enumerate}\\
+\end{enumerate}
 
 A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $g$, respectively. Let $h$ be the PDF of the random variable $Z = X+Y$.
 \begin{enumerate}
 	\item \points{2} Show that $h(z) = \int_{-\infty}^\infty f(x) g( z - x ) d x $.  (If you are more comfortable with discrete probabilities, you can instead derive an analogous expression for the discrete case,  and then you should give a one sentence explanation as to why your expression is analogous to the continuous case.).
 	\item \points{1} If $X$ and $Y$ are both independent and uniformly distributed on $[0,1]$ (i.e. $f(x)=g(x)=1$ for $x \in [0,1]$ and $0$ otherwise) what is $h$, the PDF of $Z=X+Y$?
-\end{enumerate}\\
+\end{enumerate}
 
 A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian distributed with mean $\mu$ and variance $\sigma^2$. Given that for any $a,b \in \R$, we have that $Y = aX + b$ is also Gaussian, find $a,b$ such that $Y \sim \mathcal{N}(0,1)$.
 \begin{align*}
@@ -113,7 +108,7 @@ A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian
     a^2\sigma^2 &= 1\\
     a &= 1/\sigma\\
     b &= - \mu/\sigma\\
-\end{align*}\\
+\end{align*}
 
 A.5 \points{2} For a random variable $Z$, its mean and variance are defined as $\E[Z]$ and $\E[(Z-\E[Z])^2]$, respectively. Let $X_1,\dots,X_n$ be independent and identically distributed random variables, each with mean $\mu$ and variance $\sigma^2$. If we define $\widehat{\mu}_n = \frac{1}{n} \sum_{i=1}^n X_i$, what is the mean and variance of $\sqrt{n}(\widehat{\mu}_n - \mu)$? \\
 
@@ -165,7 +160,7 @@ A.6 If $f(x)$ is a PDF, the cumulative distribution function (CDF) is  defined a
     Plugging the maximum value of $F(x)=1/2$ into the expression for variance:
     $$\text{Var} \widehat{F}_n(x) = \frac{\frac{1}{2}\left(1-\frac{1}{2}\right)}{n} = \frac{1}{4n} $$
     Which satisfies the given expression with the equality sign valid only at the maxima of the variance. 
-    \end{enumerate} \\
+    \end{enumerate}
 
 B.1  \points{1} Let $X_1,\dots,X_n$ be $n$ independent and identically distributed random variables drawn uniformly at random from $[0,1]$. If $Y = \max\{X_1,\dots,X_n\}$ then find $\E[Y]$.\\
 
@@ -287,28 +282,27 @@ plt.grid()
 
 \newpage
 A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \in \R$, let $f(x, y) = x^T \mat{A} x + y^T \mat{B} x + c$. Define $\nabla_z f(x,y) = \begin{bmatrix} \frac{\partial f(x,y)}{\partial z_1} & \frac{\partial f(x,y)}{\partial z_2} & \dots & \frac{\partial f(x,y)}{\partial z_n} \end{bmatrix}^T$.  
+
+
 \begin{enumerate}
 	\item \points{2} Explicitly write out the function $f(x, y)$ in terms of the components $A_{i,j}$ and $B_{i,j}$ using appropriate summations over the indices.\\
 	Not sure what is meant by this but this is how the function would look like written out "explicitly":
 	$$
 	f(x, y) = 
-	\begin{bmatrix} x_1  \\ \vdots \\ x_n \end{bmatrix} \begin{bmatrix} A_{11} & \hdots & A_{1n} \\ \vdots & \hdots & \vdots \\ A_{n1} & \hdots & A_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
+	\begin{bmatrix} x_1  \\ \vdots \\ x_n \end{bmatrix} \begin{bmatrix} A_{11} & \hdots & A_{1n} \\ \vdots & \ddots & \vdots \\ A_{n1} & \hdots & A_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
 	+
-	\begin{bmatrix} y_1  \\ \vdots \\ y_n \end{bmatrix} \begin{bmatrix} B_{11} & \hdots & B_{1n} \\ \vdots & \hdots & \vdots \\ B_{n1} & \hdots & B_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
+	\begin{bmatrix} y_1  \\ \vdots \\ y_n \end{bmatrix} \begin{bmatrix} B_{11} & \hdots & B_{1n} \\ \vdots & \ddots & \vdots \\ B_{n1} & \hdots & B_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
 	+
 	c \\
 	$$
-	Writing the above in terms of summations over indices we keep in mind the definition of matrix multiplication: $c_{ij} = \sum_{k=1}^n a_{ik}b_{kj}$. 
+	Writing the above in terms of summations over indices we keep in mind the definition of matrix multiplication: $c_{ij} = \sum_{k=1}^n a_{ik}b_{kj}$. Applied to $Ax$ for example we have $Ax=\sum_{i=1}^n A_{1,i}x_i$. We write the following:
+	$$ f(x, y) = \sum_{i=1}^n x_i \sum_{j=1}^n B_{ij}x_j + \sum_{i=1}^n y_i \sum_{j=1}^n B_{ij}x_j + c$$
 	
-	\item \points{2} What is $\nabla_x f(x,y)$ in terms of the summations over indices \emph{and} vector notation?
-	$$
-	\nabla_x f(x, y) = 
-	\begin{bmatrix} x_1  \\ \vdots \\ x_n \end{bmatrix} \begin{bmatrix} A_{11} & \hdots & A_{1n} \\ \vdots & \hdots & \vdots \\ A_{n1} & \hdots & A_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
-	+
-	\begin{bmatrix} y_1  \\ \vdots \\ y_n \end{bmatrix} \begin{bmatrix} B_{11} & \hdots & B_{1n} \\ \vdots & \hdots & \vdots \\ B_{n1} & \hdots & B_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
-	+
-	c \\
-	$$
+	\item \points{2} What is $\nabla_x f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
+	In this context $\nabla_x$ represents the gradient operator with respect to elements of vector $x$. In summation form, if coordinates are orthogonal, it's defined as: $\nabla f = \sum_{i=1}^n \, \frac{\partial f}{\partial x^{i}}\frac{1}{h_i}\mathbf{\hat{e}}_i$ where $h$ are the Lame's coefficients (important for coordinate systems except for Cartesian where they're equal to 1) and $x^i$ refers to elements of vector $x$ not exponential operation. Applied to $f(x,y)$:
+	$$ \nabla_x f(x, y) = \nabla_x (x^TAx) + \nabla_x (y^TBx) = \frac{\partial}{\partial x_i}\sum_{i=1}^n\sum_{j=1}^n x_iB_{ij}x_j + \frac{\partial}{\partial x_i}\sum_{i=1}^n \sum_{j=1}^n y_iB_{ij}x_j $$
+	Apply the chain rule to both elements individually: 
+	$$\frac{df(x,y)}{d x} = \frac{\partial f(x,y)}{\partial x} + \dfrac{dy^T(x)}{d x} \frac{\partial (f(x,y))}{\partial y}$$
 	\item \points{2} What is $\nabla_y f(x,y)$ in terms of the summations over indices \emph{and} vector notation?
 \end{enumerate}
 
@@ -322,7 +316,7 @@ as per Wikipedia.\\
 B.3 \points{1} Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d$. Let $V = [v_1,\dots,v_n]$ be the vectors concatenated. 
     \begin{enumerate}
         \item What is the minimum and maximum rank of $\sum_{i=1}^n v_i v_i^T$? \\
-        Basis of an $\mathbb{R}^d$ is spanned by $d$ linearly independent vectors. So the maximum rank of a matrix will be d. Minimal rank of a matrix would always be 0 in case of a zero matrix.
+        Basis of an $\mathbb{R}^d$ is spanned by $d$ linearly independent vectors. So the maximum rank of a matrix will be d. Minimal rank of a matrix would always be 0 in case of a zero matrix, but since the vectors $v$ must be non-zero the minimal rank of V would be 1 in the case all $v$ are the same unit vectors. 
         \item What is the minimum and maximum rank of $V$? \\
         Same as a) (are these supposed to be like trick questions?)
         \item Let $A \in \mathbb{R}^{D \times d}$ for $D > d$. What is the minimum and maximum rank of $\sum_{i=1}^n (A v_i) (A v_i)^T$?
