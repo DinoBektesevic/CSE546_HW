@@ -170,15 +170,29 @@ A.7 (Rank) Let $A = \begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bma
 For each matrix $A$ and $B$,
 \begin{enumerate} 
 	\item \points{2} what is its rank?  \\
+	
 	Rank is just the number of linearly independent columns of the matrix:
-	$$rank(A) = 3$$
+	$$rank(A) = 2$$
 	$$rank(B) = 2$$
-	For the $B$ matrix if we take away the last row from the first we are left with $[0,1, 1]$ and if we take away second row from the last we are left again with $[0, 1, 1]$ so at least one of the rows is not linearly independent from the remaining two. 
+	For the $B$ matrix if we take away the last row from the first we are left with $[0,1, 1]$ and if we take away second row from the last we are left again with $[0, 1, 1]$ so at least one of the rows is not linearly independent from the remaining two. For matrix $A$ it's a bit harder to spot so we write:
+	\begin{align*}
+	\begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix} \equiv 
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -2 & 2 \\ 1 & 1 & 2\end{bmatrix} \equiv
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & -1 & 1\end{bmatrix} \equiv
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & 0 & 0\end{bmatrix}
+	\end{align*}
+	where we nullify the first column using first row, then divide second row by 2 and take away from the third.
+	
 	\item \points{2} what is a (minimal size) basis for its column span? \\
-	All columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^3$ stretched by the set of column vectors: 
-	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 2 \\ 0 \\ 1\end{bmatrix}, \begin{bmatrix} 1 \\ 3 \\ 2\end{bmatrix}    \Bigr\}$$
+	
+	Two columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^2$ stretched by the set of column vectors: 
+	
+	$$\Bigl\{   \begin{bmatrix} 1 \\ 2 \\ 1\end{bmatrix}, \begin{bmatrix} 0 \\ -1 \\ 1\end{bmatrix} \Bigr\}$$
+	
 	Only two columns of matrix $B$ are linearly independent. Starting from the note in previous problem:
-	 $$A \approx \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix}$$
+	
+	 $$A \equiv \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix}$$
+	 
 	from which we see that first column can be written as $c_1=c_3-c_2$. So the basis of the image space is a subset of $\mathbb R^2$ stretched by column vectors:
 	$$\Bigl\{   \begin{bmatrix} 1 \\ 0 \\ 0\end{bmatrix}, \begin{bmatrix} 1 \\ 1 \\ 0\end{bmatrix}  \Bigr\}$$
 \end{enumerate}
@@ -200,13 +214,13 @@ A.8 (Linear equations) Let $A = \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 
 	    \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} &= \begin{bmatrix} -2 \\ -2 \\ -4 \end{bmatrix} \\
 	    \left[\begin{array}{ccc|c} 
 	    0 & 2 & 4 & -2 \\ 2 & 4 & 2 & -2 \\ 3 & 3 & 1 & -4 \\
-	    \end{array} \right] &\approx 
+	    \end{array} \right] &\equiv 
 	    \left[\begin{array}{ccc|c} 
 	    1 & 2 & 1 & -2 \\ 0 & 2 & 4 & -2 \\ 0 & -3 & -2 & -1 \\
-	    \end{array} \right] \approx \\
+	    \end{array} \right] \equiv \\
 	    \left[\begin{array}{ccc|c} 
 	    1 & 0 & 1 & -3 \\ 0 & 1 & 2 & -1 \\ 0 & 0 & 4 & -4 \\
-	    \end{array} \right] &\approx
+	    \end{array} \right] &\equiv
 	    \left[\begin{array}{ccc|c} 
 	    1 & 0 & 0 & -2 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 1 & -1 \\
 	    \end{array} \right] 
