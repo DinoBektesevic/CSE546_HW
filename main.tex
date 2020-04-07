@@ -299,11 +299,42 @@ A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \i
 	$$ f(x, y) = \sum_{i=1}^n x_i \sum_{j=1}^n B_{ij}x_j + \sum_{i=1}^n y_i \sum_{j=1}^n B_{ij}x_j + c$$
 	
 	\item \points{2} What is $\nabla_x f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
-	In this context $\nabla_x$ represents the gradient operator with respect to elements of vector $x$. In summation form, if coordinates are orthogonal, it's defined as: $\nabla f = \sum_{i=1}^n \, \frac{\partial f}{\partial x^{i}}\frac{1}{h_i}\mathbf{\hat{e}}_i$ where $h$ are the Lame's coefficients (important for coordinate systems except for Cartesian where they're equal to 1) and $x^i$ refers to elements of vector $x$ not exponential operation. Applied to $f(x,y)$:
-	$$ \nabla_x f(x, y) = \nabla_x (x^TAx) + \nabla_x (y^TBx) = \frac{\partial}{\partial x_i}\sum_{i=1}^n\sum_{j=1}^n x_iB_{ij}x_j + \frac{\partial}{\partial x_i}\sum_{i=1}^n \sum_{j=1}^n y_iB_{ij}x_j $$
-	Apply the chain rule to both elements individually: 
-	$$\frac{df(x,y)}{d x} = \frac{\partial f(x,y)}{\partial x} + \dfrac{dy^T(x)}{d x} \frac{\partial (f(x,y))}{\partial y}$$
-	\item \points{2} What is $\nabla_y f(x,y)$ in terms of the summations over indices \emph{and} vector notation?
+	In this context $\nabla_x$ represents the derivation operator with respect to elements of vector $x$. In summation form, if coordinates are orthogonal, it's defined as: $\nabla f = \sum_{i=1}^n \frac{\partial f}{\partial x_i}\frac{1}{h_i}\hat e_i$ where $h$ are the Lame's coefficients (important for coordinate systems except for Cartesian where they're equal to 1). Effectively $\nabla_x$ turns a column vector to a row vector so in vector notation we can write $\nabla_x = \frac{\partial}{\partial x}^T$. Applied to $f(x,y)$:
+	$$ \nabla_x f(x, y) = \nabla_x (x^TAx) + \nabla_x (y^TBx) = 
+	\frac{\partial }{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k 
+	+
+	\frac{\partial}{\partial x_i} \sum_{j=1}^n \sum_{k=1}^n y_jB_{jk}x_k $$
+	where $i \in \{1,...,n\}$. Starting with the first term:
+	\begin{align*}
+	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial x_j}{\partial x_i}A_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}\frac{\partial x_k}{\partial x_i} \\
+	  &= \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n x_jA_{ji} = \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j
+	\end{align*}
+	In the first term the free index $i$ iterates over the columns of A, and in the second term over the rows of A. Meanwhile, there is really no difference between indices $k$ and $j$ with respect to vector elements of $x$ except to indicate the correct element of A within the sums themselves, additionally we know in general that matrix multiplication is distributive with respect to addition, so we can write the two individual sums over a single sum. :
+	$$ \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j = \sum_{j=1}^n (A_{ij} + A_{ji})x_j$$
+	For a fixed $i$, we recognize the retrieved expression as the $i$-th element of a matrix expression $[(A+A^T)x]_i$ so finally we can write the result in vector form:
+	$$\nabla_x (x^TAx) = (A+A^T)x$$
+	For the second term we, similarly, write:
+	\begin{align*}
+	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial x_i}B_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial x_i} \\
+	  &= \sum_{j=1}^n y_jB_{ji}   = \left[B^Ty\right]_i
+	\end{align*}
+	Which we recognize as the vector expression $\nabla_x (y^TBx) = B^Ty$. Put together we have that 
+	$$\nabla_x f(x,y) = (A+A^T)x + B^Ty$$
+	
+	\item \points{2} What is $\nabla_y f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
+	Similarly to the previous problem except that we only have to observe a single term that has a functional dependence on $y$: 
+	\begin{align*}
+	  \frac{\partial}{\partial y_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial y_i}B_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial y_i} \\
+	  &= \sum_{j=1}^n B_{ik}x_k   = \left[Bx\right]_i
+	\end{align*}
+	From which we recognize the vector expression $\nabla_y (y^TBx) = Bx$. Since the remaining terms in the expression will evaluate to zero, as there is no dependence on $y$, we can immediately write:
+	$$\nabla_y f(x,y) = Bx$$
 \end{enumerate}
 
 B.2 \points{1} The \textit{trace} of a matrix is the sum of the diagonal entries; $Tr(A) = \sum_i A_{ii}$. If $A\in\mathbb{R}^{n\times m}$ and $B\in\mathbb{R}^{m\times n}$, show that $Tr(AB) = Tr(BA)$.\\
