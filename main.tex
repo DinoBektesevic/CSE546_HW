@@ -68,8 +68,8 @@ Denoting $X=1$ as test result being positive and $Y=1$ as actually having the di
     &= 0.0098 \approx 1\%
 \end{align*}
 since we are given that $P(X=1|Y=1)=P(X=0|Y=0)=0.99$ and $P(Y=1)=1/10000=0.0001$ from which it follows that $P(Y=0)=1-P(Y=1)=0.9999$ and $P(X=1|Y=0)=1-P(X=0|Y=0)=0.01$
-\newline
-\newline
+
+\newpage
 A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\text{Cov}(X,Y)=\E[(X-\E[X])(Y-\E[Y])]$. You may assume $X$ and $Y$ take on a discrete values if you find that is easier to work with.
     \begin{enumerate}
          \item \points{1} If $\E[Y|X=x] = x$ show that $\text{Cov}(X,Y) = \E[(X-\E[X])^2]$. 
@@ -94,6 +94,7 @@ A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\tex
              \end{align*}
 \end{enumerate}
 
+\newpage
 A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $g$, respectively. Let $h$ be the PDF of the random variable $Z = X+Y$.
 \begin{enumerate}
 	\item \points{2} Show that $h(z) = \int_{-\infty}^\infty f(x) g( z - x ) d x $.  (If you are more comfortable with discrete probabilities, you can instead derive an analogous expression for the discrete case,  and then you should give a one sentence explanation as to why your expression is analogous to the continuous case.). \\
@@ -107,13 +108,21 @@ A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $
 
 	\item \points{1} If $X$ and $Y$ are both independent and uniformly distributed on $[0,1]$ (i.e. $f(x)=g(x)=1$ for $x \in [0,1]$ and $0$ otherwise) what is $h$, the PDF of $Z=X+Y$? \\
     $$h(z) = \int_{-\infty}^\infty f(x)g(z-x)dx = \int_0^1g(z-x)dx$$
-    Solutions are possible only for $0 \leq z-x \leq 1 \rightarrow z-1 \leq x \leq z$. So we have 3 cases:\\ First case: $0\leq z\leq 1$, $sa$:
+    Solutions are possible only for $0 \leq z-x \leq 1 \rightarrow z-1 \leq x \leq z$. So we have 3 cases:\\ First case: $0\leq z\leq 1$:
     $$h(z) = \int_0^zdx = z$$
     Second case $1 < z \leq 2$: 
     $$h(z) = \int_{z-1}^1dx = 2-z$$
-    and $h(z)=0$ otherwise. 
+    and $h(z)=0$ otherwise. The total PDF can be written as: 
+    $$h(z) = \begin{cases} 
+              z &\mbox{for } 0 \leq z \leq 1 \\ 
+              2-z &\mbox{for } 1 < z < 2 \\
+              0 &\mbox{otherwise } 
+              \end{cases} 
+    $$ 
+    
 \end{enumerate}
 
+\newpage
 A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian distributed with mean $\mu$ and variance $\sigma^2$. Given that for any $a,b \in \R$, we have that $Y = aX + b$ is also Gaussian, find $a,b$ such that $Y \sim \mathcal{N}(0,1)$.
 \begin{align*}
     E[Y] &= aE[X]+b = 0\\
@@ -124,6 +133,7 @@ A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian
     b &= - \mu/\sigma\\
 \end{align*}
 
+\newpage
 A.5 \points{2} For a random variable $Z$, its mean and variance are defined as $\E[Z]$ and $\E[(Z-\E[Z])^2]$, respectively. Let $X_1,\dots,X_n$ be independent and identically distributed random variables, each with mean $\mu$ and variance $\sigma^2$. If we define $\widehat{\mu}_n = \frac{1}{n} \sum_{i=1}^n X_i$, what is the mean and variance of $\sqrt{n}(\widehat{\mu}_n - \mu)$? \\
 
 The average value of many random i.i.d. variables that have the same mean $\mu$ is the mean $\mu$ itself. So:
@@ -143,6 +153,7 @@ The variance of many i.i.d. rvs can be written as:
 \end{align*}
 since $\text{Var}[aX]=a^2\text{Var}[X]$ and $\text{Var}[\mu]=0$ because all observed rvs have the same exact mean.\\
 
+\newpage
 A.6 If $f(x)$ is a PDF, the cumulative distribution function (CDF) is  defined as $F(x) = \int_{-\infty}^x f(y) dy$.  For any function $g : \R \rightarrow \R$ and random variable $X$ with PDF $f(x)$, recall that the expected value of $g(X)$ is defined as $\E[g(X)] = \int_{-\infty}^\infty g(y) f(y) dy$. For a boolean event $A$, define $\1\{ A \}$ as $1$ if $A$ is true, and $0$ otherwise. Thus, $\1\{ x \leq a \}$ is $1$ whenever $x \leq a$ and
   $0$ whenever $x > a$.  Note that $F(x) = \E[\1\{X \leq x\}]$.  Let $X_1,\dots,X_n$ be \emph{independent and identically distributed} random variables with CDF $F(x)$.  Define $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{X_i \leq x\}$. Note, for every $x$, that $\widehat{F}_n(x)$ is an \emph{empirical estimate} of  $F(x)$. You may use your answers to the previous problem. 
   \begin{enumerate}
@@ -181,9 +192,10 @@ A.6 If $f(x)$ is a PDF, the cumulative distribution function (CDF) is  defined a
     Which satisfies the given expression with the equality sign valid only at the maxima of the variance. 
     \end{enumerate}
 
+\newpage
 B.1  \points{1} Let $X_1,\dots,X_n$ be $n$ independent and identically distributed random variables drawn uniformly at random from $[0,1]$. If $Y = \max\{X_1,\dots,X_n\}$ then find $\E[Y]$.\\
 
-
+\newpage
 \section*{Linear Algebra and Vector Calculus}
 A.7 (Rank) Let $A = \begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix}$ and $B = \begin{bmatrix} 1 & 2 & 3 \\ 1 & 0 & 1 \\ 1 & 1 & 2 \end{bmatrix}$.
 For each matrix $A$ and $B$,
@@ -216,6 +228,7 @@ For each matrix $A$ and $B$,
 	$$\Bigl\{   \begin{bmatrix} 1 \\ 0 \\ 0\end{bmatrix}, \begin{bmatrix} 1 \\ 1 \\ 0\end{bmatrix}  \Bigr\}$$
 \end{enumerate}
 
+\newpage
 A.8 (Linear equations) Let $A = \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix}$, $b = \begin{bmatrix} -2 & -2 & -4 \end{bmatrix}^T$, and $c=\begin{bmatrix} 1 & 1 & 1 \end{bmatrix}^T$.
 \begin{enumerate}
 	\item \points{1} What is $Ac$? \\ It's a matrix multiplication operation!
@@ -247,11 +260,15 @@ A.8 (Linear equations) Let $A = \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 
 	\end{align*}
 \end{enumerate}
 
+\newpage
 A.9 (Hyperplanes) Assume $w$ is an $n$-dimensional vector and $b$ is a scalar. A hyperplane in $\R^n$ is the set $\{x : x\in \R^n,\text{ s.t. } w^T x + b = 0\}$.
 \begin{enumerate}
 	\item \points{1} ($n=2$ example) Draw the hyperplane for $w=[-1,2]^T$, $b=2$? Label your axes. \\
 	Effectively this gives us an equation of a line $-x_1+2x_2 + 2 = 0$ or $x_1 = 2x_2+2$. Plot line using following Python code:
-	\begin{lstlisting}[language=Python]
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/hyperplane.png}
+    \end{center} 
+    \begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
 x2 = np.arange(-10, 10, 1)
@@ -261,13 +278,13 @@ plt.xlabel("x2")
 plt.ylabel("x1")
 plt.grid()
     \end{lstlisting}
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/hyperplane.png}
-    \end{center} 
 
 	\item \points{1} ($n=3$ example) Draw the hyperplane for $w=[1,1,1]^T$, $b=0$? Label your axes. \\
 	Following the same principles above $x+y+z=0 \rightarrow z=-x-y$ we have:
-	\begin{lstlisting}[language=Python]
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/hyperplaneB.png}
+    \end{center}
+    \begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
@@ -285,9 +302,6 @@ ax.set_xlabel("x2")
 ax.set_ylabel("x1")
 plt.grid()
     \end{lstlisting}
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/hyperplaneB.png}
-    \end{center} 
 
 	\item \points{2} Given some $x_0 \in \R^n$, find the \emph{squared distance} to the hyperplane defined by $w^T x + b=0$. In other words, solve the following optimization problem:
 	\begin{align*}
@@ -295,28 +309,32 @@ plt.grid()
 	\text{s.t. }&w^Tx +b = 0
 	\end{align*}
 	(Hint: if $\widetilde{x}_0$ is the minimizer of the above problem, note that $\| x_0 - \widetilde{x}_0 \| = | \frac{w^T(x_0 - \widetilde{x}_0)}{\|w\|} |$. What is $w^T \widetilde{x}_0$?) \\
-	    We are looking to minimize the following function: 
-	    \begin{align*}
-	        f(\vec x) &= \omega^T||\vec x-\vec x_0||^2 + b = 0 \\
-	        &= \omega^T||\vec x^T \vec x - 2\vec x\cdot \vec x_0 + \vec x_0^T \vec x_0|| + b \\
-	        &= \omega\vec x^T \vec x - 2\omega^T||\vec x\cdot \vec x_0|| + \omega^T\vec x_0^T \vec x_0 + b = 0
-	    \end{align*} 
-	    Note that values $\vec x^T \vec x$ and $\vec x_0^T \vec x_0$ are just scalars. Minimization can be performed via the method of Lagrange multipliers of the above equation given the constraint that $\vec x$ lies in the plane $\Phi = \omega^T\vec x +b =0$:
-	    \begin{align*}
-	        \frac{\partial f(\vec x)}{\partial x_i} - \lambda \frac{\partial \Phi(\vec x)}{\partial x_i} &= 0 \\
-	        -2\omega^T\frac{\partial ||\vec x\cdot\vec x_0||}{\partial x_i} - \lambda\omega^T \frac{\partial \vec x}{\partial x_i} &= 0 \\
-	        -2\omega^T\frac{\partial \vec x}{\partial x_i}\cdot\vec x_0 - \lambda\omega^T\frac{\partial \vec x}{\partial x_i} &= 0 \\
-	        \text{\color{red} Following is speculative} \\
-	        \left(-2\omega^T\vec x_0 - \lambda\omega^T\right)\frac{\partial \vec x}{\partial x_i} = 0 \\
-	    \end{align*}
-	    Note that $\omega^T\vec x_0$ is a scalar, that $x_0$ denotes the magnitude of the radius vector of the point we're measuring distance to so it also is a scalar, we can 
+	The following solution was hinted to me by Conor Sayers. Conors idea was that we are given a solution for non-squared distance and have enough information in the hint of the problem to "reverse engineer" the squared distance solution. If $\widetilde x_0$ is the vector that minimizes the problem we can write $w^T\widetilde x_0 = -b$ and then we can write the squared distance as:
+    \begin{align*}
+    |x_0 - \widetilde x_0|^2 & = \left[\frac{w^T(x_0 - \widetilde x_0)}{|w|}\right]^2 \\
+    & = \left[\frac{w^Tx_0- w^T\widetilde x_0}{|w|}\right]^2 \\
+    & = \left[\frac{w^Tx_0 + b}{|w|}\right]^2 \\
+    \end{align*}
+    The original attempt I have left below to, hopefully, show that I hadn't dilly-dallied around waiting for a solution to be found by someone else and thus, hopefully, avoid accusations of plagiarism:\\
+    \begin{footnotesize}
+    We are looking to minimize the following function: 
+	\begin{align*}
+	    f(\vec x) &= \omega^T||\vec x-\vec x_0||^2 + b = 0 \\
+	    &= \omega^T||\vec x^T \vec x - 2\vec x\cdot \vec x_0 + \vec x_0^T \vec x_0|| + b \\
+	    &= \omega\vec x^T \vec x - 2\omega^T||\vec x\cdot \vec x_0|| + \omega^T\vec x_0^T \vec x_0 + b = 0
+	\end{align*} 
+	Note that values $\vec x^T \vec x$ and $\vec x_0^T \vec x_0$ are just scalars. Minimization can be performed via the method of Lagrange multipliers of the above equation given the constraint that $\vec x$ lies in the plane $\Phi = \omega^T\vec x +b =0$:
+	\begin{align*}
+	    \frac{\partial f(\vec x)}{\partial x_i} - \lambda \frac{\partial \Phi(\vec x)}{\partial x_i} &= 0 \\
+	    -2\omega^T\frac{\partial ||\vec x\cdot\vec x_0||}{\partial x_i} - \lambda\omega^T \frac{\partial \vec x}{\partial x_i} &= 0 \\
+	    -2\omega^T\frac{\partial \vec x}{\partial x_i}\cdot\vec x_0 - \lambda\omega^T\frac{\partial \vec x}{\partial x_i} &= 0 \\
+	\end{align*}
+	But of course now I run into a problem where I can;t 
+	\end{footnotesize}
 \end{enumerate}
-
 
 \newpage
 A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \in \R$, let $f(x, y) = x^T \mat{A} x + y^T \mat{B} x + c$. Define $\nabla_z f(x,y) = \begin{bmatrix} \frac{\partial f(x,y)}{\partial z_1} & \frac{\partial f(x,y)}{\partial z_2} & \dots & \frac{\partial f(x,y)}{\partial z_n} \end{bmatrix}^T$.  
-
-
 \begin{enumerate}
 	\item \points{2} Explicitly write out the function $f(x, y)$ in terms of the components $A_{i,j}$ and $B_{i,j}$ using appropriate summations over the indices.\\
 	Not sure what is meant by this but this is how the function would look like written out "explicitly":
@@ -337,7 +355,7 @@ A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \i
 	\frac{\partial }{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k 
 	+
 	\frac{\partial}{\partial x_i} \sum_{j=1}^n \sum_{k=1}^n y_jB_{jk}x_k $$
-	where $i \in \{1,...,n\}$. Starting with the first term:
+	where $i \in \{1,...,n\}$. Starting with the first term\footnote{Note that the use of product rule is optional as the same could be achieved by carefully working out $\partial_i(x_j x_k)$ keeping track of the indices. It's just more obvious as a product rule.}:
 	\begin{align*}
 	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k &= 
 	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial x_j}{\partial x_i}A_{jk}x_k +
@@ -370,6 +388,7 @@ A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \i
 	$$\nabla_y f(x,y) = Bx$$
 \end{enumerate}
 
+\newpage
 B.2 \points{1} The \textit{trace} of a matrix is the sum of the diagonal entries; $Tr(A) = \sum_i A_{ii}$. If $A\in\mathbb{R}^{n\times m}$ and $B\in\mathbb{R}^{m\times n}$, show that $Tr(AB) = Tr(BA)$.\\
 It can be shown in general that trace is invariant under cyclic permutations, which for case of n=2 looks like commutation:
 $$\text{tr}(AB)=\sum_i^m (ab)_{ii} = \sum_{i=1}^m\sum_{j=1}^n a_{ij}b_{ji}= \sum_{j=1}^n\sum_{i=1}^m b_{ji}a_{ij} = \sum_i^n (ab)_{jj} = \text{tr}(BA)$$
@@ -377,6 +396,7 @@ using the fact that product of $n\times m$ and $m\times n$ matrix is an $m\times
 $$\text{tr}(A^TB)=\sum_{i,j}A_{ij}B_{ij}$$
 as per Wikipedia.\\
 
+\newpage
 B.3 \points{1} Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d$. Let $V = [v_1,\dots,v_n]$ be the vectors concatenated. 
     \begin{enumerate}
         \item What is the minimum and maximum rank of $\sum_{i=1}^n v_i v_i^T$? \\
@@ -387,8 +407,8 @@ B.3 \points{1} Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d
         \item What is the minimum and maximum rank of $AV$? What if $V$ is rank $d$?
     \end{enumerate}
 
+\newpage
 \section*{Programming}
-
 A.11 For the $A, b, c$ as defined in Problem 8, use
   NumPy to compute (take a screen shot of your answer):
   \begin{enumerate}
@@ -400,18 +420,15 @@ A.11 For the $A, b, c$ as defined in Problem 8, use
     \includegraphics[width=4in]{HW0_plots/numpy.png}
     \end{center} 
 
+\newpage
+A.12 \points{4} Two random variables $X$ and $Y$ have equal distributions if their CDFs, $F_X$ and $F_Y$, respectively, are equal, i.e. for all $x$, $ |F_X(x) - F_Y(x)| = 0$. The central limit theorem says that the sum of $k$ independent, zero-mean, variance-$1/k$ random variables converges to a (standard) Normal distribution as $k$ goes off to infinity. We will study this phenomenon empirically (you will use the Python packages Numpy and Matplotlib). Define $Y^{(k)} = \frac{1}{\sqrt{k}} \sum_{i=1}^k B_i$ where each $B_i$ is equal to $-1$ and $1$ with equal probability. From your solution to problem 5, we know that $\frac{1}{\sqrt{k}} B_i$ is zero-mean and has variance $1/k$.
 
-A.12 \points{4} Two random variables $X$ and $Y$ have equal
-  distributions if their CDFs, $F_X$ and $F_Y$, respectively, are
-  equal, i.e. for all $x$, $ |F_X(x) - F_Y(x)| = 0$. 
-The central limit theorem says that the sum of $k$ independent,
-zero-mean, variance-$1/k$ random variables converges to a (standard) Normal distribution as $k$ goes off to infinity.  
-We will study this phenomenon empirically (you will use the Python packages Numpy and Matplotlib). 
-Define $Y^{(k)} = \frac{1}{\sqrt{k}} \sum_{i=1}^k B_i$ where each $B_i$ is equal to $-1$ and $1$ with equal probability.
-From your solution to problem 5, we know that $\frac{1}{\sqrt{k}} B_i$ is zero-mean and has variance $1/k$.
 \begin{enumerate}
 \item For $i=1,\dots,n$ let $Z_i \sim \mathcal{N}(0,1)$. If $F(x)$ is the true CDF from which each $Z_i$ is drawn (i.e., Gaussian) and $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{ Z_i \leq x)$, use the answer to problem 1.5 above to choose$n$ large enough such that, for all $x \in \R$, $ \sqrt{\E[(\widehat{F}_n(x)-F(x))^2 ]} \leq 0.0025$, and plot $\widehat{F}_n(x)$ from $-3$ to $3$. \\(Hint: use \texttt{Z=numpy.random.randn(n)} to generate the random variables, and \texttt{import matplotlib.pyplot as plt}; \texttt{plt.step(sorted(Z), np.arange(1,n+1)/float(n))} to plot). 
-	\begin{lstlisting}[language=Python]
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/cumdist1.png}
+    \end{center} 
+    	\begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -424,10 +441,12 @@ plt.xlabel("Observations")
 plt.ylabel("Probability")
 plt.show()
     \end{lstlisting}
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/cumdist1.png}
-    \end{center} 
+    
+    
 \item For each $k \in \{1, 8, 64, 512\}$ generate $n$ independent copies $Y^{(k)}$ and plot their empirical CDF on the same plot as part a.\\ (Hint: $\texttt{np.sum(np.sign(np.random.randn(n, k))*np.sqrt(1./k), axis=1)}$ generates $n$ of the $Y^{(k)}$ random variables.) 
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/cumdist2.png}
+    \end{center} 
 	\begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
@@ -464,9 +483,5 @@ plt.xlabel("Observations")
 plt.ylabel("Probability")
 plt.show()
     \end{lstlisting}
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/cumdist2.png}
-    \end{center} 
-
 \end{enumerate}
 \end{document}
