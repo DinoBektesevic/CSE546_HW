@@ -96,8 +96,22 @@ A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\tex
 
 A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $g$, respectively. Let $h$ be the PDF of the random variable $Z = X+Y$.
 \begin{enumerate}
-	\item \points{2} Show that $h(z) = \int_{-\infty}^\infty f(x) g( z - x ) d x $.  (If you are more comfortable with discrete probabilities, you can instead derive an analogous expression for the discrete case,  and then you should give a one sentence explanation as to why your expression is analogous to the continuous case.).
-	\item \points{1} If $X$ and $Y$ are both independent and uniformly distributed on $[0,1]$ (i.e. $f(x)=g(x)=1$ for $x \in [0,1]$ and $0$ otherwise) what is $h$, the PDF of $Z=X+Y$?
+	\item \points{2} Show that $h(z) = \int_{-\infty}^\infty f(x) g( z - x ) d x $.  (If you are more comfortable with discrete probabilities, you can instead derive an analogous expression for the discrete case,  and then you should give a one sentence explanation as to why your expression is analogous to the continuous case.). \\
+	Random variables are independent when $p(x,y) = f(x)g(y)$. Since $X$ and $Y$ are independent and $Z=X+Y$ the domain of Z is given as a union of the domains of $X$ and $Y$, i.e. in terms of values of rvs $z=x+y$. Picking a particular $z$ and $x$ limits, by the law of total probability, the allowable values event $y$ can take. This can be expressed as the constraint $z=x+y \rightarrow y=z-x \rightarrow x=z-y$. So given a joint probability: 
+	$$p(Z=z) = \int_{-\infty}^\infty\int_{-\infty}^{z-x} p(x,y)dxdy$$
+	and given that $X$ and $Y$ are independent: 
+	$$p(Z=z) = \int_{x\in X} f(x)g(z-x)dx = \int_{y\in Y} f(z-y)g(y)dy$$
+	If we then further define $f(x)=0; x\not\in X$:
+	$$p(Z=z) =  \int_{-\infty}^\infty f(x)g(z-x)dx $$
+	This is exactly the definition of convolution $(f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau$
+
+	\item \points{1} If $X$ and $Y$ are both independent and uniformly distributed on $[0,1]$ (i.e. $f(x)=g(x)=1$ for $x \in [0,1]$ and $0$ otherwise) what is $h$, the PDF of $Z=X+Y$? \\
+    $$h(z) = \int_{-\infty}^\infty f(x)g(z-x)dx = \int_0^1g(z-x)dx$$
+    Solutions are possible only for $0 \leq z-x \leq 1 \rightarrow z-1 \leq x \leq z$. So we have 3 cases:\\ First case: $0\leq z\leq 1$, $sa$:
+    $$h(z) = \int_0^zdx = z$$
+    Second case $1 < z \leq 2$: 
+    $$h(z) = \int_{z-1}^1dx = 2-z$$
+    and $h(z)=0$ otherwise. 
 \end{enumerate}
 
 A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian distributed with mean $\mu$ and variance $\sigma^2$. Given that for any $a,b \in \R$, we have that $Y = aX + b$ is also Gaussian, find $a,b$ such that $Y \sim \mathcal{N}(0,1)$.
@@ -112,17 +126,22 @@ A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian
 
 A.5 \points{2} For a random variable $Z$, its mean and variance are defined as $\E[Z]$ and $\E[(Z-\E[Z])^2]$, respectively. Let $X_1,\dots,X_n$ be independent and identically distributed random variables, each with mean $\mu$ and variance $\sigma^2$. If we define $\widehat{\mu}_n = \frac{1}{n} \sum_{i=1}^n X_i$, what is the mean and variance of $\sqrt{n}(\widehat{\mu}_n - \mu)$? \\
 
-The average value of many random i.i.d. variables that have the same mean $\mu$ is the mean $\mu$ itself. So :
-$$\hat\mu_n = \frac{1}{n}\sum X_i = \mu$$
-so:
-$$\sqrt{n}(\hat\mu_n - \mu) = 0$$
+The average value of many random i.i.d. variables that have the same mean $\mu$ is the mean $\mu$ itself. So:
+$$\hat\mu_n = \frac{1}{n}\sum X_i = \mu \rightarrow \sqrt{n}(\hat\mu_n - \mu) = 0$$
+In a little more details: 
+\begin{align*}
+\E[\sqrt{n}(\hat\mu_n - \mu)] &= \sqrt n \E\left[\hat\mu_n - \mu\right] \\
+&=\sqrt n \left(\E[\hat\mu_n] - \E[\mu]\right) = \sqrt n \left(\E\left[\frac{1}{n} \sum_{i=1}^n X_i\right] - \E[\mu]\right)\\
+&= \sqrt n \left(\frac{1}{n}\sum_{i=1}^n \E[X_i] - \mu\right) = \sqrt n \left(\frac{1}{n}n\mu - \mu\right) \\
+&= \sqrt n (\mu - \mu) = 0
+\end{align*}
 
 The variance of many i.i.d. rvs can be written as:
 \begin{align*}
     \text{Var}[\sqrt n \hat\mu_n - \sqrt n \mu] &= n\text{Var}[\hat\mu_n]+n\text{Var}[\mu] \\
     &= n \text{Var}[\hat\mu_n] = \frac{n\sigma^2}{n} = \sigma^2
 \end{align*}
-since $\text{Var}[aX]=a^2\text{Var}[X]$ and $\text{Var}[\mu]=0$ because all observed rvs have the same mean.\\
+since $\text{Var}[aX]=a^2\text{Var}[X]$ and $\text{Var}[\mu]=0$ because all observed rvs have the same exact mean.\\
 
 A.6 If $f(x)$ is a PDF, the cumulative distribution function (CDF) is  defined as $F(x) = \int_{-\infty}^x f(y) dy$.  For any function $g : \R \rightarrow \R$ and random variable $X$ with PDF $f(x)$, recall that the expected value of $g(X)$ is defined as $\E[g(X)] = \int_{-\infty}^\infty g(y) f(y) dy$. For a boolean event $A$, define $\1\{ A \}$ as $1$ if $A$ is true, and $0$ otherwise. Thus, $\1\{ x \leq a \}$ is $1$ whenever $x \leq a$ and
   $0$ whenever $x > a$.  Note that $F(x) = \E[\1\{X \leq x\}]$.  Let $X_1,\dots,X_n$ be \emph{independent and identically distributed} random variables with CDF $F(x)$.  Define $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{X_i \leq x\}$. Note, for every $x$, that $\widehat{F}_n(x)$ is an \emph{empirical estimate} of  $F(x)$. You may use your answers to the previous problem. 
