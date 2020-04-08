@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amsopn,bm}
+\usepackage[margin=.9in]{geometry}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+ 
+\lstset{language=Python, 
+        basicstyle=\ttfamily\tiny, 
+        keywordstyle=\color{keywords},
+        commentstyle=\color{comments},
+        stringstyle=\color{red},
+        showstringspaces=false}
+
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\E}{\mathbb{E}} 
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\field{R}} % real domain
+% \newcommand{\C}{\field{C}} % complex domain
+\newcommand{\F}{\field{F}} % functional domain
+\newcommand{\T}{^{\textrm T}} % transpose
+\def\diag{\text{diag}}
+
+%% operator in linear algebra, functional analysis
+\newcommand{\inner}[2]{#1\cdot #2}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\twonorm}[1]{\|#1\|_2^2}
+% operator in functios, maps such as M: domain1 --> domain 2
+\newcommand{\Map}[1]{\mathcal{#1}}
+\renewcommand{\theenumi}{\alph{enumi}} 
+
+\newcommand{\Perp}{\perp \! \! \! \perp}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\vct}[1]{\boldsymbol{#1}} % vector
+\newcommand{\mat}[1]{\boldsymbol{#1}} % matrix
+\newcommand{\cst}[1]{\mathsf{#1}} % constant
+\newcommand{\ProbOpr}[1]{\mathbb{#1}}
+\newcommand{\points}[1]{\small\textcolor{magenta}{\emph{[#1 points]}} \normalsize}
+\date{{}}
+
+\setlength\parindent{0px}
+
+\begin{document}
+\title{Homework \#0 B}
+\author{\normalsize{Spring 2020, CSE 446/546: Machine Learning}\\
+\normalsize{Dino Bektesevic}}
+\maketitle
+
+Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
+
+\section*{Probability and Statistics}
+B.1  \points{1} Let $X_1,\dots,X_n$ be $n$ independent and identically distributed random variables drawn uniformly at random from $[0,1]$. If $Y = \max\{X_1,\dots,X_n\}$ then find $\E[Y]$.\\
+
+\section*{Linear Algebra and Vector Calculus}
+B.2 \points{1} The \textit{trace} of a matrix is the sum of the diagonal entries; $Tr(A) = \sum_i A_{ii}$. If $A\in\mathbb{R}^{n\times m}$ and $B\in\mathbb{R}^{m\times n}$, show that $Tr(AB) = Tr(BA)$.\\
+It can be shown in general that trace is invariant under cyclic permutations, which for case of n=2 looks like commutation:
+$$\text{tr}(AB)=\sum_i^m (ab)_{ii} = \sum_{i=1}^m\sum_{j=1}^n a_{ij}b_{ji}= \sum_{j=1}^n\sum_{i=1}^m b_{ji}a_{ij} = \sum_i^n (ab)_{jj} = \text{tr}(BA)$$
+using the fact that product of $n\times m$ and $m\times n$ matrix is an $m\times m$ matrix and that the trace of a square matrix can be rewritten as:
+$$\text{tr}(A^TB)=\sum_{i,j}A_{ij}B_{ij}$$
+as per Wikipedia.\\
+
+B.3 \points{1} Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d$. Let $V = [v_1,\dots,v_n]$ be the vectors concatenated. 
+    \begin{enumerate}
+        \item What is the minimum and maximum rank of $\sum_{i=1}^n v_i v_i^T$? \\
+        Vector $v$ is a column vector with n rows. Transpose of vector $v$ will have n columns and 1 row. The matrix resulting from matrix multiplication has the number of rows of the first and the number of columns of the second matrix, i.e. it will be an $(n, n)$ square matrix. Basis of an $\mathbb{R}^d$ is spanned by $d$ linearly independent vectors. So the maximum rank of a matrix will be d when $n\geq d$. Otherwise the maximal rank of the sum is $n$ when $0<n<d$. If all vectors are the same unit vectors then the minimum rank could be 1. 
+        \item What is the minimum and maximum rank of $V$? \\
+        Same as above with the additional comment that minimal rank of a matrix would be 0 in case of a zero matrix, but since the vectors $v$ must be non-zero the minimal rank of V would again be 1 in the case all $v$ are unit vectors, or if all given vectors are linearly dependent.
+        \item Let $A \in \mathbb{R}^{D \times d}$ for $D > d$. What is the minimum and maximum rank of $\sum_{i=1}^n (A v_i) (A v_i)^T$?
+        \item What is the minimum and maximum rank of $AV$? What if $V$ is rank $d$?
+    \end{enumerate}
+\end{document}
