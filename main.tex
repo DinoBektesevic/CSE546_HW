@@ -7,6 +7,7 @@
 \usepackage{fancyhdr}
 \usepackage{multirow}
 \usepackage{listings}
+\usepackage{hyperref}
 
 \definecolor{keywords}{RGB}{255,0,90}
 \definecolor{comments}{RGB}{0,0,113}
@@ -57,6 +58,7 @@
 \normalsize{Dino Bektesevic}}
 \maketitle
 
+Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
 
 \section*{Probability and Statistics}
 A.1 \points{2} (Bayes Rule, from Murphy exercise 2.4.) After your yearly checkup, the doctor has bad news and good news. The bad news is that you tested positive for a serious disease, and that the test is 99\% accurate (i.e., the probability of testing positive given that you have the disease is 0.99, as is the probability of testing negative given that you don't have the disease). The good news is that this is a rare disease, striking only one in 10,000 people. What are the chances that you actually have the disease? (Show your calculations as well as giving the final result.)\\
@@ -98,13 +100,20 @@ A.2 For any two random variables $X,Y$ the \emph{covariance} is defined as $\tex
 A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $g$, respectively. Let $h$ be the PDF of the random variable $Z = X+Y$.
 \begin{enumerate}
 	\item \points{2} Show that $h(z) = \int_{-\infty}^\infty f(x) g( z - x ) d x $.  (If you are more comfortable with discrete probabilities, you can instead derive an analogous expression for the discrete case,  and then you should give a one sentence explanation as to why your expression is analogous to the continuous case.). \\
-	Random variables are independent when $p(x,y) = f(x)g(y)$. Since $X$ and $Y$ are independent and $Z=X+Y$ the domain of Z is given as a union of the domains of $X$ and $Y$, i.e. in terms of values of rvs $z=x+y$. Picking a particular $z$ and $x$ limits, by the law of total probability, the allowable values event $y$ can take. This can be expressed as the constraint $z=x+y \rightarrow y=z-x \rightarrow x=z-y$. So given a joint probability: 
-	$$p(Z=z) = \int_{-\infty}^\infty\int_{-\infty}^{z-x} p(x,y)dxdy$$
-	and given that $X$ and $Y$ are independent: 
-	$$p(Z=z) = \int_{x\in X} f(x)g(z-x)dx = \int_{y\in Y} f(z-y)g(y)dy$$
-	If we then further define $f(x)=0; x\not\in X$:
-	$$p(Z=z) =  \int_{-\infty}^\infty f(x)g(z-x)dx $$
-	This is exactly the definition of convolution $(f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau$
+	Random variables are independent when $p(x,y) = f(x)g(y)$. Since $X$ and $Y$ are independent and $Z=X+Y$ the domain of Z is given as a union of the domains of $X$ and $Y$, i.e. in terms of values of rvs $z=x+y$. Picking a particular $z$ and $x$ limits, by the law of total probability, the allowable values event $y$ can take. This can be expressed as the constraint $z=x+y \rightarrow y=z-x \rightarrow x=z-y$.Starting from the definition of cumulative distribution function: 
+	$$C_H(z) = p(X+Y\leq z) = \int p(z')dz'$$
+	writing the $p(z')$ in terms of above stated conditions we can write:
+	\begin{align*}
+	    C_H(z) &= \int p(X+Y\leq z)|Y=y)g(y)dy = \int p(X+Y\leq z)|X=x)f(x)dx \\
+	    C_H(z) &= \int p(X\leq z-y)|Y=y)g(y)dy 
+	\end{align*}
+	where both expressions are equivalent but we focus on just one for brevity. We recognize the expression inside the integral as another CDF. We also know that the PDF can be retrieved from a CDF via derivation:
+	\begin{align*}
+	    h(z) = \frac{d}{dz}\int C_X(z-y)g(y)dy \\
+	    h(z) = \int \frac{dC_X(z-y)}{dz}g(y)dy \\
+	    h(z) = \int f(z-y)g(y)dy = \int f(z-x)g(x)dx
+	\end{align*}
+    The integral bounds are over the domain of $X$ or $Y$ (depending over which variable did the marginalization happen) but can be written in terms of infinity if we further define $f(y)=0; x\not\in Y$ and vice-versa for $X$. With that change we see that this is exactly the definition of convolution $(f*g)(t) \triangleq \int_{-\infty}^\infty f(\tau)g(t-\tau)d\tau$ as per Wikipedia. 
 
 	\item \points{1} If $X$ and $Y$ are both independent and uniformly distributed on $[0,1]$ (i.e. $f(x)=g(x)=1$ for $x \in [0,1]$ and $0$ otherwise) what is $h$, the PDF of $Z=X+Y$? \\
     $$h(z) = \int_{-\infty}^\infty f(x)g(z-x)dx = \int_0^1g(z-x)dx$$
@@ -400,9 +409,9 @@ as per Wikipedia.\\
 B.3 \points{1} Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d$. Let $V = [v_1,\dots,v_n]$ be the vectors concatenated. 
     \begin{enumerate}
         \item What is the minimum and maximum rank of $\sum_{i=1}^n v_i v_i^T$? \\
-        Basis of an $\mathbb{R}^d$ is spanned by $d$ linearly independent vectors. So the maximum rank of a matrix will be d. Minimal rank of a matrix would always be 0 in case of a zero matrix, but since the vectors $v$ must be non-zero the minimal rank of V would be 1 in the case all $v$ are the same unit vectors. 
+        Vector $v$ is a column vector with n rows. Transpose of vector $v$ will have n columns and 1 row. The matrix resulting from matrix multiplication has the number of rows of the first and the number of columns of the second matrix, i.e. it will be an $(n, n)$ square matrix. Basis of an $\mathbb{R}^d$ is spanned by $d$ linearly independent vectors. So the maximum rank of a matrix will be d when $n\geq d$. Otherwise the maximal rank of the sum is $n$ when $0<n<d$. If all vectors are the same unit vectors then the minimum rank could be 1. 
         \item What is the minimum and maximum rank of $V$? \\
-        Same as a) (are these supposed to be like trick questions?)
+        Same as above with the additional comment that minimal rank of a matrix would be 0 in case of a zero matrix, but since the vectors $v$ must be non-zero the minimal rank of V would again be 1 in the case all $v$ are unit vectors, or if all given vectors are linearly dependent.
         \item Let $A \in \mathbb{R}^{D \times d}$ for $D > d$. What is the minimum and maximum rank of $\sum_{i=1}^n (A v_i) (A v_i)^T$?
         \item What is the minimum and maximum rank of $AV$? What if $V$ is rank $d$?
     \end{enumerate}
@@ -424,18 +433,35 @@ A.11 For the $A, b, c$ as defined in Problem 8, use
 A.12 \points{4} Two random variables $X$ and $Y$ have equal distributions if their CDFs, $F_X$ and $F_Y$, respectively, are equal, i.e. for all $x$, $ |F_X(x) - F_Y(x)| = 0$. The central limit theorem says that the sum of $k$ independent, zero-mean, variance-$1/k$ random variables converges to a (standard) Normal distribution as $k$ goes off to infinity. We will study this phenomenon empirically (you will use the Python packages Numpy and Matplotlib). Define $Y^{(k)} = \frac{1}{\sqrt{k}} \sum_{i=1}^k B_i$ where each $B_i$ is equal to $-1$ and $1$ with equal probability. From your solution to problem 5, we know that $\frac{1}{\sqrt{k}} B_i$ is zero-mean and has variance $1/k$.
 
 \begin{enumerate}
-\item For $i=1,\dots,n$ let $Z_i \sim \mathcal{N}(0,1)$. If $F(x)$ is the true CDF from which each $Z_i$ is drawn (i.e., Gaussian) and $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{ Z_i \leq x)$, use the answer to problem 1.5 above to choose$n$ large enough such that, for all $x \in \R$, $ \sqrt{\E[(\widehat{F}_n(x)-F(x))^2 ]} \leq 0.0025$, and plot $\widehat{F}_n(x)$ from $-3$ to $3$. \\(Hint: use \texttt{Z=numpy.random.randn(n)} to generate the random variables, and \texttt{import matplotlib.pyplot as plt}; \texttt{plt.step(sorted(Z), np.arange(1,n+1)/float(n))} to plot). 
+\item For $i=1,\dots,n$ let $Z_i \sim \mathcal{N}(0,1)$. If $F(x)$ is the true CDF from which each $Z_i$ is drawn (i.e., Gaussian) and $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{ Z_i \leq x)$, use the answer to problem 1.5 above to choose$n$ large enough such that, for all $x \in \R$, $ \sqrt{\E[(\widehat{F}_n(x)-F(x))^2 ]} \leq 0.0025$, and plot $\widehat{F}_n(x)$ from $-3$ to $3$. \\(Hint: use \texttt{Z=numpy.random.randn(n)} to generate the random variables, and \texttt{import matplotlib.pyplot as plt}; \texttt{plt.step(sorted(Z), np.arange(1,n+1)/float(n))} to plot). \\
+From problem A6 we have $\text{Var}\widehat F_n(x) = (4n)^{-1}$ so plugging in the value $0.0025$ given in the problem we have $n=(0.0025*4)^{-1}=100$ so just to be on the very safe side lets sample several tens of thousand times. 
     \begin{center}
     \includegraphics[width=4in]{HW0_plots/cumdist1.png}
     \end{center} 
-    	\begin{lstlisting}[language=Python]
+    \begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
 
-n = 20000
-Z = np.sign(np.random.randn(n))
-plt.step(sorted(Z), np.arange(1, n + 1) / float(n))
+def Fn(Z, x=1.0):
+    """Calculates the empirical estimate of the
+    CDF F(x) by counting the number of occurences
+    of random variable Z up to the limit x. 
+    
+    Parameters
+    ----------
+    Z : `array`
+        An array of samples of random variable Z
+    x : `float`
+        Limit to which the empirical estimate is calculated.
+    """
+    return np.sum(Z<=x)/len(Z)
 
+n = 20000
+Z = np.random.randn(n)
+x = np.arange(-3, 3, 0.01)
+fn = [Fn(Z, _x) for _x in x]
+
+plt.step(x, fn)
 plt.xlim(-3, 3)
 plt.xlabel("Observations")
 plt.ylabel("Probability")
