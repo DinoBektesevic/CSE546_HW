@@ -109,9 +109,9 @@ A.3 Let $X$ and $Y$ be independent random variables with PDFs given by $f$ and $
 	\end{align*}
 	where both expressions are equivalent but we focus on just one for brevity. We recognize the expression inside the integral as another CDF. We also know that the PDF can be retrieved from a CDF via derivation:
 	\begin{align*}
-	    h(z) = \frac{d}{dz}\int C_X(z-y)g(y)dy \\
-	    h(z) = \int \frac{dC_X(z-y)}{dz}g(y)dy \\
-	    h(z) = \int f(z-y)g(y)dy = \int f(z-x)g(x)dx
+	    h(z) &= \frac{d}{dz}\int C_X(z-y)g(y)dy \\
+	    h(z) &= \int \frac{dC_X(z-y)}{dz}g(y)dy \\
+	    h(z) &= \int f(z-y)g(y)dy = \int f(z-x)g(x)dx
 	\end{align*}
     The integral bounds are over the domain of $X$ or $Y$ (depending over which variable did the marginalization happen) but can be written in terms of infinity if we further define $f(y)=0; x\not\in Y$ and vice-versa for $X$. With that change we see that this is exactly the definition of convolution $(f*g)(t) \triangleq \int_{-\infty}^\infty f(\tau)g(t-\tau)d\tau$ as per Wikipedia. 
 
@@ -140,7 +140,7 @@ A.4 \points{1} A random variable $X \sim \mathcal{N}(\mu, \sigma^2)$ is Gaussian
     a^2\sigma^2 &= 1\\
     a &= 1/\sigma\\
     b &= - \mu/\sigma\\
-\end{align*}\\
+\end{align*}
 
 A.5 \points{2} For a random variable $Z$, its mean and variance are defined as $\E[Z]$ and $\E[(Z-\E[Z])^2]$, respectively. Let $X_1,\dots,X_n$ be independent and identically distributed random variables, each with mean $\mu$ and variance $\sigma^2$. If we define $\widehat{\mu}_n = \frac{1}{n} \sum_{i=1}^n X_i$, what is the mean and variance of $\sqrt{n}(\widehat{\mu}_n - \mu)$? \\
 
@@ -221,16 +221,16 @@ For each matrix $A$ and $B$,
 	
 	\item \points{2} what is a (minimal size) basis for its column span? \\
 	
-	Two columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^2$ stretched by the set of column vectors: 
+	Two columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^2$ stretched by the set of column vectors (1st and 3rd): 
 	
-	$$\Bigl\{   \begin{bmatrix} 1 \\ 2 \\ 1\end{bmatrix}, \begin{bmatrix} 0 \\ -1 \\ 1\end{bmatrix} \Bigr\}$$
+	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 1 \\ 3 \\ 2\end{bmatrix} \Bigr\}$$
 	
 	Only two columns of matrix $B$ are linearly independent. Starting from the note in previous problem:
 	
-	 $$A \equiv \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix}$$
+	 $$B \equiv \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix} \equiv $$
 	 
-	from which we see that first column can be written as $c_1=c_3-c_2$. So the basis of the image space is a subset of $\mathbb R^2$ stretched by column vectors:
-	$$\Bigl\{   \begin{bmatrix} 1 \\ 0 \\ 0\end{bmatrix}, \begin{bmatrix} 1 \\ 1 \\ 0\end{bmatrix}  \Bigr\}$$
+	from which we see that third column can be written as $c_3=c_1+c_2$. So the basis of the image space is a subset of $\mathbb R^2$ stretched by 1st and 2nd column vectors:
+	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 2 \\ 0 \\ 1\end{bmatrix}  \Bigr\}$$
 \end{enumerate}
 
 \newpage
