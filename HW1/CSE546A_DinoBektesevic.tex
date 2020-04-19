@@ -1,0 +1,510 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amsopn,bm}
+\usepackage[margin=.9in]{geometry}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+ 
+\lstset{language=Python, 
+        basicstyle=\ttfamily\tiny, 
+        keywordstyle=\color{keywords},
+        commentstyle=\color{comments},
+        stringstyle=\color{red},
+        showstringspaces=false}
+
+\newcommand{\argmax}{\arg\!\max}
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\E}{\mathbb{E}} 
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\field{R}} % real domain
+% \newcommand{\C}{\field{C}} % complex domain
+\newcommand{\F}{\field{F}} % functional domain
+\newcommand{\T}{^{\textrm T}} % transpose
+\def\diag{\text{diag}}
+
+%% operator in linear algebra, functional analysis
+\newcommand{\inner}[2]{#1\cdot #2}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\twonorm}[1]{\|#1\|_2^2}
+% operator in functios, maps such as M: domain1 --> domain 2
+\newcommand{\Map}[1]{\mathcal{#1}}
+\renewcommand{\theenumi}{\alph{enumi}} 
+
+
+\newcommand{\Perp}{\perp \! \! \! \perp}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\vct}[1]{\boldsymbol{#1}} % vector
+\newcommand{\mat}[1]{\boldsymbol{#1}} % matrix
+\newcommand{\cst}[1]{\mathsf{#1}} % constant
+\newcommand{\ProbOpr}[1]{\mathbb{#1}}
+\newcommand{\points}[1]{\small\textcolor{magenta}{\emph{[#1 points]}} \normalsize}
+\date{{}}
+
+\setlength\parindent{0px}
+
+\begin{document}
+\title{Homework \#1 A}
+\author{\normalsize{Spring 2020, CSE 446/546: Machine Learning}\\
+\normalsize{Dino Bektesevic}}
+\maketitle
+
+Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
+
+\section*{Short Answer and “True or False” Conceptual questions}
+A.0 The answers to these questions should be answerable without referring to external materials.
+\begin{enumerate}
+    \item \points{2} In your own words, describe what bias and variance are? What is bias-variance tradeoff? \newline
+    Bias is the error we incur by assuming a model, since models don't necessarily describe the underlying truth they will attempt to "rephrase" it in terms of assumptions and/or approximations made in the model itself. Variance is the error that comes about due to the spread in our data. At a fine enough level all processes will have some amount of variance. Fitting a model to that data will produce an estimator of measured dataset. Remeasuring and refitting a model might produce a slightly, or significantly, different estimator due to the variance between measured data points. That slight difference in expected estimator is the model variance. \newline
+    The more complex the model we use the more of intricate details of the underlying truth it can capture. This leads to low bias but also opens the doors to high variance if the measured dataset varies a lot between measurements. On the other hand, having a simple model might reduce the complexity and be able to better ignore the variance in the data but once fitted might not correspond with the truth. The inability to chose arbitrarily complex model without having the variance explode or, vice-versa, choosing arbitrarily simple model while not having bias explode is called bias-variance trade-off.
+
+    \item \points{2} What happens to bias and variance when the model complexity increases/decreases? \newline
+    See above. Bias tends to reduce with model complexity but variance tends to increase. 
+
+    \item\points{1} True or False:  The bias of a model increases as the amount of training data available increases.\newline
+    False. Bias is related to underlying inability of a model to describe the truth. That statement holds irregardless of the amount of data we have. The fit gets better because the variance of the model will reduce the more data we have to train on.
+
+    \item\points{1} True  or  False:  The  variance  of  a  model  decreases  as  the  amount  of  training  data  available increases.\newline
+    True. See above, variance decreases.
+
+    \item\points{1} True or False:  A learning algorithm will generalize better if we use less features to represent our data.\newline
+    T/F. Generalize with respect to what? Modelling broken spaghetti length that correctly predicts atmospheric pressure over Antarctica for 2 months of 2020 is general but not useful. 
+
+    \item\points{2} To get better generalization, should we use the train set or the test set to tune our hyperparameters?\newline
+    Always generalize on the test set. We're told it's a fact of life and I don't want to get yelled at by the professors.
+
+    \item\points{1} True or False:  The training error of a function on the training set provides an overestimate of the true error of that function. \newline
+    False. Training error will always be less than the test error. True error is estimated on test data set, not on the training data set.
+\end{enumerate}
+
+
+
+
+
+\newpage
+\section*{Maximum Likelihood Estimation (MLE)}
+
+A.1.  You’re a Reign FC fan, and the team is five games into its 2018 season. The number of goals scored by the team in each game so far are: $[2,0,1,1,2]$. Let’s call these scores $x_1,...,x5$.  Based on your (assumed iid) data, you’d like to build a model to understand how many goals the Reign are likely to score in their next game. You decide to model the number of goals scored per game using a Poisson  distribution. The Poisson distribution with parameter $\lambda$ assigns every non-negative integer $x=0,1,2,...$ a probability given by
+
+$$P(x|\lambda)=\frac{\lambda^x}{x!}e^{-\lambda}$$
+
+So, for example, if $\lambda=1.5$, then the probability that the Reign score 2 goals in their next game is $e^{-1.5}\cdot1.522!\approx0.25$. To check your understanding of the Poisson, make sure you have a sense of whether raising $\lambda$ will mean more goals in general, or fewer. 
+\begin{enumerate}
+	\item \points{5} Derive an expression for the maximum-likelihood estimate of the parameter $\lambda$ governing the Poisson distribution, in terms of your goal counts $x_1,...,x_5$. (Hint: remember that the log of the likelihood has the same maximum as the likelihood function itself.) \newline
+	\begin{align*}
+	    \widehat \lambda_{MLE} &= \argmax_\lambda L_n(\lambda) = \argmax_\lambda \prod_{i=1}^n P(x_i|\lambda) \\
+	    &= \argmax_\lambda\prod_{i=1}^n \frac{\lambda^{x_i}}{x_i!}e^\lambda = \argmax_\lambda\sum_{i=1}^n \ln{\frac{\lambda^{x_i}}{x_i!}e^\lambda} \\
+	    &= \argmax_\lambda\sum_{i=1}^n \left[\ln\lambda^{x_i} - \ln\frac{1}{x_i!} - \ln e^\lambda\right] \\
+	    &= \argmax_\lambda\sum_{i=1}^n \left[x_i\ln\lambda + \ln x_i! - \lambda\right] \\
+	    &= \argmax_\lambda \left[\ln\lambda\sum_{i=1}^n x_i + \sum_{i=1}^n\ln x_i! - n\lambda\right]
+	\end{align*}
+	Finding the $\argmax_\lambda$ 
+	\begin{align*}
+	    0 &= \frac{d}{d\lambda} \left[\ln\lambda\sum_{i=1}^n x_i + \sum_{i=1}^n\ln x_i! - n\lambda\right] \\
+	    0 &= \frac{1}{\lambda}\sum_{i=1}^n x_i + 0 + n \\
+	    \lambda &= \frac{1}{n}\sum_{i=1}^n x_i = \bar X = \frac{2+0+1+1+2}{5} = 1.2 \\
+	    &\rightarrow P(x|\lambda=1.2)=\frac{1.2^x}{x!}e^{-1.2}
+	\end{align*}
+	
+	\item \points{5} Suppose the team scores 4 goals in its sixth game.  Derive the same expression for the estimate of the parameter $\lambda$ as in the prior example, now using the 6 games $x_1,...,x_5,x_6=4$. \newline
+	See above, lambda will be the average of $X$, so $\widehat \lambda_{MLE}=2$.
+	
+	\item\points{5} Given the goal counts, please give numerical estimates of $\lambda$ after 5 and 6 games. \\
+	See above, 1.2 and 2 respectively.
+\end{enumerate}
+
+
+\newpage
+A.2.\points{10} In  World  War  2,  the  Allies  attempted  to  estimate  the  total  number  of  tanks  the  Germans had manufactured by looking at the serial numbers of the German tanks they had destroyed.  The idea was that if there were $n$ total tanks with serial numbers ${1,...,n}$ then its reasonable to expect the observed serial numbers of the destroyed tanks constituted a uniform random sample (without replacement) from this set. The exact maximum likelihood estimator for this so-called German tank problem is non-trivial and quite challenging to work out (try it!). For our homework, we will consider a much easier problem with a similar flavor. Let $x_1,...,x_n$ be independent, uniformly distributed on the continuous domain $[0,\theta]$ for some $\theta$.  What is the Maximum likelihood estimate for $\theta$ \\
+Repeat A.1. but with the following PDF: 
+
+$$ P(X|\theta) = \begin{cases} 
+\frac{1}{x_n-x_1} &\mbox{for } x_1 \leq x_i \leq x_n \\ 
+0 &\mbox{otherwise}
+\end{cases}$$
+
+in which we can substitute given information $x_1=0$ and $x_n=\theta$ and rewrite
+
+\begin{align*}
+P(X|\theta) &= \begin{cases} 
+        \frac{1}{\theta} &\mbox{for } 0 \leq x_i \leq \theta \\ 
+        0 &\mbox{otherwise}
+    \end{cases}\\
+& = \frac{1}{\theta} \1 \{ x \in [0,\theta] \}
+\end{align*}
+
+Likelihood and log-likelihood are given by:
+
+\begin{align*}
+L_n(X|\theta) &= \prod_{i=1}^n\frac{1}{\theta} \1 \{ x \in [0,\theta] \} \\
+&=\frac{1}{\theta^n} \\
+l_n(X|\theta) &= \ln L_n(X|\theta) = -n\ln\theta
+\end{align*}
+
+since normalization is given by $\theta$. MLE is then found by
+
+\begin{align*}
+\widehat\theta_{MLE} &= \argmax_\theta l_n(X|\theta) = \argmax_\theta -n\ln\theta \\
+0 &= \frac{d}{d\theta}(-n\ln\theta) = \frac{-n}{\theta} \\
+\theta &= -n
+\end{align*}
+
+Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}-l_n  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at $\theta_{MLE}=max(x_i \leq \theta)$. 
+
+
+\newpage
+A.3.  Suppose we have $N$ labeled samples $S={(x_i,y_i)}^N_{i=1}$ drawn i.i.d. from an underlying distribution D. Suppose we decide to break this set into a set $S_\text{train}$ of size $N_\text{train}$ and a set $S_\text{test}$ of size $N_\text{test}$ samples for our training and test set, so $N = N_{\text{train}} + N_{\text{test}}$, and $S = S_{\text{train}} \cup S_{\text{test}}$.  Recall the definition of the true least squares error off:
+
+$$(f) =E_{(x,y)\approx D}[(f(x)-y)2]$$
+
+where the subscript $(x,y)\approx D$ makes clear that our input-output pairs are sampled according to $D$. Our training and test losses are defined as: 
+
+$$\widehat\epsilon_{\text{train}}(f) = \frac{1}{N_\text{train}}\sum_{(x,y)\in S_\text{train}}(f(x)-y)^2$$
+$$\widehat\epsilon_{\text{test}}(f) = \frac{1}{N_\text{test}}\sum_{(x,y)\in S_\text{test}}(f(x)-y)^2$$
+
+We then train our algorithm (for example, using linear least squares regression) using the training set to obtain $\hat f$
+
+\begin{enumerate}
+    \item \points{3} (bias: the test error) For all fixed $f$ (before we’ve seen any data) show that 
+    
+    $$\E_{\text{train}}[\widehat\epsilon_{\text{train}}(f)] = \E_{\text{test}}[\widehat\epsilon_\text{test}(f)] =\epsilon(f)$$
+    
+    Use a similar line of reasoning to show that the test error is an unbiased estimate of our true error for $\hat f$. Specifically, show that: 
+    
+    $$\E_\text{test}[\widehat\epsilon_\text{test}(\hat f) = \widehat\epsilon(\hat f)$$
+    
+    \item\points{4} (bias: the train/dev error) Is the above equation true (in general) with regards to the training loss? Specifically, does $\E_\text{train}[\widehat\epsilon_\text{train}(\hat f)] = \E_\text{train}[\epsilon(\hat f)]$? If so, why? If not, give a clear argument as to where your previous argument breaks down.
+    
+    \item\points{8} Let $F = (f_1, f_2,...)$ be a collection of functions and $\hat f_\text{train}$ minimize the training error such that $\widehat\epsilon_\text{train}(\hat f_\text{train}) \leq \widehat\epsilon_\text{train}(f)\,\forall\,f \in F$. Show that 
+    
+    $$\E_\text{train}[\widehat\epsilon_\text{train}(\hat f_\text{train})] \leq \E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})]$$
+    
+    (Hint:  note that
+    \begin{align*}
+        E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})] =& \\
+        &= \sum f \in F \E_\text{train,test}[\widehat\epsilon_\text{test}(f)\1{\hat f_\text{train}=f}] \\
+        &= \sum f \in F \E_\text{test}[\widehat\epsilon_\text{test}(f)]\E_\text{train}[\1{\hat f_\text{train}=f}] \\ 
+        &= \sum f \in F \E_\text{test}[\widehat\epsilon_\text{test}(f)] \P_\text{train}(\hat f_\text{train}=f)
+    \end{align*}
+    where the second equality follows from the independence between the train and test set.)
+\end{enumerate}
+
+\newpage
+\section*{Polynomial Regression}
+
+A.4 \points{10} Recall that polynomial regression learns a function $h_\theta(x) =\theta_0 + \theta_1x + \theta_2x^2 + \hdots +\theta_dx^d$. In this case, $d$ represents the polynomial’s degree. We can equivalently write this in the form of a linear model
+
+$$h_\theta(x) =\theta_0\phi_0(x) + \theta_1\phi_1(x) + \theta_2\phi_2(x) + \hdots +\theta_d\phi_d(x).$$
+
+using the basis expansion that $\phi_j(x) =x^j$. Notice that, with this basis expansion, we obtain a linear model where the features are various powers of the single univariate $x$. We’re still solving a linear regression problem,but are fitting a polynomial function of the input. Implement regularized polynomial regression in polyreg.py. You may implement it however you like, using gradient descent or a closed-form solution. However, I would recommend the closed-form solution since the datasets are small; for this reason, we’ve included an example closed-form implementation of linear regression inlin regclosedform.py (you are welcome to build upon this implementation, but make CERTAIN you under-stand it, since you’ll need to change several lines of it). You are also welcome to build upon your implementation from the previous assignment, but you must follow the API below. Note that all matrices are actually 2D numpy arrays in the implementation.
+
+\begin{enumerate}
+    \item init(degree=1, regLambda=1E-8):  constructor with arguments of $d$ and $\lambda$
+    \item fit(X,Y): method to train the polynomial regression model
+    \item predict(X): method to use the trained polynomial regression model for prediction
+    \item polyfeatures(X, degree): expands the given $n\times1$ matrix $X$ into an $n\times d$ matrix of polynomial features of degree $d$. Note that the returned matrix will not include the zero-th power. Note that the polyfeatures(X, degree) function maps the original univariate data into its higher order powers. Specifically, $X$ will be an $n\time1$ matrix $(X\in\R_n\times1$ and this function will return the polynomial expansion of this data,  a $n\times d$ matrix. Note that this function will not add in the zero-th order feature (i.e., $x_0= 1$). You should add the $x_0$ feature separately, outside of this function, before training the model. By not including the $x_0$ column in the matrix polyfeatures(), this allows the polyfeatures function to be more general, so it could be applied to multi-variate data as well. (If it did add the $x_0$ feature, we’d end up with multiple columns of 1’s for multivariate data.) Also, notice that the resulting features will be badly scaled if we use them in raw form. For example, with a polynomial of degree $d=8$ and $x=20$, the basis expansion yields $x1=20$ while $x_8=2.56\cdot10^{10}$ an absolutely huge difference in range. Consequently, we will need to standardize the data before solving linear regression. Standardize the data in fit() after you perform the polynomial feature expansion. You’ll need to apply the same standardization transformation in predict() before you apply it to new data.
+\end{enumerate}
+Run testpolyregunivariate.py to test your implementation, which will plot the learned function. In this case, the script fits a polynomial of degree $d=8$ with no regularization $\lambda=0$. From the plot, we see that the function fits the data well, but will not generalize well to new data points. Try increasing the amount of regularization, and examine the resulting effect on the function. 
+
+
+
+
+\newpage
+\section*{Linear Algebra and Vector Calculus}
+A.7 (Rank) Let $A = \begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix}$ and $B = \begin{bmatrix} 1 & 2 & 3 \\ 1 & 0 & 1 \\ 1 & 1 & 2 \end{bmatrix}$.
+For each matrix $A$ and $B$,
+\begin{enumerate} 
+	\item \points{2} what is its rank?  \\
+	
+	Rank is just the number of linearly independent columns of the matrix:
+	$$rank(A) = 2$$
+	$$rank(B) = 2$$
+	For the $B$ matrix if we take away the last row from the first we are left with $[0,1, 1]$ and if we take away second row from the last we are left again with $[0, 1, 1]$ so at least one of the rows is not linearly independent from the remaining two. For matrix $A$ it's a bit harder to spot so we write:
+	\begin{align*}
+	\begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix} \equiv 
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -2 & 2 \\ 1 & 1 & 2\end{bmatrix} \equiv
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & -1 & 1\end{bmatrix} \equiv
+	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & 0 & 0\end{bmatrix}
+	\end{align*}
+	where we nullify the first column using first row, then divide second row by 2 and take away from the third.
+	
+	\item \points{2} what is a (minimal size) basis for its column span? \\
+	
+	Two columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^2$ stretched by the set of column vectors (1st and 3rd): 
+	
+	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 1 \\ 3 \\ 2\end{bmatrix} \Bigr\}$$
+	
+	Only two columns of matrix $B$ are linearly independent. Starting from the note in previous problem:
+	
+	 $$B \equiv \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix} \equiv $$
+	 
+	from which we see that third column can be written as $c_3=c_1+c_2$. So the basis of the image space is a subset of $\mathbb R^2$ stretched by 1st and 2nd column vectors:
+	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 2 \\ 0 \\ 1\end{bmatrix}  \Bigr\}$$
+\end{enumerate}
+
+\newpage
+A.8 (Linear equations) Let $A = \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix}$, $b = \begin{bmatrix} -2 & -2 & -4 \end{bmatrix}^T$, and $c=\begin{bmatrix} 1 & 1 & 1 \end{bmatrix}^T$.
+\begin{enumerate}
+	\item \points{1} What is $Ac$? \\ It's a matrix multiplication operation!
+	\begin{align*}
+	    \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2+4 \\ 2+4+2 \\ 3+3+1 \end{bmatrix} = \begin{bmatrix} 6 \\ 8 \\ 7 \end{bmatrix}
+	\end{align*}
+	\item \points{2} What is the solution to the linear system $Ax = b$? (Show your work). \\
+	Sequence of operations is as follows: 
+	\begin{enumerate}
+	    \item switch first and second row and divide first row by 2 (sets (1,1) to 1) and zero out first column,
+	    \item divide second row by two and zero out second column, 
+	    \item divide 3rd row by 4 and zero out 3rd column.
+	\end{enumerate}
+	\begin{align*}
+	    \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} &= \begin{bmatrix} -2 \\ -2 \\ -4 \end{bmatrix} \\
+	    \left[\begin{array}{ccc|c} 
+	    0 & 2 & 4 & -2 \\ 2 & 4 & 2 & -2 \\ 3 & 3 & 1 & -4 \\
+	    \end{array} \right] &\equiv 
+	    \left[\begin{array}{ccc|c} 
+	    1 & 2 & 1 & -2 \\ 0 & 2 & 4 & -2 \\ 0 & -3 & -2 & -1 \\
+	    \end{array} \right] \equiv \\
+	    \left[\begin{array}{ccc|c} 
+	    1 & 0 & 1 & -3 \\ 0 & 1 & 2 & -1 \\ 0 & 0 & 4 & -4 \\
+	    \end{array} \right] &\equiv
+	    \left[\begin{array}{ccc|c} 
+	    1 & 0 & 0 & -2 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 1 & -1 \\
+	    \end{array} \right] 
+	    \rightarrow x = \begin{bmatrix} -2 \\ 1 \\ -1 \end{bmatrix}
+	\end{align*}
+\end{enumerate}
+
+\newpage
+A.9 (Hyperplanes) Assume $w$ is an $n$-dimensional vector and $b$ is a scalar. A hyperplane in $\R^n$ is the set $\{x : x\in \R^n,\text{ s.t. } w^T x + b = 0\}$.
+\begin{enumerate}
+	\item \points{1} ($n=2$ example) Draw the hyperplane for $w=[-1,2]^T$, $b=2$? Label your axes. \\
+	Effectively this gives us an equation of a line $-x_1+2x_2 + 2 = 0$ or $x_1 = 2x_2+2$. Plot line using following Python code:
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/hyperplane.png}
+    \end{center} 
+    \begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+import numpy as np
+x2 = np.arange(-10, 10, 1)
+x1 = 2*x2+2
+plt.plot(x1, x2)
+plt.xlabel("x2")
+plt.ylabel("x1")
+plt.grid()
+    \end{lstlisting}
+
+	\item \points{1} ($n=3$ example) Draw the hyperplane for $w=[1,1,1]^T$, $b=0$? Label your axes. \\
+	Following the same principles above $x+y+z=0 \rightarrow z=-x-y$ we have:
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/hyperplaneB.png}
+    \end{center}
+    \begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+import numpy as np
+
+x2 = np.arange(-10, 10, 1)
+x3 = np.arange(-10, 10, 1)
+X2, X3 = np.meshgrid(x2, x3)
+X1 = -X2 -X3
+
+fg = plt.figure()
+ax = plt.axes(projection='3d')
+ax.contour3D(X1, X2, X3, 150)
+ax.set_zlabel("x3")
+ax.set_xlabel("x2")
+ax.set_ylabel("x1")
+plt.grid()
+    \end{lstlisting}
+
+	\item \points{2} Given some $x_0 \in \R^n$, find the \emph{squared distance} to the hyperplane defined by $w^T x + b=0$. In other words, solve the following optimization problem:
+	\begin{align*}
+	\min_x& \|x_0 - x \|^2\\
+	\text{s.t. }&w^Tx +b = 0
+	\end{align*}
+	(Hint: if $\widetilde{x}_0$ is the minimizer of the above problem, note that $\| x_0 - \widetilde{x}_0 \| = | \frac{w^T(x_0 - \widetilde{x}_0)}{\|w\|} |$. What is $w^T \widetilde{x}_0$?) \\
+	The following solution was hinted to me by Conor Sayers. Conors idea was that we are given a solution for non-squared distance and have enough information in the hint of the problem to "reverse engineer" the squared distance solution. If $\widetilde x_0$ is the vector that minimizes the problem we can write $w^T\widetilde x_0 = -b$ and then we can write the squared distance as:
+    \begin{align*}
+    |x_0 - \widetilde x_0|^2 & = \left[\frac{w^T(x_0 - \widetilde x_0)}{|w|}\right]^2 \\
+    & = \left[\frac{w^Tx_0- w^T\widetilde x_0}{|w|}\right]^2 \\
+    & = \left[\frac{w^Tx_0 + b}{|w|}\right]^2 \\
+    \end{align*}
+    The original attempt I have left below to, hopefully, show that I hadn't dilly-dallied around waiting for a solution to be found by someone else and thus, hopefully, avoid accusations of plagiarism:\\
+    \begin{footnotesize}
+    We are looking to minimize the following function: 
+	\begin{align*}
+	    f(\vec x) &= \omega^T||\vec x-\vec x_0||^2 + b = 0 \\
+	    &= \omega^T||\vec x^T \vec x - 2\vec x\cdot \vec x_0 + \vec x_0^T \vec x_0|| + b \\
+	    &= \omega\vec x^T \vec x - 2\omega^T||\vec x\cdot \vec x_0|| + \omega^T\vec x_0^T \vec x_0 + b = 0
+	\end{align*} 
+	Note that values $\vec x^T \vec x$ and $\vec x_0^T \vec x_0$ are just scalars. Minimization can be performed via the method of Lagrange multipliers of the above equation given the constraint that $\vec x$ lies in the plane $\Phi = \omega^T\vec x +b =0$:
+	\begin{align*}
+	    \frac{\partial f(\vec x)}{\partial x_i} - \lambda \frac{\partial \Phi(\vec x)}{\partial x_i} &= 0 \\
+	    -2\omega^T\frac{\partial ||\vec x\cdot\vec x_0||}{\partial x_i} - \lambda\omega^T \frac{\partial \vec x}{\partial x_i} &= 0 \\
+	    -2\omega^T\frac{\partial \vec x}{\partial x_i}\cdot\vec x_0 - \lambda\omega^T\frac{\partial \vec x}{\partial x_i} &= 0 \\
+	\end{align*}
+	But of course now I run into a problem where I can not easily work out the system of equations. 
+	\end{footnotesize}
+\end{enumerate}
+
+\newpage
+A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \in \R$, let $f(x, y) = x^T \mat{A} x + y^T \mat{B} x + c$. Define $\nabla_z f(x,y) = \begin{bmatrix} \frac{\partial f(x,y)}{\partial z_1} & \frac{\partial f(x,y)}{\partial z_2} & \dots & \frac{\partial f(x,y)}{\partial z_n} \end{bmatrix}^T$.  
+\begin{enumerate}
+	\item \points{2} Explicitly write out the function $f(x, y)$ in terms of the components $A_{i,j}$ and $B_{i,j}$ using appropriate summations over the indices.\\
+	Not sure what is meant by this but this is how the function would look like written out "explicitly":
+	$$
+	f(x, y) = 
+	\begin{bmatrix} x_1  \\ \vdots \\ x_n \end{bmatrix} \begin{bmatrix} A_{11} & \hdots & A_{1n} \\ \vdots & \ddots & \vdots \\ A_{n1} & \hdots & A_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
+	+
+	\begin{bmatrix} y_1  \\ \vdots \\ y_n \end{bmatrix} \begin{bmatrix} B_{11} & \hdots & B_{1n} \\ \vdots & \ddots & \vdots \\ B_{n1} & \hdots & B_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
+	+
+	c \\
+	$$
+	Writing the above in terms of summations over indices we keep in mind the definition of matrix multiplication: $c_{ij} = \sum_{k=1}^n a_{ik}b_{kj}$. Applied to $Ax$ for example we have $Ax=\sum_{i=1}^n A_{1,i}x_i$. We write the following:
+	$$ f(x, y) = \sum_{i=1}^n x_i \sum_{j=1}^n B_{ij}x_j + \sum_{i=1}^n y_i \sum_{j=1}^n B_{ij}x_j + c$$
+	
+	\item \points{2} What is $\nabla_x f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
+	In this context $\nabla_x$ represents the derivation operator with respect to elements of vector $x$. In summation form, if coordinates are orthogonal, it's defined as: $\nabla f = \sum_{i=1}^n \frac{\partial f}{\partial x_i}\frac{1}{h_i}\hat e_i$ where $h$ are the Lame's coefficients (important for coordinate systems except for Cartesian where they're equal to 1). Effectively $\nabla_x$ turns a column vector to a row vector so in vector notation we can write $\nabla_x = \frac{\partial}{\partial x}^T$. Applied to $f(x,y)$:
+	$$ \nabla_x f(x, y) = \nabla_x (x^TAx) + \nabla_x (y^TBx) = 
+	\frac{\partial }{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k 
+	+
+	\frac{\partial}{\partial x_i} \sum_{j=1}^n \sum_{k=1}^n y_jB_{jk}x_k $$
+	where $i \in \{1,...,n\}$. Starting with the first term\footnote{Note that the use of product rule is optional as the same could be achieved by carefully working out $\partial_i(x_j x_k)$ keeping track of the indices. It's just more obvious as a product rule.}:
+	\begin{align*}
+	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial x_j}{\partial x_i}A_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}\frac{\partial x_k}{\partial x_i} \\
+	  &= \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n x_jA_{ji} = \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j
+	\end{align*}
+	In the first term the free index $i$ iterates over the columns of A, and in the second term over the rows of A. Meanwhile, there is really no difference between indices $k$ and $j$ with respect to vector elements of $x$ except to indicate the correct element of A within the sums themselves, additionally we know in general that matrix multiplication is distributive with respect to addition, so we can write the two individual sums over a single sum. :
+	$$ \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j = \sum_{j=1}^n (A_{ij} + A_{ji})x_j$$
+	For a fixed $i$, we recognize the retrieved expression as the $i$-th element of a matrix expression $[(A+A^T)x]_i$ so finally we can write the result in vector form:
+	$$\nabla_x (x^TAx) = (A+A^T)x$$
+	For the second term we, similarly, write:
+	\begin{align*}
+	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial x_i}B_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial x_i} \\
+	  &= \sum_{j=1}^n y_jB_{ji}   = \left[B^Ty\right]_i
+	\end{align*}
+	Which we recognize as the vector expression $\nabla_x (y^TBx) = B^Ty$. Put together we have that 
+	$$\nabla_x f(x,y) = (A+A^T)x + B^Ty$$
+	
+	\item \points{2} What is $\nabla_y f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
+	Similarly to the previous problem except that we only have to observe a single term that has a functional dependence on $y$: 
+	\begin{align*}
+	  \frac{\partial}{\partial y_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
+	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial y_i}B_{jk}x_k +
+	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial y_i} \\
+	  &= \sum_{j=1}^n B_{ik}x_k   = \left[Bx\right]_i
+	\end{align*}
+	From which we recognize the vector expression $\nabla_y (y^TBx) = Bx$. Since the remaining terms in the expression will evaluate to zero, as there is no dependence on $y$, we can immediately write:
+	$$\nabla_y f(x,y) = Bx$$
+\end{enumerate}
+
+\newpage
+\section*{Programming}
+A.11 For the $A, b, c$ as defined in Problem 8, use
+  NumPy to compute (take a screen shot of your answer):
+  \begin{enumerate}
+  \item \points{2} What is $A^{-1}$?
+  \item \points{1} What is $A^{-1}b$? What is $Ac$?
+  \end{enumerate}  
+  
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/numpy.png}
+    \end{center} 
+
+\newpage
+A.12 \points{4} Two random variables $X$ and $Y$ have equal distributions if their CDFs, $F_X$ and $F_Y$, respectively, are equal, i.e. for all $x$, $ |F_X(x) - F_Y(x)| = 0$. The central limit theorem says that the sum of $k$ independent, zero-mean, variance-$1/k$ random variables converges to a (standard) Normal distribution as $k$ goes off to infinity. We will study this phenomenon empirically (you will use the Python packages Numpy and Matplotlib). Define $Y^{(k)} = \frac{1}{\sqrt{k}} \sum_{i=1}^k B_i$ where each $B_i$ is equal to $-1$ and $1$ with equal probability. From your solution to problem 5, we know that $\frac{1}{\sqrt{k}} B_i$ is zero-mean and has variance $1/k$.
+
+\begin{enumerate}
+\item For $i=1,\dots,n$ let $Z_i \sim \mathcal{N}(0,1)$. If $F(x)$ is the true CDF from which each $Z_i$ is drawn (i.e., Gaussian) and $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{ Z_i \leq x)$, use the answer to problem 1.5 above to choose$n$ large enough such that, for all $x \in \R$, $ \sqrt{\E[(\widehat{F}_n(x)-F(x))^2 ]} \leq 0.0025$, and plot $\widehat{F}_n(x)$ from $-3$ to $3$. \\(Hint: use \texttt{Z=numpy.random.randn(n)} to generate the random variables, and \texttt{import matplotlib.pyplot as plt}; \texttt{plt.step(sorted(Z), np.arange(1,n+1)/float(n))} to plot). \\
+From problem A6 we have $\text{Var}\widehat F_n(x) = (4n)^{-1}$ so plugging in the value $0.0025$ given in the problem we have $n=(0.0025*4)^{-1}=100$ so just to be on the very safe side lets sample several tens of thousand times. 
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/cumdist1.png}
+    \end{center} 
+    \begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+import numpy as np
+
+def Fn(Z, x=1.0):
+    """Calculates the empirical estimate of the
+    CDF F(x) by counting the number of occurences
+    of random variable Z up to the limit x. 
+    
+    Parameters
+    ----------
+    Z : `array`
+        An array of samples of random variable Z
+    x : `float`
+        Limit to which the empirical estimate is calculated.
+    """
+    return np.sum(Z<=x)/len(Z)
+
+n = 20000
+Z = np.random.randn(n)
+x = np.arange(-3, 3, 0.01)
+fn = [Fn(Z, _x) for _x in x]
+
+plt.step(x, fn)
+plt.xlim(-3, 3)
+plt.xlabel("Observations")
+plt.ylabel("Probability")
+plt.show()
+    \end{lstlisting}
+    
+    
+\item For each $k \in \{1, 8, 64, 512\}$ generate $n$ independent copies $Y^{(k)}$ and plot their empirical CDF on the same plot as part a.\\ (Hint: $\texttt{np.sum(np.sign(np.random.randn(n, k))*np.sqrt(1./k), axis=1)}$ generates $n$ of the $Y^{(k)}$ random variables.) 
+    \begin{center}
+    \includegraphics[width=4in]{HW0_plots/cumdist2.png}
+    \end{center} 
+	\begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+import numpy as np
+
+def Yk(n, k=1):
+    """Returns and array of samples of function:
+    
+        Y^{(k)} = 1/sqrt(k) \sum_1^k B_i
+    
+    where B_i = +1 or +1 with equal probablility. 
+    
+    Parameters
+    -----------
+    n : `int`
+        Number of samples of Y^(k). 
+    k : `int`
+        Upper bound of the Y^(k) sum
+    """
+    B = np.sign(np.random.randn(n, k))
+    return np.sum(np.sqrt(1.0/k)*B, axis=1)
+
+
+n = 20000
+for k in [1, 8, 64, 512]:
+    Y = Yk(n, k)
+    plt.step(sorted(Y), np.arange(1, n + 1) / float(n), label='{0}'.format(k))
+
+gaus = np.random.normal(size=n)
+plt.step(sorted(gaus), np.arange(1, n + 1) / float(n), label='Gaussian')    
+
+plt.legend()
+plt.xlim(-3, 3)
+plt.xlabel("Observations")
+plt.ylabel("Probability")
+plt.show()
+    \end{lstlisting}
+\end{enumerate}
+\end{document}
