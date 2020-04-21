@@ -167,7 +167,7 @@ Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta
 \newpage
 A.3.  Suppose we have $N$ labeled samples $S={(x_i,y_i)}^N_{i=1}$ drawn i.i.d. from an underlying distribution D. Suppose we decide to break this set into a set $S_\text{train}$ of size $N_\text{train}$ and a set $S_\text{test}$ of size $N_\text{test}$ samples for our training and test set, so $N = N_{\text{train}} + N_{\text{test}}$, and $S = S_{\text{train}} \cup S_{\text{test}}$.  Recall the definition of the true least squares error off:
 
-$$(f) =E_{(x,y)\approx D}[(f(x)-y)2]$$
+$$\epsilon(f) = \E_{(x,y)\approx D}[(f(x)-y)2]$$
 
 where the subscript $(x,y)\approx D$ makes clear that our input-output pairs are sampled according to $D$. Our training and test losses are defined as: 
 
@@ -179,13 +179,37 @@ We then train our algorithm (for example, using linear least squares regression)
 \begin{enumerate}
     \item \points{3} (bias: the test error) For all fixed $f$ (before we’ve seen any data) show that 
     
-    $$\E_{\text{train}}[\widehat\epsilon_{\text{train}}(f)] = \E_{\text{test}}[\widehat\epsilon_\text{test}(f)] =\epsilon(f)$$
+    $$\E_{\text{train}}[\widehat\epsilon_{\text{train}}(f)] = \E_\text{test}[\widehat\epsilon_\text{test}(f)]=\epsilon(f)$$
     
+    Applying the definition of $\hat \epsilon $, keeping in mind $E_\text{train} = E_{(x,y)\in S_\text{train}}$, write out the expression for $\E_{\text{train}}[\widehat\epsilon_{\text{train}}(f)]$ and apply the linearity of expectation to expand $(f(x)-y)^2$:
+    
+    \begin{align*}
+        \E_\text{train} [\widehat\epsilon_\text{train}(f)] &= \E_\text{train}\left[\frac{1}{N_\text{train}} \sum_{(x,y)\in S_\text{train}} (f(x)-y)^2 \right] \\
+        &= \frac{1}{N_\text{train}} \sum_{(x,y)\in S_\text{train}} \E_\text{train}\left[ (f(x)-y)^2 \right] 
+    \end{align*}{}
+    
+    Apply the definition of expectation of continuous random variable keeping in mind $x_i$, $y_i$ can be considered i.i.d. 
+    
+    \begin{align*}
+     &= \frac{1}{N_\text{train}} \sum_{(x,y)\in S_\text{train}} \int_{(x_1,y_1)\hdots (x_{N_\text{train}},y_{N_\text{train})}} (f(x)-y)^2 P(x_1, y_1 \hdots x_{N_\text{train}},y_{N_\text{train}}) dx_1dy_1\hdots dx_{N_\text{train}} dy_{N_\text{train}} \\    
+     &= \frac{1}{N_\text{train}} \sum_{(x,y)\in S_\text{train}} \int_{(x_i,y_i)\approx S_\text{train}} (f(x)-y)^2  \prod_{i=0}^{N_\text{train}} P(x_i)P(y_i) dx_idy_i
+    \end{align*}{}
+    
+    By definition of $\epsilon(f_i) = \E_{(x_i,y_i)\in D}[(f(x_i)-y_i)2] = \int_{(x_i,y_i)\in D} (f(x_i)-y_i)^2p(x)p(y_i)dxdy_i$ it follows that:
+    
+    $$\E_\text{train} [\widehat\epsilon_\text{train}(f)] = \epsilon(f)$$
+    
+    And the same applies to $\E_\text{test}$.
+
     Use a similar line of reasoning to show that the test error is an unbiased estimate of our true error for $\hat f$. Specifically, show that: 
     
     $$\E_\text{test}[\widehat\epsilon_\text{test}(\hat f) = \widehat\epsilon(\hat f)$$
     
-    \item\points{4} (bias: the train/dev error) Is the above equation true (in general) with regards to the training loss? Specifically, does $\E_\text{train}[\widehat\epsilon_\text{train}(\hat f)] = \E_\text{train}[\epsilon(\hat f)]$? If so, why? If not, give a clear argument as to where your previous argument breaks down.
+    
+    
+    \item\points{4} (bias: the train/dev error) Is the above equation true (in general) with regards to the training loss? Specifically, does $\E_\text{train}[\widehat\epsilon_\text{train}(\hat f)] = \E_\text{train}[\epsilon(\hat f)]$? If so, why? If not, give a clear argument as to where your previous argument breaks down. \\
+    
+    The above is not true in general because $\hat f$ is retrieved by training on the training data set. This means that we can not say that $p(x_i,y_i) = p(x_i)p(y_i)$ as we did above. This is the reason why we need to separate training and tests datasets - we can only retrieve a true estimate of the error of $\hat f$, given that the underlying data is drawn from the same distribution, on a data set we have not trained on. 
     
     \item\points{8} Let $F = (f_1, f_2,...)$ be a collection of functions and $\hat f_\text{train}$ minimize the training error such that $\widehat\epsilon_\text{train}(\hat f_\text{train}) \leq \widehat\epsilon_\text{train}(f)\,\forall\,f \in F$. Show that 
     
@@ -194,9 +218,9 @@ We then train our algorithm (for example, using linear least squares regression)
     (Hint:  note that
     \begin{align*}
         E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})] =& \\
-        &= \sum f \in F \E_\text{train,test}[\widehat\epsilon_\text{test}(f)\1{\hat f_\text{train}=f}] \\
-        &= \sum f \in F \E_\text{test}[\widehat\epsilon_\text{test}(f)]\E_\text{train}[\1{\hat f_\text{train}=f}] \\ 
-        &= \sum f \in F \E_\text{test}[\widehat\epsilon_\text{test}(f)] \P_\text{train}(\hat f_\text{train}=f)
+        &= \sum_{f \in F} \E_\text{train,test}[\widehat\epsilon_\text{test}(f)\1{\hat f_\text{train}=f}] \\
+        &= \sum_{f \in F} \E_\text{test}[\widehat\epsilon_\text{test}(f)]\E_\text{train}[\1{\hat f_\text{train}=f}] \\ 
+        &= \sum_{f \in F} \E_\text{test}[\widehat\epsilon_\text{test}(f)] \P_\text{train}(\hat f_\text{train}=f)
     \end{align*}
     where the second equality follows from the independence between the train and test set.)
 \end{enumerate}
@@ -507,7 +531,7 @@ We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $
     
     The given hints demonstrates, in simplified terms, that $\argmax||W^Tx_i+y_i|| = \argmax||XW+y||$ so we apply the same to $\argmin$ and rewrite given least squares objective $\widehat W$ as:
     
-    $$\widehat W = \argmin_{W\in\R^{d\times k}} ||XW - y||^F_2 + \lambda ||W||^2_F$$
+    $$\widehat W = \argmin_{W\in\R^{d\times k}} ||XW - y||^2_F + \lambda ||W||^2_F$$
 
     Taking the derivative (see HW0 A.10.b) $\nabla_x = \frac{\partial}{\partial x}^T$), with respect to $W$ and equating with 0:
     \begin{align*}
@@ -521,7 +545,7 @@ We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $
     \item \points{10} Code up a function train that takes as input $X\in\R^{n\times d},Y\in {0,1}^{n\times k},\lambda>0$ and returns $\hat W$.
     \begin{enumerate}
         \item Code up a function predict that takes as input $W\in\R^{d\times k},X\in\R^{m\times d}$ and returns an m-length vector with the i-th entry equal to $\argmax_{j=0,...,9}e^T_jW^Tx_i$ where $x_i$ is a column vector representing the i-th example from $X$.
-        \item Train $wide\hat W$ on the MNIST training data with $\lambda = 10−4$ and make label predictions on the test data. What is the training and testing error? Note that they should both be about 15\%.
+        \item Train $wide\hat W$ on the MNIST training data with $\lambda = 10-4$ and make label predictions on the test data. What is the training and testing error? Note that they should both be about 15\%.
     \end{enumerate}
     The full code is below. Running it returns error values:
     
