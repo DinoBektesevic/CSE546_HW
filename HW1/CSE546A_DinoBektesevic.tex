@@ -343,8 +343,124 @@ A.5. \points{10} In this problem we will examine the bias-variance tradeoff thro
 
 $$\frac{1}{n}\sum_{i=1}^n h_\theta (x_i) - y_i)^2 $$
 
-Once the function is written to compute the learning curves, run thetestpolyreglearningCurve.py script to plot the learning curves for various values of $\lambda$ and $d$.
+Once the function is written to compute the learning curves, run thetestpolyreglearningCurve.py script to plot the learning curves for various values of $\lambda$ and $d$.\\
 
+\begin{center}
+    \includegraphics[width=4in]{HW1/HW1_plots/PolyFit.png}
+\end{center} 
+
+\begin{lstlisting}[language=Python]
+#-----------------------------------------------------------------
+#  Class PolynomialRegression
+#-----------------------------------------------------------------
+
+class PolynomialRegression:
+    def __init__(self, degree=1, reg_lambda=1E-8):
+        """
+        Constructor
+        """
+        self.regLambda = reg_lambda
+        self.degree = degree
+        self.theta = None
+        self._mean = None
+        self._std = None
+
+
+    def _expandToDegree(self, X, degree=None):
+        """Expands the given column vector to a (n,d) matrix where elements are
+        powers of values x_i including the zero-th order.
+
+        [x1, ... x_n]^T = [[1, x1, x_1^2, ... x_1d^d],
+                                       ...
+                           [1, x_n, x_n^2, ... x_nd^d]]
+        """
+        if degree is None:
+            degree = self.degree
+        return (X[:,None]**np.arange(degree+1))[:, 0, :]
+
+
+    def polyfeatures(self, X, degree):
+        """
+        Expands the given X into an n * d array of polynomial features of
+        degree d.
+
+        Returns:
+            A n-by-d numpy array, with each row comprising of
+            X, X * X, X ** 3, ... up to the dth power of X.
+            Note that the returned matrix will not include the zero-th power.
+
+        Arguments:
+            X is an n-by-1 column numpy array
+            degree is a positive integer
+        """
+        self.degree = degree
+        return self._expandToDegree(X, degree)[:, 1:]
+
+
+    def standardize(self, X, mean=None, std=None):
+        """Returns a standardized copy of the array using the given weights.
+
+        Standardization is performed by offsetting by mean and dividing by
+        variance on a per column basis.
+        """
+        mean = self._mean if mean is None else mean
+        std = self._std if std is None else std
+        standardized = []
+        for row in X:
+            standardized.append((row-mean)/std)
+        return np.vstack(standardized)
+
+
+    def fit(self, X, y):
+        """
+            Trains the model
+            Arguments:
+                X is a n-by-1 array
+                y is an n-by-1 array
+            Returns:
+                No return value
+            Note:
+                You need to apply polynomial expansion and scaling
+                at first
+        """
+        # expand to polynomial of degree d
+        X_ = self.polyfeatures(X, self.degree)
+
+        # standardize the matrix and remember the weights
+        self._mean = np.mean(X_, axis=0)
+        self._std = np.std(X_, axis=0)
+        X_ = self.standardize(X_)
+
+        # add a column of oens
+        X_ = np.c_[np.ones([len(X), 1]), X_]
+
+        # construct reg matrix
+        reg_matrix = self.regLambda * np.eye(self.degree+1)
+        reg_matrix[0, 0] = 0
+
+        # analytical solution (X'X + regMatrix)^-1 X' y
+        self.theta = np.linalg.pinv(X_.T.dot(X_) + reg_matrix).dot(X_.T).dot(y)
+        return self.theta
+
+
+    def predict(self, X):
+        """
+        Use the trained model to predict values for each instance in X
+        Arguments:
+            X is a n-by-1 numpy array
+        Returns:
+            an n-by-1 numpy array of the predictions
+        """
+        X_ = self.polyfeatures(X, self.degree)
+        X_ = self.standardize(X_)
+        X_ = np.c_[np.ones([len(X), 1]), X_]        
+        return X_.dot(self.theta)
+
+
+#-----------------------------------------------------------------
+#  End of Class PolynomialRegression
+#-----------------------------------------------------------------
+\end{lstlisting}
 
 
 \newpage
@@ -590,225 +706,5 @@ if __name__ == "__main__":
 
 
 \newpage
-A.9 (Hyperplanes) Assume $w$ is an $n$-dimensional vector and $b$ is a scalar. A hyperplane in $\R^n$ is the set $\{x : x\in \R^n,\text{ s.t. } w^T x + b = 0\}$.
-\begin{enumerate}
-	\item \points{1} ($n=2$ example) Draw the hyperplane for $w=[-1,2]^T$, $b=2$? Label your axes. \\
-	Effectively this gives us an equation of a line $-x_1+2x_2 + 2 = 0$ or $x_1 = 2x_2+2$. Plot line using following Python code:
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/hyperplane.png}
-    \end{center} 
-    \begin{lstlisting}[language=Python]
-import matplotlib.pyplot as plt
-import numpy as np
-x2 = np.arange(-10, 10, 1)
-x1 = 2*x2+2
-plt.plot(x1, x2)
-plt.xlabel("x2")
-plt.ylabel("x1")
-plt.grid()
-    \end{lstlisting}
 
-	\item \points{1} ($n=3$ example) Draw the hyperplane for $w=[1,1,1]^T$, $b=0$? Label your axes. \\
-	Following the same principles above $x+y+z=0 \rightarrow z=-x-y$ we have:
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/hyperplaneB.png}
-    \end{center}
-    \begin{lstlisting}[language=Python]
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-import numpy as np
-
-x2 = np.arange(-10, 10, 1)
-x3 = np.arange(-10, 10, 1)
-X2, X3 = np.meshgrid(x2, x3)
-X1 = -X2 -X3
-
-fg = plt.figure()
-ax = plt.axes(projection='3d')
-ax.contour3D(X1, X2, X3, 150)
-ax.set_zlabel("x3")
-ax.set_xlabel("x2")
-ax.set_ylabel("x1")
-plt.grid()
-    \end{lstlisting}
-
-	\item \points{2} Given some $x_0 \in \R^n$, find the \emph{squared distance} to the hyperplane defined by $w^T x + b=0$. In other words, solve the following optimization problem:
-	\begin{align*}
-	\min_x& \|x_0 - x \|^2\\
-	\text{s.t. }&w^Tx +b = 0
-	\end{align*}
-	(Hint: if $\widetilde{x}_0$ is the minimizer of the above problem, note that $\| x_0 - \widetilde{x}_0 \| = | \frac{w^T(x_0 - \widetilde{x}_0)}{\|w\|} |$. What is $w^T \widetilde{x}_0$?) \\
-	The following solution was hinted to me by Conor Sayers. Conors idea was that we are given a solution for non-squared distance and have enough information in the hint of the problem to "reverse engineer" the squared distance solution. If $\widetilde x_0$ is the vector that minimizes the problem we can write $w^T\widetilde x_0 = -b$ and then we can write the squared distance as:
-    \begin{align*}
-    |x_0 - \widetilde x_0|^2 & = \left[\frac{w^T(x_0 - \widetilde x_0)}{|w|}\right]^2 \\
-    & = \left[\frac{w^Tx_0- w^T\widetilde x_0}{|w|}\right]^2 \\
-    & = \left[\frac{w^Tx_0 + b}{|w|}\right]^2 \\
-    \end{align*}
-    The original attempt I have left below to, hopefully, show that I hadn't dilly-dallied around waiting for a solution to be found by someone else and thus, hopefully, avoid accusations of plagiarism:\\
-    \begin{footnotesize}
-    We are looking to minimize the following function: 
-	\begin{align*}
-	    f(\vec x) &= \omega^T||\vec x-\vec x_0||^2 + b = 0 \\
-	    &= \omega^T||\vec x^T \vec x - 2\vec x\cdot \vec x_0 + \vec x_0^T \vec x_0|| + b \\
-	    &= \omega\vec x^T \vec x - 2\omega^T||\vec x\cdot \vec x_0|| + \omega^T\vec x_0^T \vec x_0 + b = 0
-	\end{align*} 
-	Note that values $\vec x^T \vec x$ and $\vec x_0^T \vec x_0$ are just scalars. Minimization can be performed via the method of Lagrange multipliers of the above equation given the constraint that $\vec x$ lies in the plane $\Phi = \omega^T\vec x +b =0$:
-	\begin{align*}
-	    \frac{\partial f(\vec x)}{\partial x_i} - \lambda \frac{\partial \Phi(\vec x)}{\partial x_i} &= 0 \\
-	    -2\omega^T\frac{\partial ||\vec x\cdot\vec x_0||}{\partial x_i} - \lambda\omega^T \frac{\partial \vec x}{\partial x_i} &= 0 \\
-	    -2\omega^T\frac{\partial \vec x}{\partial x_i}\cdot\vec x_0 - \lambda\omega^T\frac{\partial \vec x}{\partial x_i} &= 0 \\
-	\end{align*}
-	But of course now I run into a problem where I can not easily work out the system of equations. 
-	\end{footnotesize}
-\end{enumerate}
-
-\newpage
-A.10 For possibly non-symmetric $\mat{A}, \mat{B} \in \R^{n \times n}$ and $c \in \R$, let $f(x, y) = x^T \mat{A} x + y^T \mat{B} x + c$. Define $\nabla_z f(x,y) = \begin{bmatrix} \frac{\partial f(x,y)}{\partial z_1} & \frac{\partial f(x,y)}{\partial z_2} & \dots & \frac{\partial f(x,y)}{\partial z_n} \end{bmatrix}^T$.  
-\begin{enumerate}
-	\item \points{2} Explicitly write out the function $f(x, y)$ in terms of the components $A_{i,j}$ and $B_{i,j}$ using appropriate summations over the indices.\\
-	Not sure what is meant by this but this is how the function would look like written out "explicitly":
-	$$
-	f(x, y) = 
-	\begin{bmatrix} x_1  \\ \vdots \\ x_n \end{bmatrix} \begin{bmatrix} A_{11} & \hdots & A_{1n} \\ \vdots & \ddots & \vdots \\ A_{n1} & \hdots & A_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
-	+
-	\begin{bmatrix} y_1  \\ \vdots \\ y_n \end{bmatrix} \begin{bmatrix} B_{11} & \hdots & B_{1n} \\ \vdots & \ddots & \vdots \\ B_{n1} & \hdots & B_{nn}\end{bmatrix} \begin{bmatrix} x_1  & \hdots & x_n \end{bmatrix} 
-	+
-	c \\
-	$$
-	Writing the above in terms of summations over indices we keep in mind the definition of matrix multiplication: $c_{ij} = \sum_{k=1}^n a_{ik}b_{kj}$. Applied to $Ax$ for example we have $Ax=\sum_{i=1}^n A_{1,i}x_i$. We write the following:
-	$$ f(x, y) = \sum_{i=1}^n x_i \sum_{j=1}^n B_{ij}x_j + \sum_{i=1}^n y_i \sum_{j=1}^n B_{ij}x_j + c$$
-	
-	\item \points{2} What is $\nabla_x f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
-	In this context $\nabla_x$ represents the derivation operator with respect to elements of vector $x$. In summation form, if coordinates are orthogonal, it's defined as: $\nabla f = \sum_{i=1}^n \frac{\partial f}{\partial x_i}\frac{1}{h_i}\hat e_i$ where $h$ are the Lame's coefficients (important for coordinate systems except for Cartesian where they're equal to 1). Effectively $\nabla_x$ turns a column vector to a row vector so in vector notation we can write $\nabla_x = \frac{\partial}{\partial x}^T$. Applied to $f(x,y)$:
-	$$ \nabla_x f(x, y) = \nabla_x (x^TAx) + \nabla_x (y^TBx) = 
-	\frac{\partial }{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k 
-	+
-	\frac{\partial}{\partial x_i} \sum_{j=1}^n \sum_{k=1}^n y_jB_{jk}x_k $$
-	where $i \in \{1,...,n\}$. Starting with the first term\footnote{Note that the use of product rule is optional as the same could be achieved by carefully working out $\partial_i(x_j x_k)$ keeping track of the indices. It's just more obvious as a product rule.}:
-	\begin{align*}
-	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}x_k &= 
-	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial x_j}{\partial x_i}A_{jk}x_k +
-	  \sum_{j=1}^n\sum_{k=1}^n x_jA_{jk}\frac{\partial x_k}{\partial x_i} \\
-	  &= \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n x_jA_{ji} = \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j
-	\end{align*}
-	In the first term the free index $i$ iterates over the columns of A, and in the second term over the rows of A. Meanwhile, there is really no difference between indices $k$ and $j$ with respect to vector elements of $x$ except to indicate the correct element of A within the sums themselves, additionally we know in general that matrix multiplication is distributive with respect to addition, so we can write the two individual sums over a single sum. :
-	$$ \sum_{k=1}^n A_{ik}x_k + \sum_{j=1}^n A_{ji}x_j = \sum_{j=1}^n (A_{ij} + A_{ji})x_j$$
-	For a fixed $i$, we recognize the retrieved expression as the $i$-th element of a matrix expression $[(A+A^T)x]_i$ so finally we can write the result in vector form:
-	$$\nabla_x (x^TAx) = (A+A^T)x$$
-	For the second term we, similarly, write:
-	\begin{align*}
-	  \frac{\partial}{\partial x_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
-	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial x_i}B_{jk}x_k +
-	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial x_i} \\
-	  &= \sum_{j=1}^n y_jB_{ji}   = \left[B^Ty\right]_i
-	\end{align*}
-	Which we recognize as the vector expression $\nabla_x (y^TBx) = B^Ty$. Put together we have that 
-	$$\nabla_x f(x,y) = (A+A^T)x + B^Ty$$
-	
-	\item \points{2} What is $\nabla_y f(x,y)$ in terms of the summations over indices \emph{and} vector notation?\\
-	Similarly to the previous problem except that we only have to observe a single term that has a functional dependence on $y$: 
-	\begin{align*}
-	  \frac{\partial}{\partial y_i}\sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}x_k &= 
-	  \sum_{j=1}^n\sum_{k=1}^n \frac{\partial y_j}{\partial y_i}B_{jk}x_k +
-	  \sum_{j=1}^n\sum_{k=1}^n y_jB_{jk}\frac{\partial x_k}{\partial y_i} \\
-	  &= \sum_{j=1}^n B_{ik}x_k   = \left[Bx\right]_i
-	\end{align*}
-	From which we recognize the vector expression $\nabla_y (y^TBx) = Bx$. Since the remaining terms in the expression will evaluate to zero, as there is no dependence on $y$, we can immediately write:
-	$$\nabla_y f(x,y) = Bx$$
-\end{enumerate}
-
-\newpage
-\section*{Programming}
-A.11 For the $A, b, c$ as defined in Problem 8, use
-  NumPy to compute (take a screen shot of your answer):
-  \begin{enumerate}
-  \item \points{2} What is $A^{-1}$?
-  \item \points{1} What is $A^{-1}b$? What is $Ac$?
-  \end{enumerate}  
-  
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/numpy.png}
-    \end{center} 
-
-\newpage
-A.12 \points{4} Two random variables $X$ and $Y$ have equal distributions if their CDFs, $F_X$ and $F_Y$, respectively, are equal, i.e. for all $x$, $ |F_X(x) - F_Y(x)| = 0$. The central limit theorem says that the sum of $k$ independent, zero-mean, variance-$1/k$ random variables converges to a (standard) Normal distribution as $k$ goes off to infinity. We will study this phenomenon empirically (you will use the Python packages Numpy and Matplotlib). Define $Y^{(k)} = \frac{1}{\sqrt{k}} \sum_{i=1}^k B_i$ where each $B_i$ is equal to $-1$ and $1$ with equal probability. From your solution to problem 5, we know that $\frac{1}{\sqrt{k}} B_i$ is zero-mean and has variance $1/k$.
-
-\begin{enumerate}
-\item For $i=1,\dots,n$ let $Z_i \sim \mathcal{N}(0,1)$. If $F(x)$ is the true CDF from which each $Z_i$ is drawn (i.e., Gaussian) and $\widehat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \1\{ Z_i \leq x)$, use the answer to problem 1.5 above to choose$n$ large enough such that, for all $x \in \R$, $ \sqrt{\E[(\widehat{F}_n(x)-F(x))^2 ]} \leq 0.0025$, and plot $\widehat{F}_n(x)$ from $-3$ to $3$. \\(Hint: use \texttt{Z=numpy.random.randn(n)} to generate the random variables, and \texttt{import matplotlib.pyplot as plt}; \texttt{plt.step(sorted(Z), np.arange(1,n+1)/float(n))} to plot). \\
-From problem A6 we have $\text{Var}\widehat F_n(x) = (4n)^{-1}$ so plugging in the value $0.0025$ given in the problem we have $n=(0.0025*4)^{-1}=100$ so just to be on the very safe side lets sample several tens of thousand times. 
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/cumdist1.png}
-    \end{center} 
-    \begin{lstlisting}[language=Python]
-import matplotlib.pyplot as plt
-import numpy as np
-
-def Fn(Z, x=1.0):
-    """Calculates the empirical estimate of the
-    CDF F(x) by counting the number of occurences
-    of random variable Z up to the limit x. 
-    
-    Parameters
-    ----------
-    Z : `array`
-        An array of samples of random variable Z
-    x : `float`
-        Limit to which the empirical estimate is calculated.
-    """
-    return np.sum(Z<=x)/len(Z)
-
-n = 20000
-Z = np.random.randn(n)
-x = np.arange(-3, 3, 0.01)
-fn = [Fn(Z, _x) for _x in x]
-
-plt.step(x, fn)
-plt.xlim(-3, 3)
-plt.xlabel("Observations")
-plt.ylabel("Probability")
-plt.show()
-    \end{lstlisting}
-    
-    
-\item For each $k \in \{1, 8, 64, 512\}$ generate $n$ independent copies $Y^{(k)}$ and plot their empirical CDF on the same plot as part a.\\ (Hint: $\texttt{np.sum(np.sign(np.random.randn(n, k))*np.sqrt(1./k), axis=1)}$ generates $n$ of the $Y^{(k)}$ random variables.) 
-    \begin{center}
-    \includegraphics[width=4in]{HW0_plots/cumdist2.png}
-    \end{center} 
-	\begin{lstlisting}[language=Python]
-import matplotlib.pyplot as plt
-import numpy as np
-
-def Yk(n, k=1):
-    """Returns and array of samples of function:
-    
-        Y^{(k)} = 1/sqrt(k) \sum_1^k B_i
-    
-    where B_i = +1 or +1 with equal probablility. 
-    
-    Parameters
-    -----------
-    n : `int`
-        Number of samples of Y^(k). 
-    k : `int`
-        Upper bound of the Y^(k) sum
-    """
-    B = np.sign(np.random.randn(n, k))
-    return np.sum(np.sqrt(1.0/k)*B, axis=1)
-
-
-n = 20000
-for k in [1, 8, 64, 512]:
-    Y = Yk(n, k)
-    plt.step(sorted(Y), np.arange(1, n + 1) / float(n), label='{0}'.format(k))
-
-gaus = np.random.normal(size=n)
-plt.step(sorted(gaus), np.arange(1, n + 1) / float(n), label='Gaussian')    
-
-plt.legend()
-plt.xlim(-3, 3)
-plt.xlabel("Observations")
-plt.ylabel("Probability")
-plt.show()
-    \end{lstlisting}
-\end{enumerate}
 \end{document}
