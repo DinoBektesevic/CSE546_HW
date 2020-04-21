@@ -92,7 +92,6 @@ class PolynomialRegression:
 
         # construct reg matrix
         reg_matrix = self.regLambda * np.eye(self.degree+1)
-        reg_matrix[0, 0] = 0
 
         # analytical solution (X'X + regMatrix)^-1 X' y
         self.theta = np.linalg.pinv(X_.T.dot(X_) + reg_matrix).dot(X_.T).dot(y)
@@ -109,7 +108,7 @@ class PolynomialRegression:
         """
         X_ = self.polyfeatures(X, self.degree)
         X_ = self.standardize(X_)
-        X_ = np.c_[np.ones([len(X), 1]), X_]        
+        X_ = np.c_[np.ones([len(X), 1]), X_]
         return X_.dot(self.theta)
 
 
@@ -146,6 +145,18 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
     errorTrain = np.zeros(n)
     errorTest = np.zeros(n)
 
-    #TODO -- complete rest of method; errorTrain and errorTest are already the correct shape
+    regressModel = PolynomialRegression(degree=degree, reg_lambda=reg_lambda)
+
+    for i in range(1, n):
+        data = Xtrain[0:i+1]
+        labels = Ytrain[0:i+1]
+
+        regressModel.fit(data, labels)
+
+        fitTrain = regressModel.predict(data)
+        fitTest = regressModel.predict(Xtest)
+
+        errorTrain[i] = 1/len(data)*np.sum((fitTrain - labels)**2)
+        errorTest[i] = 1/len(Xtest)*np.sum((fitTest - Ytest)**2)
 
     return errorTrain, errorTest
