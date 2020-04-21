@@ -92,6 +92,7 @@ class PolynomialRegression:
 
         # construct reg matrix
         reg_matrix = self.regLambda * np.eye(self.degree+1)
+        reg_matrix[0,0] = 0
 
         # analytical solution (X'X + regMatrix)^-1 X' y
         self.theta = np.linalg.pinv(X_.T.dot(X_) + reg_matrix).dot(X_.T).dot(y)
@@ -156,8 +157,6 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
         fitTrain = regressModel.predict(data)
         fitTest = regressModel.predict(Xtest)
 
-        if reg_lambda == 100:
-            breakpoint()
         errorTrain[i] = 1/len(data) * np.sum((fitTrain-labels)**2)
         errorTest[i] = 1/len(Xtest) * np.sum((fitTest-Ytest)**2)
 
