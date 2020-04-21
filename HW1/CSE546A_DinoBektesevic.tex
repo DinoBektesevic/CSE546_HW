@@ -221,9 +221,11 @@ Code provided in testpolyregunivariate.py prodices the following plot:
 \begin{center}
     \includegraphics[width=4in]{HW1/HW1_plots/PolyFit.png}
 \end{center} 
-If we increase the ammount of regularization we get the following plot:
-
-
+If we increase the amount of regularization we get the following plot:
+\begin{center}
+    \includegraphics[width=4in]{HW1/HW1_plots/PolyFitRegularization.png}
+\end{center} 
+Obviously the regularization parameter penalizes large parameter values untill the point where said penalty is large enough for the fit to not even deviate from zero value. The implementation of polynomial regression is based on the provided closed form solution:
 \begin{lstlisting}[language=Python]
 #-----------------------------------------------------------------
 #  Class PolynomialRegression
@@ -335,7 +337,60 @@ class PolynomialRegression:
 #-----------------------------------------------------------------
 #  End of Class PolynomialRegression
 #-----------------------------------------------------------------
-\end{lstlisting}
+\end{lstlisting} 
+The code that produces the various regularization parameter plots is a modification of the provided testpolyregunivariate.py script. 
+\begin{lstlisting}[language=Python]
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
+from polyreg import PolynomialRegression
+
+if __name__ == "__main__":
+    """Test effects of regularization parameters by plotting
+    results of fits with different regularization parameters.
+    """
+    # pick the polynomial degree and regularization parameters
+    d = 8
+    reg_lambdas = list(range(0, 50, 8))
+    reg_lambdas.extend([100, 1000, 10000])
+
+    # load the data, accidentaly override a python builtin keyword
+    filePath = "data/polydata.dat"
+    file = open(filePath,'r')
+    allData = np.loadtxt(file, delimiter=',')
+
+    # adopt a horrible naming convention
+    X = allData[:, [0]]
+    y = allData[:, [1]]
+
+    # fit with different regression parameters and store results
+    xAxisData, yAxisData = [], []
+    for reg_lambda in reg_lambdas:
+        model = PolynomialRegression(degree=d, reg_lambda=reg_lambda)
+        model.fit(X, y)
+
+        # output predictions
+        xpoints = np.linspace(np.max(X), np.min(X), 100).reshape(-1, 1)
+        ypoints = model.predict(xpoints)
+
+        xAxisData.append(xpoints)
+        yAxisData.append(ypoints)
+
+    # overplot fit results
+    colors = cm.viridis(np.linspace(0, 1, len(yAxisData)))
+    fig, ax = plt.subplots()
+    # points
+    ax.plot(X, y, 'rx')
+    for x, y, color, label in zip(xAxisData, yAxisData, colors, reg_lambdas):
+        ax.plot(x, y, color=color, label=f"Reg. param: {label}")
+    ax.set_title('PolyRegression with d = '+str(d))
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    plt.legend()
+    plt.show()
+\end{lstlisting} 
+
+
 
 
 
@@ -397,7 +452,24 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
 \end{lstlisting}
 
 
-\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section*{Ridge Regression on MNIST}
 A.6. In this problem we will implement a regularized least squares classifier for the MNIST data set. The task is to classify handwritten images of numbers between 0 to 9.You are NOT allowed to use any of the pre-built classifiers in sklearn. Feel free to use any method from numpy or scipy. Remember: if you are inverting a matrix in your code, you are probably doing something wrong (Hint: look at scipy.linalg.solve). Get the data from \url{https://pypi.python.org/pypi/python-mnist}. Load the data as follows:
 \begin{lstlisting}[language=Python]
@@ -439,11 +511,25 @@ We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $
 
     Taking the derivative (see HW0 A.10.b) $\nabla_x = \frac{\partial}{\partial x}^T$), with respect to $W$ and equating with 0:
     \begin{align*}
-        \nabla_W \left(||XW||^2_F + \lambda ||W||^2_F\right) &= -2X^T(y-XW) + 2\lambda W = 0 \\
+        \nabla_W \left(||XW||^2_F + \lambda ||W||^2_F\right) &= 2X^T(XW-y) + 2\lambda W = 0 \\
         X^TXW - X^Ty + \lambda W &= 0 \\
         (X^TX + \lambda I)W &= X^Ty \\
         W &= (X^TX+\lambda I)^{-1}X^Ty
     \end{align*}{}
+    
+    
+    \item \points{10} Code up a function train that takes as input $X\in\R^{n\times d},Y\in {0,1}^{n\times k},\lambda>0$ and returns $\hat W$.
+    \begin{enumerate}
+        \item Code up a function predict that takes as input $W\in\R^{d\times k},X\in\R^{m\times d}$ and returns an m-length vector with the i-th entry equal to $\argmax_{j=0,...,9}e^T_jW^Tx_i$ where $x_i$ is a column vector representing the i-th example from $X$.
+        \item Train $wide\hat W$ on the MNIST training data with $\lambda = 10−4$ and make label predictions on the test data. What is the training and testing error? Note that they should both be about 15\%.
+    \end{enumerate}
+    The full code is below. Running it returns error values:
+    
+\begin{lstlisting}[language=Bash]
+(cse) :~$ python ridge_regression.py 
+Train error: 0.14805
+Test error: 0.1466
+\end{lstlisting}
 
 \begin{lstlisting}[language=Python]
 import numpy as np
