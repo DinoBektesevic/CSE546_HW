@@ -156,7 +156,9 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
         fitTrain = regressModel.predict(data)
         fitTest = regressModel.predict(Xtest)
 
-        errorTrain[i] = 1/len(data)*np.sum((fitTrain - labels)**2)
-        errorTest[i] = 1/len(Xtest)*np.sum((fitTest - Ytest)**2)
+        if reg_lambda == 100:
+            breakpoint()
+        errorTrain[i] = 1/len(data) * np.sum((fitTrain-labels)**2)
+        errorTest[i] = 1/len(Xtest) * np.sum((fitTest-Ytest)**2)
 
     return errorTrain, errorTest
