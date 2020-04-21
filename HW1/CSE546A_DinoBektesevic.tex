@@ -22,6 +22,7 @@
         showstringspaces=false}
 
 \newcommand{\argmax}{\arg\!\max}
+\newcommand{\argmin}{\arg\!\min}
 \newcommand{\field}[1]{\mathbb{#1}}
 \newcommand{\1}{\mathbf{1}}
 \newcommand{\E}{\mathbb{E}} 
@@ -218,7 +219,7 @@ using the basis expansion that $\phi_j(x) =x^j$. Notice that, with this basis ex
 Run testpolyregunivariate.py to test your implementation, which will plot the learned function. In this case, the script fits a polynomial of degree $d=8$ with no regularization $\lambda=0$. From the plot, we see that the function fits the data well, but will not generalize well to new data points. Try increasing the amount of regularization, and examine the resulting effect on the function. \\
 
 \begin{center}
-    \includegraphics[width=4in]{HW0_plots/hyperplane.png}
+    \includegraphics[width=4in]{HW1/HW1_plots/PolyFit.png}
 \end{center} 
 
 \begin{lstlisting}[language=Python]
@@ -337,71 +338,69 @@ class PolynomialRegression:
 
 
 
+\newpage
+A.5. \points{10} In this problem we will examine the bias-variance tradeoff through learning curves. Learning curves provide a valuable mechanism for evaluating the bias-variance tradeoff. Implement the learningCurve()function in polyreg.py to compute the learning curves for a given training/test set. The learningCurve(Xtrain,ytrain, Xtest, ytest, degree, regLambda) function should take in the training data (Xtrain,ytrain), the testing data (Xtest,ytest), and values for the polynomial degree $d$ and regularization parameter $\lambda$.The function should return two arrays, errorTrain (the array of training errors) and errorTest(the array of testing errors). The ith index (start from 0) of each array should return the training error (or testing error) for learning with $i+1$ training instances. Note that the 0th index actually won’t matter, since we typically start displaying the learning curves with two or more instances. When computing the learning curves, you should learn on $X_\text{train}[0:i]$ for $i= 1,...,\text{numInstances(Xtrain) + 1}$,each time computing the testing error over the entire test set. There is no need to shuffle the training data, or to average the error over multiple trials - just produce the learning curves for the given training/testing sets with the instances in their given order. Recall that the error for regression problems is given by:
+
+$$\frac{1}{n}\sum_{i=1}^n h_\theta (x_i) - y_i)^2 $$
+
+Once the function is written to compute the learning curves, run thetestpolyreglearningCurve.py script to plot the learning curves for various values of $\lambda$ and $d$.
+
+
 
 \newpage
-\section*{Linear Algebra and Vector Calculus}
-A.7 (Rank) Let $A = \begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix}$ and $B = \begin{bmatrix} 1 & 2 & 3 \\ 1 & 0 & 1 \\ 1 & 1 & 2 \end{bmatrix}$.
-For each matrix $A$ and $B$,
-\begin{enumerate} 
-	\item \points{2} what is its rank?  \\
-	
-	Rank is just the number of linearly independent columns of the matrix:
-	$$rank(A) = 2$$
-	$$rank(B) = 2$$
-	For the $B$ matrix if we take away the last row from the first we are left with $[0,1, 1]$ and if we take away second row from the last we are left again with $[0, 1, 1]$ so at least one of the rows is not linearly independent from the remaining two. For matrix $A$ it's a bit harder to spot so we write:
-	\begin{align*}
-	\begin{bmatrix} 1 & 2 & 1 \\ 1 & 0 & 3 \\ 1 & 1 & 2 \end{bmatrix} \equiv 
-	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -2 & 2 \\ 1 & 1 & 2\end{bmatrix} \equiv
-	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & -1 & 1\end{bmatrix} \equiv
-	\begin{bmatrix} 1 & 2 & 1 \\ 0 & -1 & 1 \\ 0 & 0 & 0\end{bmatrix}
-	\end{align*}
-	where we nullify the first column using first row, then divide second row by 2 and take away from the third.
-	
-	\item \points{2} what is a (minimal size) basis for its column span? \\
-	
-	Two columns of matrix $A$ are linearly independent, so the basis of the image space is subset of $\mathbb R^2$ stretched by the set of column vectors (1st and 3rd): 
-	
-	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 1 \\ 3 \\ 2\end{bmatrix} \Bigr\}$$
-	
-	Only two columns of matrix $B$ are linearly independent. Starting from the note in previous problem:
-	
-	 $$B \equiv \begin{bmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix} \equiv $$
-	 
-	from which we see that third column can be written as $c_3=c_1+c_2$. So the basis of the image space is a subset of $\mathbb R^2$ stretched by 1st and 2nd column vectors:
-	$$\Bigl\{   \begin{bmatrix} 1 \\ 1 \\ 1\end{bmatrix}, \begin{bmatrix} 2 \\ 0 \\ 1\end{bmatrix}  \Bigr\}$$
-\end{enumerate}
+\section*{Ridge Regression on MNIST}
+A.6. In this problem we will implement a regularized least squares classifier for the MNIST data set. The task is to classify handwritten images of numbers between 0 to 9.You are NOT allowed to use any of the pre-built classifiers in sklearn. Feel free to use any method from numpy or scipy. Remember: if you are inverting a matrix in your code, you are probably doing something wrong (Hint: look at scipy.linalg.solve). Get the data from \url{https://pypi.python.org/pypi/python-mnist}. Load the data as follows:
+\begin{lstlisting}[language=Python]
+from mnist import MNIST
 
-\newpage
-A.8 (Linear equations) Let $A = \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix}$, $b = \begin{bmatrix} -2 & -2 & -4 \end{bmatrix}^T$, and $c=\begin{bmatrix} 1 & 1 & 1 \end{bmatrix}^T$.
+def load_dataset():
+    mndata = MNIST('./data/')
+    X_train, labels_train = map(np.array, mndata.load_training())
+    X_test, labels_test = map(np.array, mndata.load_testing())
+    X_train = X_train/255.0X_test = X_test/255.0
+\end{lstlisting}
+Each example has features $x_i\in R^d$ (with $d=28\times28=784)$ and label $z_j\in{0,...,9}$. You can visualize a single example $x_i$ with imshow after reshaping it to its original 28x28 image shape (and noting that the label $z_j$ is accurate). We wish to learn a predictor $\hat f$ that takes as input a vector in $R^d$ and outputs an index in ${0,...,9}$. We define our training and testing classification error on a predictor $f$ as:
+
+$$\widehat\epsilon_\text{train} = \frac{1}{N_\text{train}} \sum_{(x,z)\in\text{Training Set}} \1\{f(x)\ne z\}$$
+$$\widehat\epsilon_\text{train} = \frac{1}{N_\text{train}} \sum_{(x,z)\in\text{Training Set}} \1\{f(x)\ne z\}$$
+
+We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $z\in {0,...,9}$ is mapped to the standard basis vector $e_z$ where $e_z$ is a vector of all zeros except for a $1$ in the $z$th position. We adopt the notation where we have $n$ data points in our training objective with features $x_i\in R^d$ and label one-hot encoded as $y_i\in{0,1}^k$ where in this case $k=10$ since there are 10 digits.
 \begin{enumerate}
-	\item \points{1} What is $Ac$? \\ It's a matrix multiplication operation!
-	\begin{align*}
-	    \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2+4 \\ 2+4+2 \\ 3+3+1 \end{bmatrix} = \begin{bmatrix} 6 \\ 8 \\ 7 \end{bmatrix}
-	\end{align*}
-	\item \points{2} What is the solution to the linear system $Ax = b$? (Show your work). \\
-	Sequence of operations is as follows: 
-	\begin{enumerate}
-	    \item switch first and second row and divide first row by 2 (sets (1,1) to 1) and zero out first column,
-	    \item divide second row by two and zero out second column, 
-	    \item divide 3rd row by 4 and zero out 3rd column.
-	\end{enumerate}
-	\begin{align*}
-	    \begin{bmatrix} 0 & 2 & 4 \\ 2 & 4 & 2 \\ 3 & 3 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} &= \begin{bmatrix} -2 \\ -2 \\ -4 \end{bmatrix} \\
-	    \left[\begin{array}{ccc|c} 
-	    0 & 2 & 4 & -2 \\ 2 & 4 & 2 & -2 \\ 3 & 3 & 1 & -4 \\
-	    \end{array} \right] &\equiv 
-	    \left[\begin{array}{ccc|c} 
-	    1 & 2 & 1 & -2 \\ 0 & 2 & 4 & -2 \\ 0 & -3 & -2 & -1 \\
-	    \end{array} \right] \equiv \\
-	    \left[\begin{array}{ccc|c} 
-	    1 & 0 & 1 & -3 \\ 0 & 1 & 2 & -1 \\ 0 & 0 & 4 & -4 \\
-	    \end{array} \right] &\equiv
-	    \left[\begin{array}{ccc|c} 
-	    1 & 0 & 0 & -2 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 1 & -1 \\
-	    \end{array} \right] 
-	    \rightarrow x = \begin{bmatrix} -2 \\ 1 \\ -1 \end{bmatrix}
-	\end{align*}
-\end{enumerate}
+    \item \points{10} In  this  problem  we  will  choose  a  linear  classifier  to  minimize  the  regularized  least  squares objective:
+    
+    $$\widehat W = \argmin_{W\in\R^{d\times k}} \sum_{i=0}^n ||W^Tx_i - y_i||^2_2 + \lambda ||W||^2_F$$
+    
+    Note that $||W||_F$ corresponds to the Frobenius norm of $W$, i.e. $||W||^2_F = \sum_{j=0}^d\sum_{i=0}^k W^2_{i,j}$. To classify a point $x_i$ we will use the rule $\argmax_{j=0,\hdots 9} e_j^T \widehat W^T x_i$. Note that if $W=[w_1 \hdots w_k]$ then
+    
+    \begin{align*}
+        \sum_{i=0}^n||W^Tx_i - y_i||^2_2 + \lambda||W||^2_F &= 
+        \sum_{j=0}^k\left[ \sum_{i=0}^n(e^T_jW^Tx_i - e_j^Ty_i)^2 + \lambda ||W_{e_j}||^2\right] \\
+        &= \sum_{j=0}^k\left[ \sum_{i=0}^n(w_j^Tx_i - e_j^Ty_i)^2 + \lambda ||w_j||^2\right] 
+        = \sum_{j=0}^k\left[||Xw_j - Ye_j||^2 + \lambda ||w_j||^2\right]
+    \end{align*}{}
+    
+    where $X=[x_1\hdots x_n]^T\in\R^{n\times d}$ and $Y=[y_1\hdots y_n]^T\in\R^{n\times k}$. Show that:
+    
+    $$\widehat W = (X^TX+\lambda I)^{-1}X^TY$$ \\
+    
+    The given hints demonstrates, in simplified terms, that $\argmax||W^Tx_i+y_i|| = \argmax||XW+y||$ so we apply the same to $\argmin$ and rewrite given least squares objective $\widehat W$ as:
+    
+    $$\widehat W = \argmin_{W\in\R^{d\times k}} ||XW - y||^F_2 + \lambda ||W||^2_F$$
+
+    Taking the derivative (see HW0 A.10.b) $\nabla_x = \frac{\partial}{\partial x}^T$), with respect to $W$ and equating with 0:
+    \begin{align*}
+        \nabla_W \left(||XW||^2_F + \lambda ||W||^2_F\right) &= -2X^T(y-XW) + 2\lambda W = 0 \\
+        X^TXW - X^Ty + \lambda W &= 0 \\
+        (X^TX + \lambda I)W &= X^Ty \\
+        W &= (X^TX+\lambda I)^{-1}X^Ty
+    \end{align*}{}
+    
+    
+    
+    
+\end{enumerate}{}
+
+
 
 \newpage
 A.9 (Hyperplanes) Assume $w$ is an $n$-dimensional vector and $b$ is a scalar. A hyperplane in $\R^n$ is the set $\{x : x\in \R^n,\text{ s.t. } w^T x + b = 0\}$.
