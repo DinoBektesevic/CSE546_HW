@@ -251,6 +251,14 @@ If we increase the amount of regularization we get the following plot:
 \end{center} 
 Obviously the regularization parameter penalizes large parameter values until the point where said penalty is large enough for the fit to not even deviate from offset value. The implementation of polynomial regression is based on the provided closed form solution:
 \begin{lstlisting}[language=Python]
+'''
+    Template for polynomial regression
+    AUTHOR Eric Eaton, Xiaoxiang Hu
+'''
+
+import numpy as np
+
+
 #-----------------------------------------------------------------
 #  Class PolynomialRegression
 #-----------------------------------------------------------------
@@ -337,7 +345,7 @@ class PolynomialRegression:
 
         # construct reg matrix
         reg_matrix = self.regLambda * np.eye(self.degree+1)
-        reg_matrix[0, 0] = 0
+        reg_matrix[0,0] = 0
 
         # analytical solution (X'X + regMatrix)^-1 X' y
         self.theta = np.linalg.pinv(X_.T.dot(X_) + reg_matrix).dot(X_.T).dot(y)
@@ -354,7 +362,7 @@ class PolynomialRegression:
         """
         X_ = self.polyfeatures(X, self.degree)
         X_ = self.standardize(X_)
-        X_ = np.c_[np.ones([len(X), 1]), X_]        
+        X_ = np.c_[np.ones([len(X), 1]), X_]
         return X_.dot(self.theta)
 
 
@@ -479,21 +487,6 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section*{Ridge Regression on MNIST}
 A.6. In this problem we will implement a regularized least squares classifier for the MNIST data set. The task is to classify handwritten images of numbers between 0 to 9.You are NOT allowed to use any of the pre-built classifiers in sklearn. Feel free to use any method from numpy or scipy. Remember: if you are inverting a matrix in your code, you are probably doing something wrong (Hint: look at scipy.linalg.solve). Get the data from \url{https://pypi.python.org/pypi/python-mnist}. Load the data as follows:
 \begin{lstlisting}[language=Python]
@@ -513,34 +506,36 @@ $$\widehat\epsilon_\text{train} = \frac{1}{N_\text{train}} \sum_{(x,z)\in\text{T
 We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $z\in {0,...,9}$ is mapped to the standard basis vector $e_z$ where $e_z$ is a vector of all zeros except for a $1$ in the $z$th position. We adopt the notation where we have $n$ data points in our training objective with features $x_i\in R^d$ and label one-hot encoded as $y_i\in{0,1}^k$ where in this case $k=10$ since there are 10 digits.
 \begin{enumerate}
     \item \points{10} In  this  problem  we  will  choose  a  linear  classifier  to  minimize  the  regularized  least  squares objective:
-    
     $$\widehat W = \argmin_{W\in\R^{d\times k}} \sum_{i=0}^n ||W^Tx_i - y_i||^2_2 + \lambda ||W||^2_F$$
-    
     Note that $||W||_F$ corresponds to the Frobenius norm of $W$, i.e. $||W||^2_F = \sum_{j=0}^d\sum_{i=0}^k W^2_{i,j}$. To classify a point $x_i$ we will use the rule $\argmax_{j=0,\hdots 9} e_j^T \widehat W^T x_i$. Note that if $W=[w_1 \hdots w_k]$ then
-    
     \begin{align*}
         \sum_{i=0}^n||W^Tx_i - y_i||^2_2 + \lambda||W||^2_F &= 
         \sum_{j=0}^k\left[ \sum_{i=0}^n(e^T_jW^Tx_i - e_j^Ty_i)^2 + \lambda ||W_{e_j}||^2\right] \\
         &= \sum_{j=0}^k\left[ \sum_{i=0}^n(w_j^Tx_i - e_j^Ty_i)^2 + \lambda ||w_j||^2\right] 
         = \sum_{j=0}^k\left[||Xw_j - Ye_j||^2 + \lambda ||w_j||^2\right]
     \end{align*}{}
-    
     where $X=[x_1\hdots x_n]^T\in\R^{n\times d}$ and $Y=[y_1\hdots y_n]^T\in\R^{n\times k}$. Show that:
-    
     $$\widehat W = (X^TX+\lambda I)^{-1}X^TY$$ \\
     
-    The given hints demonstrates, in simplified terms, that $\argmax||W^Tx_i+y_i|| = \argmax||XW+y||$ so we apply the same to $\argmin$ and rewrite given least squares objective $\widehat W$ as:
-    
-    $$\widehat W = \argmin_{W\in\R^{d\times k}} ||XW - y||^2_F + \lambda ||W||^2_F$$
-
-    Taking the derivative (see HW0 A.10.b) $\nabla_x = \frac{\partial}{\partial x}^T$), with respect to $W$ and equating with 0:
+    In class, lecture 3 slide cca. 25 onward, it was already shown how to decompose $\argmin_W\sum_i^k (||xw_i-y_i||^2+\lambda ||w||^2_2)$ as a $\hat w = (X^TX+\lambda I)^{-1}X^Ty$ when we were trying to derive the closed form solution for least squares problem. This problem is effectively asking us to do the same except it is also required from us to notice that by stacking the data points into a matrix, so that $X=[x_1 \hdots x_N]^T$ and $Y=[y_1 \hdots y_N]^T$\footnote{note however that each $x_i \in \R^d$ and $y_i\in \{0,1\}^k$, thus producing what was given to us in the problem itself $X=[x_1\hdots x_n]^T\in\R^{n\times d}$ and $Y=[y_1\hdots y_n]^T\in\R^{n\times k}$.}, by simple extension we can express the $W$ as an $k\times d$ matrix by stacking the single decomposition as:
+    $$ \widehat W = 
+    \begin{bmatrix} 
+        (X^TX+\lambda I_d)^{-1}X^Ty_1 \\ 
+        \vdots \\ 
+        (X^TX+\lambda I_d)^{-1}X^Ty_k
+    \end{bmatrix} 
+    = (X^TXW+\lambda I_d)^{-1}X^TY \in \R^{k\times d}
+    $$
+    I suspect what is really wanted of us is to take the gradient with respect to $W$ of the given expression for $\widehat W$. Starting from the last line of the hint, keeping in mind $Ye_j=y_j$: 
     \begin{align*}
-        \nabla_W \left(||XW||^2_F + \lambda ||W||^2_F\right) &= 2X^T(XW-y) + 2\lambda W = 0 \\
-        X^TXW - X^Ty + \lambda W &= 0 \\
-        (X^TX + \lambda I)W &= X^Ty \\
-        W &= (X^TX+\lambda I)^{-1}X^Ty
+        &\sum_{j=0}^k \frac{\partial}{\partial w_j} \left(||Xw_j - y_j||^2 + \lambda ||w_j||^2\right) = 0 \\
+        &\sum_{j=0}^k 2X^T(Xw_j - y_j) + 2\lambda w_j = 0 \\
+        2&\sum_{j=0}^k X^TXw_j - X^Ty_j + \lambda w_j = 0 \\
+        &\sum_{j=0}^k (X^TX + \lambda)w_j = \sum_{j=0}^k X^Ty_j \\
+        &\sum_{j=0}^k w_j = \sum_{j=0}^k \frac{X^Ty_j}{(X^TX + \lambda)} \\
     \end{align*}{}
-    
+    Which is exactly the entire $\widehat W$ if we stack all of the $w_j$ elements on top of each other in a matrix, keeping in mind that the same needs to happen for $y$ and the $w_j$ that was divided out next to $\lambda$:
+    $$W = (X^TX+\lambda I_d)^{-1}X^Ty$$
     
     \item \points{10} Code up a function train that takes as input $X\in\R^{n\times d},Y\in {0,1}^{n\times k},\lambda>0$ and returns $\hat W$.
     \begin{enumerate}
