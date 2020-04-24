@@ -161,7 +161,7 @@ since normalization is given by $\theta$. MLE is then found by
 \theta &= -n
 \end{align*}
 
-What the last line is telling us is that $\ln L$ has an extrema at $\theta=-n$. But that isn't very informative, we would rather have a connection between $\theta$ and $X_i$ when maximizing $\ln L$. Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}(-l_n)  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at 
+What the last line is telling us is that $\ln L$ has an extrema at $\theta=-n$. But that isn't very informative, we would rather have a connection between $\theta$ and $X_i$ when $\ln L$ is maximized. Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}(-l_n)  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at 
 
 $$\theta_{MLE}=max(x_i \leq \theta)$$. 
 
@@ -543,7 +543,7 @@ We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $
     \item \points{10} Code up a function train that takes as input $X\in\R^{n\times d},Y\in {0,1}^{n\times k},\lambda>0$ and returns $\hat W$.
     \begin{enumerate}
         \item Code up a function predict that takes as input $W\in\R^{d\times k},X\in\R^{m\times d}$ and returns an m-length vector with the i-th entry equal to $\argmax_{j=0,...,9}e^T_jW^Tx_i$ where $x_i$ is a column vector representing the i-th example from $X$.
-        \item Train $wide\hat W$ on the MNIST training data with $\lambda = 10-4$ and make label predictions on the test data. What is the training and testing error? Note that they should both be about 15\%.
+        \item Train $\widehat W$ on the MNIST training data with $\lambda = 10-4$ and make label predictions on the test data. What is the training and testing error? Note that they should both be about 15\%.
     \end{enumerate}
     The full code is below. Running it returns error values:
     
