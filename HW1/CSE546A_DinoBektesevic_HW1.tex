@@ -67,23 +67,23 @@ Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
 A.0 The answers to these questions should be answerable without referring to external materials.
 \begin{enumerate}
     \item \points{2} In your own words, describe what bias and variance are? What is bias-variance tradeoff? \newline
-    Bias is the error we incur by assuming a model, since models don't necessarily describe the underlying truth they will attempt to "rephrase" it in terms of assumptions and/or approximations made in the model itself. Variance is the error that comes about due to the spread in our data. At a fine enough level all processes will have some amount of variance. Fitting a model to that data will produce an estimator of measured dataset. Remeasuring and refitting a model might produce a slightly, or significantly, different estimator due to the variance between measured data points. That slight difference in expected estimator is the model variance. \newline
-    The more complex the model we use the more of intricate details of the underlying truth it can capture. This leads to low bias but also opens the doors to high variance if the measured dataset varies a lot between measurements. On the other hand, having a simple model might reduce the complexity and be able to better ignore the variance in the data but once fitted might not correspond with the truth. The inability to chose arbitrarily complex model without having the variance explode or, vice-versa, choosing arbitrarily simple model while not having bias explode is called bias-variance trade-off.
+    Bias is the error we incur by assuming a model. Since models don't necessarily describe the underlying truth they will attempt to "rephrase" it in terms of assumptions and/or approximations made in the model itself. Variance is the error that comes about due to the spread in our data. At a fine enough level all processes will have some amount of variance. Fitting a model to that data will produce an estimator of recorded data set. Remeasuring and refitting a model might produce a slightly, or significantly, different estimator due to the variance between data points of the two respective data sets. That slight difference in expected estimator is the model variance. \newline
+    The more complex the model we use, the more of intricate details of the underlying truth it can capture. This leads to low bias but also, if the data varies a lot between measurements, opens the doors to high variance. Having a simple model might reduce the complexity, and might be better at ignoring the variance in the data, but once fitted might not correspond with the truth. The inability to chose arbitrarily complex model without having the variance explode or, vice-versa choosing arbitrarily simple model while not having bias explode, is called bias-variance trade-off.
 
     \item \points{2} What happens to bias and variance when the model complexity increases/decreases? \newline
-    See above. Bias tends to reduce with model complexity but variance tends to increase. 
+    Bias tends to reduce with model complexity while variance tends to increase. 
 
     \item\points{1} True or False:  The bias of a model increases as the amount of training data available increases.\newline
-    False. Bias is related to underlying inability of a model to describe the truth. That statement holds irregardless of the amount of data we have. The fit gets better because the variance of the model will reduce the more data we have to train on.
+    False. Bias is related to underlying inability of a model to describe the truth. That statement holds irregardless of the amount of data we have. The fit gets better because the more data we train on the more variance will reduce.
 
     \item\points{1} True  or  False:  The  variance  of  a  model  decreases  as  the  amount  of  training  data  available increases.\newline
     True. See above, variance decreases.
 
     \item\points{1} True or False:  A learning algorithm will generalize better if we use less features to represent our data.\newline
-    T/F. Generalize with respect to what? Modelling broken spaghetti length that correctly predicts atmospheric pressure over Antarctica for 2 months of 2020 is general but not useful. 
+    True. While true that a 1 parameter model can be great at, f.e., predicting averages of anything, they can also be useless if they can't inform us. Generally the best case scenario is when features can be identified as real parameters of an analytical model. Sometimes, for complex systems that have no good analytical model, adding more features might help, by capturing the parameters missing from the model, but in general adding more features tends to hurt the model.
 
     \item\points{2} To get better generalization, should we use the train set or the test set to tune our hyperparameters?\newline
-    Always generalize on the test set. We're told it's a fact of life and I don't want to get yelled at by the professors.
+    Always generalize on the test set. We're told it's a fact of life and that we will be yelled at if we do otherwise. So, hyperparameters are also tuned on the train set, or perhaps better yet a validation set. 
 
     \item\points{1} True or False:  The training error of a function on the training set provides an overestimate of the true error of that function. \newline
     False. Training error will always be less than the test error. True error is estimated on test data set, not on the training data set.
@@ -200,17 +200,20 @@ We then train our algorithm (for example, using linear least squares regression)
     
     $$\E_\text{train} [\widehat\epsilon_\text{train}(f)] = \epsilon(f)$$
     
-    And the same applies to $\E_\text{test}$ with the caveat that the sum would run over $S_\text{test}$ because the pairs $(x_i,y_i)$ remain iid rvs. 
+    And the same applies to $\E_\text{test}$, with the caveat that the sum would run over $S_\text{test}$, because the pairs $(x_i,y_i)$ remain iid rvs with respect to the test dataset. 
 
     Use a similar line of reasoning to show that the test error is an unbiased estimate of our true error for $\hat f$. Specifically, show that: 
     
-    $$\E_\text{test}[\widehat\epsilon_\text{test}(\hat f) = \widehat\epsilon(\hat f)$$
+    $$\E_\text{test}[\widehat\epsilon_\text{test}(\hat f) = \epsilon(\hat f)$$
     
-    Using the same reasoning as above we can expand, and then collapse back, the following expression:
+    Using the same reasoning as above:
     \begin{align*}
-    \E_\text{test}[\widehat\epsilon_\text{test}(\hat f) = \frac{1}{N_\text{test}} \sum_{(x,y)\in S_\text{test}} \E_\text{train}\left[ (f(x)-y)^2 \right]     
+    \E_\text{test}[\widehat\epsilon_\text{test}(\hat f) &= \E_\text{test}\left[ \frac{1}{N_\text{test}} \sum_{(x,y)\in S_\text{test}} (\hat f(x)-y)^2 \right]    \\
+    &= \frac{1}{N_\text{test}} \sum_{(x,y)\in S_\text{test}} \E_\text{test}\left[ (\hat f(x)-y)^2 \right] \\
+    &=  \epsilon_\text{test}(\hat f)
     \end{align*}{}
     
+    Because in this context $\hat f$ is still just some fixed $f$ so we can apply the same reasoning shown above. 
     
     \item\points{4} (bias: the train/dev error) Is the above equation true (in general) with regards to the training loss? Specifically, does $\E_\text{train}[\widehat\epsilon_\text{train}(\hat f)] = \E_\text{train}[\epsilon(\hat f)]$? If so, why? If not, give a clear argument as to where your previous argument breaks down. \\
     
@@ -222,22 +225,23 @@ We then train our algorithm (for example, using linear least squares regression)
     
     (Hint:  note that
     \begin{align*}
-        E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})] =& \\
+        \E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})]
         &= \sum_{f \in F} \E_\text{train,test}[\widehat\epsilon_\text{test}(f)\1{\hat f_\text{train}=f}] \\
         &= \sum_{f \in F} \E_\text{test}[\widehat\epsilon_\text{test}(f)]\E_\text{train}[\1{\hat f_\text{train}=f}] \\ 
         &= \sum_{f \in F} \E_\text{test}[\widehat\epsilon_\text{test}(f)] \P_\text{train}(\hat f_\text{train}=f)
     \end{align*}
     where the second equality follows from the independence between the train and test set.) \\
     
-    Consider the definition of $\hat f = \argmin_{f\in \mathcal{F}} \widehat\epsilon_\text{train}(f)$ in:
-    \begin{align*}
-        \E_\text{train} [\hat f] &= \E_\text{train}[\argmin_{f\in \mathcal{F}} \widehat\epsilon_\text{train}(f)] \\
-        &\leq \argmin_{f\in \mathcal{F}}\E_{\text{test}}[\widehat\epsilon_{\text{train}}(f)] \\
-        &\leq \E_{\text{train}}[\widehat\epsilon_{\text{train}}(\hat f_\text{train})] \\
-    \end{align*}{}
+    From a) we know $\E_\text{train}[\widehat\epsilon_\text{train}(f)] = \E_\text{test}[\widehat\epsilon_\text{test}(f)]$ for any fixed $f\in \mathcal{F}$. In general we also know $\E_\text{train}[\widehat\epsilon_\text{train}(f)] \geq \E_\text{train}[\epsilon_\text{train}(\hat f)]$. Starting, as not to repeat myself, from the last line of the hint:
     
-    where we used the rule that $\E_x[\min_\xi f(x, \xi) \leq \min_\xi \E_x[f(x,\xi)]$
-\end{enumerate}
+    \begin{align*}
+        \E_\text{train,test}[\widehat\epsilon_\text{test}(\hat f_\text{train})] &= \sum_{f \in F} \E_\text{test}[\widehat\epsilon_\text{test}(f)] \P_\text{train}(\hat f_\text{train}=f) \\
+        &= \sum_{f \in F} \E_\text{train}[\widehat\epsilon_\text{train}(f)] \P_\text{train}(\hat f_\text{train}=f) \\
+        &= \E_\text{train}[\widehat\epsilon_\text{train}(f)] \\
+        &\geq \E_\text{train}[\epsilon_\text{train}(\hat f)]
+    \end{align*}{}
+    o by implication so will $\E_\text{train}[\widehat \epsilon_\text{train}(\hat f)]$
+    \end{enumerate}
 
 \newpage
 \section*{Polynomial Regression}
@@ -264,18 +268,10 @@ If we increase the amount of regularization we get the following plot:
     \includegraphics[width=4in]{HW1/HW1_plots/PolyFitRegularization.png}
 \end{center} 
 Obviously the regularization parameter penalizes large parameter values until the point where said penalty is large enough for the fit to not even deviate from offset value. The implementation of polynomial regression is based on the provided closed form solution:
+
+\newpage
 \begin{lstlisting}[language=Python]
-'''
-    Template for polynomial regression
-    AUTHOR Eric Eaton, Xiaoxiang Hu
-'''
-
 import numpy as np
-
-
-#-----------------------------------------------------------------
-#  Class PolynomialRegression
-#-----------------------------------------------------------------
 
 class PolynomialRegression:
     def __init__(self, degree=1, reg_lambda=1E-8):
@@ -288,7 +284,6 @@ class PolynomialRegression:
         self._mean = None
         self._std = None
 
-
     def _expandToDegree(self, X, degree=None):
         """Expands the given column vector to a (n,d) matrix where elements are
         powers of values x_i including the zero-th order.
@@ -300,7 +295,6 @@ class PolynomialRegression:
         if degree is None:
             degree = self.degree
         return (X[:,None]**np.arange(degree+1))[:, 0, :]
-
 
     def polyfeatures(self, X, degree):
         """
@@ -319,7 +313,6 @@ class PolynomialRegression:
         self.degree = degree
         return self._expandToDegree(X, degree)[:, 1:]
 
-
     def standardize(self, X, mean=None, std=None):
         """Returns a standardized copy of the array using the given weights.
 
@@ -332,7 +325,6 @@ class PolynomialRegression:
         for row in X:
             standardized.append((row-mean)/std)
         return np.vstack(standardized)
-
 
     def fit(self, X, y):
         """
@@ -354,7 +346,7 @@ class PolynomialRegression:
         self._std = np.std(X_, axis=0)
         X_ = self.standardize(X_)
 
-        # add a column of oens
+        # add a column of ones
         X_ = np.c_[np.ones([len(X), 1]), X_]
 
         # construct reg matrix
@@ -364,7 +356,6 @@ class PolynomialRegression:
         # analytical solution (X'X + regMatrix)^-1 X' y
         self.theta = np.linalg.pinv(X_.T.dot(X_) + reg_matrix).dot(X_.T).dot(y)
         return self.theta
-
 
     def predict(self, X):
         """
@@ -378,13 +369,11 @@ class PolynomialRegression:
         X_ = self.standardize(X_)
         X_ = np.c_[np.ones([len(X), 1]), X_]
         return X_.dot(self.theta)
-
-
-#-----------------------------------------------------------------
-#  End of Class PolynomialRegression
-#-----------------------------------------------------------------
 \end{lstlisting} 
+
+\newpage
 The code that produces the various regularization parameter plots is a modification of the provided testpolyregunivariate.py script. 
+
 \begin{lstlisting}[language=Python]
 import numpy as np
 import matplotlib.pyplot as plt
@@ -443,15 +432,11 @@ if __name__ == "__main__":
 
 \newpage
 A.5. \points{10} In this problem we will examine the bias-variance tradeoff through learning curves. Learning curves provide a valuable mechanism for evaluating the bias-variance tradeoff. Implement the learningCurve()function in polyreg.py to compute the learning curves for a given training/test set. The learningCurve(Xtrain,ytrain, Xtest, ytest, degree, regLambda) function should take in the training data (Xtrain,ytrain), the testing data (Xtest,ytest), and values for the polynomial degree $d$ and regularization parameter $\lambda$.The function should return two arrays, errorTrain (the array of training errors) and errorTest(the array of testing errors). The ith index (start from 0) of each array should return the training error (or testing error) for learning with $i+1$ training instances. Note that the 0th index actually won’t matter, since we typically start displaying the learning curves with two or more instances. When computing the learning curves, you should learn on $X_\text{train}[0:i]$ for $i= 1,...,\text{numInstances(Xtrain) + 1}$,each time computing the testing error over the entire test set. There is no need to shuffle the training data, or to average the error over multiple trials - just produce the learning curves for the given training/testing sets with the instances in their given order. Recall that the error for regression problems is given by:
-
 $$\frac{1}{n}\sum_{i=1}^n h_\theta (x_i) - y_i)^2 $$
-
 Once the function is written to compute the learning curves, run thetestpolyreglearningCurve.py script to plot the learning curves for various values of $\lambda$ and $d$.\\
-
 \begin{center}
     \includegraphics[width=4in]{HW1/HW1_plots/LearningCurves.png}
 \end{center} 
-
 \begin{lstlisting}[language=Python]
 def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
     """
@@ -500,7 +485,7 @@ def learningCurve(Xtrain, Ytrain, Xtest, Ytest, reg_lambda, degree):
 
 
 
-
+\newpage
 \section*{Ridge Regression on MNIST}
 A.6. In this problem we will implement a regularized least squares classifier for the MNIST data set. The task is to classify handwritten images of numbers between 0 to 9.You are NOT allowed to use any of the pre-built classifiers in sklearn. Feel free to use any method from numpy or scipy. Remember: if you are inverting a matrix in your code, you are probably doing something wrong (Hint: look at scipy.linalg.solve). Get the data from \url{https://pypi.python.org/pypi/python-mnist}. Load the data as follows:
 \begin{lstlisting}[language=Python]
@@ -518,6 +503,7 @@ $$\widehat\epsilon_\text{train} = \frac{1}{N_\text{train}} \sum_{(x,z)\in\text{T
 $$\widehat\epsilon_\text{train} = \frac{1}{N_\text{train}} \sum_{(x,z)\in\text{Training Set}} \1\{f(x)\ne z\}$$
 
 We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $z\in {0,...,9}$ is mapped to the standard basis vector $e_z$ where $e_z$ is a vector of all zeros except for a $1$ in the $z$th position. We adopt the notation where we have $n$ data points in our training objective with features $x_i\in R^d$ and label one-hot encoded as $y_i\in{0,1}^k$ where in this case $k=10$ since there are 10 digits.
+\newpage
 \begin{enumerate}
     \item \points{10} In  this  problem  we  will  choose  a  linear  classifier  to  minimize  the  regularized  least  squares objective:
     $$\widehat W = \argmin_{W\in\R^{d\times k}} \sum_{i=0}^n ||W^Tx_i - y_i||^2_2 + \lambda ||W||^2_F$$
@@ -551,6 +537,7 @@ We will use one-hot encoding of the labels, i.e. of $(x,z)$ the original label $
     Which is exactly the entire $\widehat W$ if we stack all of the $w_j$ elements on top of each other in a matrix, keeping in mind that the same needs to happen for $y$ and the $w_j$ that was divided out next to $\lambda$:
     $$W = (X^TX+\lambda I_d)^{-1}X^Ty$$
     
+    \newpage
     \item \points{10} Code up a function train that takes as input $X\in\R^{n\times d},Y\in {0,1}^{n\times k},\lambda>0$ and returns $\hat W$.
     \begin{enumerate}
         \item Code up a function predict that takes as input $W\in\R^{d\times k},X\in\R^{m\times d}$ and returns an m-length vector with the i-th entry equal to $\argmax_{j=0,...,9}e^T_jW^Tx_i$ where $x_i$ is a column vector representing the i-th example from $X$.
@@ -566,8 +553,10 @@ Test error: 0.1466
 
 \begin{lstlisting}[language=Python]
 import numpy as np
-from mnist import MNIST
 from scipy import linalg
+import matplotlib . pyplot as plt
+
+from mnist import MNIST
 
 
 def load_mnist_dataset(path="data/mnist_data/"):
@@ -589,7 +578,7 @@ def load_mnist_dataset(path="data/mnist_data/"):
     test : `np.array`
         test data normalized to 1
     testLabels : `np.array`
-        test data labels    
+        test data labels
     """
     mndata = MNIST("data/mnist_data/")
 
@@ -616,7 +605,7 @@ def one_hot(length, index):
     Returns
     -------
     arr : `np.array`
-        Array of zeros except for arr[index]=1. 
+        Array of zeros except for arr[index]=1.
     """
     arr = np.zeros(length)
     arr[index] = 1
@@ -624,7 +613,7 @@ def one_hot(length, index):
 
 
 def train(X, Y, lamb):
-    """Given data, labels and regularization constant lambda solves 
+    """Given data, labels and regularization constant lambda solves
 
     $$ W = (X^T X) + \lambda I $$
 
@@ -646,7 +635,6 @@ def train(X, Y, lamb):
         Matrix of weights that minimize the linear least squares.
     """
     n, d = X.shape
-
     a = np.dot(X.T, X) + lamb*np.eye(d)
     b = np.dot(X.T, Y)
     wHat = linalg.solve(a, b)
@@ -701,21 +689,21 @@ def calc_success_fraction(W, data, labels):
     fracCorrect : `float`
         Fraction of correctly predicted labels
     fracWrong : `float`
-        Fraction of incorrectly predicted labels 
+        Fraction of incorrectly predicted labels
     """
     n, d = data.shape
     labelDim = labels.shape[-1]
 
-    wrong = np.sum(np.abs(predict(W, data, labelDim) - labels))
+    wrong = np.sum(np.abs(predict(W, data, labelDim) - labels)) / 2.0
     # 2 is required because abs value will contribute double to the sum
-    fracWrong = wrong/(2.0*n)
+    fracWrong = wrong/n
     fracCorrect = 1 - fracWrong
 
     return fracCorrect, fracWrong
 
 
-def main(lambd=1e-4):
-    """Given the dimension of label space and regularization parameter value
+def mainA6(lambd=1e-4):
+    """Given the dimension of label space and regularization parameter value,
     trains a model on the MNIST train dataset, predicts the labels on the MNIST
     test dataset and calculates the fraction of wrongly predicted labels.
 
@@ -731,17 +719,17 @@ def main(lambd=1e-4):
     testErr : `float`
         Test error, fraction of incorrectly labeled test data
     """
-    xTrain, trainLabels, xTest, testLabels = load_mnist_dataset()
-    n, d = xTrain.shape
+    trainData, trainLabels, testData, testLabels = load_mnist_dataset()
+    n, d = trainData.shape
     labelDim = trainLabels.max() + 1 
 
-    yTrain = np.array([one_hot(labelDim, y) for y in trainLabels])
-    yTest  = np.array([one_hot(labelDim, y) for y in testLabels])
+    trainOneHot = np.array([one_hot(labelDim, y) for y in trainLabels])
+    testOneHot  = np.array([one_hot(labelDim, y) for y in testLabels])
 
-    wHat = train(xTrain, yTrain, lambd)
+    wHat = train(trainData, trainOneHot, lambd)
 
-    trainErr = calc_success_fraction(wHat, xTrain, yTrain)[-1]
-    testErr  = calc_success_fraction(wHat, xTest,  yTest)[-1]
+    trainErr = calc_success_fraction(wHat, trainData, trainOneHot)[-1]
+    testErr  = calc_success_fraction(wHat, testData,  testOneHot)[-1]
     print(f"Train error: {trainErr}")
     print(f"Test error: {testErr}")
 
@@ -749,7 +737,11 @@ def main(lambd=1e-4):
 
 
 if __name__ == "__main__":
-    main()
+    mainA6()
+    #mainB2()
+    #plotB2()
+    #confidence_intervalB2()
+
 \end{lstlisting}
     
     
