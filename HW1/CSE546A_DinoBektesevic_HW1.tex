@@ -157,11 +157,10 @@ since normalization is given by $\theta$. MLE is then found by
 
 \begin{align*}
 \widehat\theta_{MLE} &= \argmax_\theta l_n(X|\theta) = \argmax_\theta -n\ln\theta \\
-0 &= \frac{d}{d\theta}(-n\ln\theta) = \frac{-n}{\theta} \\
-\theta &= -n
+ \frac{d}{d\theta}(\ln l_n) &= \frac{d}{d\theta}(-n\ln\theta) = -\frac{n}{\theta} 
 \end{align*}
 
-What the last line is telling us is that $\ln L$ has an extrema at $\theta=-n$. But that isn't very informative, we would rather have a connection between $\theta$ and $X_i$ when $\ln L$ is maximized. Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}(-l_n)  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at 
+Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}(-l_n)  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at 
 
 $$\theta_{MLE}=max(x_i \leq \theta)$$. 
 
