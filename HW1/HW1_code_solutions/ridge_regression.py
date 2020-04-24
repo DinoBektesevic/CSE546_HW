@@ -326,17 +326,10 @@ def plotB2():
     plt.show()
 
 
-def confidence_intervalB2(lambd=1e-4, splitFraction=0.8):
-    """Given the dimension of label space and regularization parameter value,
-    loads the MNIST train and test datasets, splits the train dataset into the
-    train and validation datasets 80:20 in size, transforms the train and
-    validation datasets into cosine space (see help(transform)), trains a model,
-    and finally predicts the labels for both train and validation datasets for
-    various values of p, where p is the dimension of the transformation image.
-
-    Outputs the p, training accuracy, training error, validation accuracy and
-    validation error into a file "B2Accuracy" as a space separated columnar
-    data file. 
+def confidence_intervalB2(lambd=1e-4, splitFraction=0.8, d=0.05):
+    """Reads B2Accuracy file outputted by mainB2 and calculates the confidence
+    interval by training a model with the minimal value of p and then fitting
+    MNIST test data set.
 
     Parameters
     ----------
@@ -349,9 +342,12 @@ def confidence_intervalB2(lambd=1e-4, splitFraction=0.8):
 
     Returns
     -------
-    outfile : `file`
-        Writes a "B2Accuracy" file containing errors and accuracies to disk,
-        in the directory the code was run from.
+    testErr : `float`
+        Testing error, effectively an unbiased estimator of true error of the
+        model
+    hoeff : `float`
+        Factor under the square root in the Hoeffding's inequality. The
+        testErr +- hoeff give the confidence interval we are looking for.
     """
     trainData, trainLabels, testData, testLabels = load_mnist_dataset()
     labelDim = trainLabels.max() + 1 
@@ -377,12 +373,12 @@ def confidence_intervalB2(lambd=1e-4, splitFraction=0.8):
 
     testAcc, testErr = calc_success_fraction(wHat, testH, testOneHots)
 
-    d = 0.05
     m = len(testH)
     hoeff = np.sqrt(np.log(2.0/d)/(2.0*m))
     print(f"Testing error at hat p is {testErr}.")
     print(f"For delta={d}, m={m}, we  have the 95% confidence interval: [{testErr-hoeff, testErr+hoeff}].")
 
+    return testErr, hoeff
 
 if __name__ == "__main__":
     #mainA6()
