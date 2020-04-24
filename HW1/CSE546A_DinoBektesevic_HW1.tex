@@ -83,7 +83,7 @@ A.0 The answers to these questions should be answerable without referring to ext
     True. While true that a 1 parameter model can be great at, f.e., predicting averages of anything, they can also be useless if they can't inform us. Generally the best case scenario is when features can be identified as real parameters of an analytical model. Sometimes, for complex systems that have no good analytical model, adding more features might help, by capturing the parameters missing from the model, but in general adding more features tends to hurt the model.
 
     \item\points{2} To get better generalization, should we use the train set or the test set to tune our hyperparameters?\newline
-    Always generalize on the test set. We're told it's a fact of life and that we will be yelled at if we do otherwise. So, hyperparameters are also tuned on the train set, or perhaps better yet a validation set. 
+    Always generalize on the train set. Hyperparameters should be tuned on the train set as well. Always work only on the train set, or potentially validation set, until the point you need to measure the true error. That is the only point at which we should use test set. 
 
     \item\points{1} True or False:  The training error of a function on the training set provides an overestimate of the true error of that function. \newline
     False. Training error will always be less than the test error. True error is estimated on test data set, not on the training data set.
@@ -161,7 +161,9 @@ since normalization is given by $\theta$. MLE is then found by
 \theta &= -n
 \end{align*}
 
-Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}-l_n  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at $\theta_{MLE}=max(x_i \leq \theta)$. 
+What the last line is telling us is that $\ln L$ has an extrema at $\theta=-n$. But that isn't very informative, we would rather have a connection between $\theta$ and $X_i$ when maximizing $\ln L$. Reversing the logic and looking at the negative log-likelihood $\frac{d}{d\theta}(-l_n)  = \frac{n}{\theta}$ it is apparent the smaller the $\theta$ the larger the negative log-likelihood. So the negative log-likelihood $-l_n$ is minimized for the $x_n$ closest to $\theta$. It should be now apparent that log-likelihood is therefore maximized at 
+
+$$\theta_{MLE}=max(x_i \leq \theta)$$. 
 
 
 \newpage
