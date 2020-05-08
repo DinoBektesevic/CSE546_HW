@@ -162,7 +162,7 @@ def A4setup(n=500, d=1000, k=100, sigma=1):
     return x, y, maxLambda, params
 
 
-def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True, lc='black', lw=5):
+def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True, lc='black', lw=2):
     """Plots a line on given axis.
 
     Parameters
@@ -252,8 +252,6 @@ def A4(nIter=20, tolerance=0.001):
          ylabel="True Discovery rate", title="True VS False Discovery rates.",
          xlog=False)
     plt.show()
-
-
 
 
 if __name__ == "__main__":
