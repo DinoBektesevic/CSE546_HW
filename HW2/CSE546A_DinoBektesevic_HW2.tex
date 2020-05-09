@@ -106,14 +106,13 @@ where first we applied the norm we are testing, wrote out its definition, found 
 \begin{align*}
 \centering
     -|a|\leq a &\leq |a| \\
-    -|b|\leq b &\leq |b| \\
-    -|a+b|\leq a+b &\leq |a+b|
+    -|b|\leq b &\leq |b|
 \end{align*}
-This is essentially a clever restating of the definition of absolute value function, where we really are saying that a number is either positive or negative number and then applying it to a sum of numbers. Summing the first two rows we have 
+Summing the first two rows we have 
 $$-(|a|+|b|)\leq a + b \leq |a| + |b| $$
-Since $|b|\leq a \rightarrow -a \leq b \leq a$, we can rewrite the third line as $|a+b|\leq a+b$ and, finally, by comparison (or applying the same rule again) with the line above we have:
-$$|a+b|\leq a+b \leq |a| + |b|$$
-This proof is effectively a clearer more verbose version of Wikipedia proof. It's hard to find yet another way to prove triangle inequality. Applying the triangle relativity in $\R$ we just proved to our problem:
+Since $|c|\leq d \rightarrow -d \leq c \leq d$, we identify $c:=a+b$ and $d:=|a|+|b|$ we rewrite the line above as:
+$$|a+b|\leq |a|+|b|$$
+This proof is effectively a clearer more verbose version of Wikipedia proof. It's hard to find yet another way to prove triangle inequality. Applying the triangle relativity in $\R$ to our problem:
 \begin{align*}
     f(\vec x + \vec y) &= ||\vec x + \vec y|| = \sum |x_i + y_i| \\
     & \leq \sum \left( |x_i| + |y_i|\right) \\
@@ -123,7 +122,23 @@ This proof is effectively a clearer more verbose version of Wikipedia proof. It'
 \end{align*}{}
 
 \newpage
-\item \points{2} Show that $g(x) =(\sum^n_{i=1}|x_i|^{1/2})^2$ is not a norm. (Hint: it suffices to find two points in $n= 2$ dimensions such that the triangle inequality does not hold.)
+\item \points{2} Show that $g(x) =(\sum^n_{i=1}|x_i|^{1/2})^2$ is not a norm. (Hint: it suffices to find two points in $n= 2$ dimensions such that the triangle inequality does not hold.) \\
+Since:
+\begin{align*}
+    (\sqrt{|x_i|} + \sqrt{|y_i|})^2 &= |x_i| + |y_i| + 2\sqrt{|x_i||y_i|} \geq |x_i| + |y_i| \\
+    (\sqrt{|x_i|} + \sqrt{|y_i|})^2 &\geq |x_i| + |y_i| \\
+    \sqrt{|x_i|} + \sqrt{|y_i|} &\geq \sqrt{|x_i| + |y_i|}
+\end{align*}
+Applying the norm definition and the inequality shown above:
+\begin{align*}
+    g(\vec x + \vec y) &= \sum \sqrt{|x_i + y_i|}^2 \\
+    &\leq \sum (\sqrt{|x_i|+|y_i|})^2 \\
+    &\leq \sum (\sqrt{|x_i|}+\sqrt{|y_i|})^2 \\
+    g(\vec x + \vec y) &\leq \sum \left(|x_i| + |y_i| + 2\sqrt{|x_i||y_i|}\right) \\
+    g(\vec x + \vec y) &\leq g(\vec x) + g(\vec y) + 2\sum\sqrt{|x_i||y_i|}
+\end{align*}
+Therefore it's not clear that the triangle inequality holds. 
+
 \end{enumerate}
 
 Context: norms are often used in regularization to encourage specific behaviors of solutions. If we define $||x||_p:= (\sum^n_i = \1|x_i|^p)^{1/p}$ then one can show that $||x||^p$ is a norm for all $p\ge1$. The important cases of $p=2$ and $p=1$ correspond to the penalty for ridge regression and the lasso, respectively.
@@ -131,7 +146,10 @@ Context: norms are often used in regularization to encourage specific behaviors 
 
 
 \newpage
-A 2.\points{3} A set $A\subseteq \R^n$ is convex if $\lambda x + (1-\lambda)y \in A \forall x,y \in A$ and $\lambda\in [0,1]$. For each of the grey-shaded sets (I-III), state whether each one is convex, or state why it is not convex using any of the points a,b,c,d in your answer.
+A 2.\points{3} A set $A\subseteq \R^n$ is convex if $\lambda x + (1-\lambda)y \in A \forall x,y \in A$ and $\lambda\in [0,1]$. For each of the grey-shaded sets (I-III), state whether each one is convex, or state why it is not convex using any of the points a,b,c,d in your answer.\\
+I is not convex because we exit the image if we connect b and c. \\
+II is convex, there are no combinations of points that would exit the image. \\
+III is not convex because it is possible to connect points d and a in a way that exists the image.
 
 
 
