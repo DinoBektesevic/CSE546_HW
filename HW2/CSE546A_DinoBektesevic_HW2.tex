@@ -97,9 +97,33 @@ A.1. A norm $||\cdot||$ over $R^n$ is defined by the properties:
     \item triangle inequality: $||x+y|| \le ||x|| + ||y|| \forall x,y \in \R^n$
 \end{enumerate}
 
-\item Show that $f(x) = (\sum^n_{i=1}|x_i|)$ is a norm. (Hint: begin by showing that $|a+b| \leq |a|+|b| \forall a,b \in \R$.
+\item Show that $f(x) = (\sum^n_{i=1}|x_i|)$ is a norm. (Hint: begin by showing that $|a+b| \leq |a|+|b| \forall a,b \in \R$. \\
+Trick is to notice that norm is defined over a field we are very familiar with and which rules we know. Since $x_i\in\R \rightarrow |x_i|\geq 0$ by definition of absolute value of a number we can write:
+$$f(\vec x) = ||\vec x|| = \sum |x_i| \geq 0$$
+We show absolute homogeneity using same trick:
+$$f(a\vec x)= ||a\vec x|| = \sum |ax_i| = \sum |a||x_i| = |a|\sum|x_i| = |a|||\vec x|| = |a|f(x)$$
+where first we applied the norm we are testing, wrote out its definition, found ourselves operating on elements of $\R$ where associativity and multiplicativity applies, rewrote so it suits our purpose, and then walked back up the chain. Triangle inequality is likely the most interesting property to prove. Question requires us to prove the triangle inequality in $\R$ first. For any $a,b\in\R$ from definition of absolute value it follows:
+\begin{align*}
+\centering
+    -|a|\leq a &\leq |a| \\
+    -|b|\leq b &\leq |b| \\
+    -|a+b|\leq a+b &\leq |a+b|
+\end{align*}
+This is essentially a clever restating of the definition of absolute value function, where we really are saying that a number is either positive or negative number and then applying it to a sum of numbers. Summing the first two rows we have 
+$$-(|a|+|b|)\leq a + b \leq |a| + |b| $$
+Since $|b|\leq a \rightarrow -a \leq b \leq a$, we can rewrite the third line as $|a+b|\leq a+b$ and, finally, by comparison (or applying the same rule again) with the line above we have:
+$$|a+b|\leq a+b \leq |a| + |b|$$
+This proof is effectively a clearer more verbose version of Wikipedia proof. It's hard to find yet another way to prove triangle inequality. Applying the triangle relativity in $\R$ we just proved to our problem:
+\begin{align*}
+    f(\vec x + \vec y) &= ||\vec x + \vec y|| = \sum |x_i + y_i| \\
+    & \leq \sum \left( |x_i| + |y_i|\right) \\
+    &= \sum |x_i| + \sum |y_i| \\
+    & = ||\vec x|| + ||\vec y|| = f(\vec x) + f(\vec y) \\
+    \rightarrow f(\vec x + \vec y) &\leq f(\vec x) + f(\vec y) 
+\end{align*}{}
 
-\item \points{2} Show that $g(x) =(\sum^n_i = \1|x_i|^{1/2})_2$ is not a norm. (Hint: it suffices to find two points in $n= 2$ dimensions such that the triangle inequality does not hold.)
+\newpage
+\item \points{2} Show that $g(x) =(\sum^n_{i=1}|x_i|^{1/2})^2$ is not a norm. (Hint: it suffices to find two points in $n= 2$ dimensions such that the triangle inequality does not hold.)
 \end{enumerate}
 
 Context: norms are often used in regularization to encourage specific behaviors of solutions. If we define $||x||_p:= (\sum^n_i = \1|x_i|^p)^{1/p}$ then one can show that $||x||^p$ is a norm for all $p\ge1$. The important cases of $p=2$ and $p=1$ correspond to the penalty for ridge regression and the lasso, respectively.
