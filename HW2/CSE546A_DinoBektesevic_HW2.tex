@@ -158,10 +158,10 @@ III is not convex because it is possible to connect points d and a in a way that
 A 3.\points{4} We say a function $f:\R^d\rightarrow\R$ is convex on a set $A \iff (\lambda x + (1-\lambda)y)\leq \lambda f(x) + (1-\lambda)f(y) \forall x,y \in A$ and $\lambda\in [0,1]$. For each of the grey-colored functions (I-III), state whether each one is convex on the given interval or state why not with a counter example using any of the points a,b,c,d in your answer
 
 \begin{enumerate}
-    \item Function in panel I on [a,c]:
-    \item Function in panel II on [a,c]:
-    \item Function in panel III on [a,d]:
-    \item Function in panel III on [c,d]:
+    \item Function in panel I on [a,c]: Function is convex as there are no points that exit the graph.
+    \item Function in panel II on [a,c]: Function is not convex as it's possible to connect b and c such that we exit the graph.
+    \item Function in panel III on [a,d]: Connecting f(a) to f(d) exists the graph - not convex.
+    \item Function in panel III on [c,d]: Connecting f(c) to f(d) does not exit the graph, - convex in that interval.
 \end{enumerate}{}
 
 
@@ -420,13 +420,12 @@ def A4(nIter=20, tolerance=0.001):
         Default: 0.001.
     """
     x, y, lambd, params = A4setup()
-    w = np.zeros(params['d'])
     k = params['k']
 
     lambdas, numNonZeros, fdrs, tprs = [], [], [], []
     for i in range(nIter):
         # Find w_hat
-        w = descent(x, y, lambd, tolerance, initW=w)
+        w = descent(x, y, lambd, tolerance)
 
         nonZeros = np.count_nonzero(w)
         correctNonZeros = np.count_nonzero(w[:k])
@@ -469,15 +468,61 @@ df_train = pd.read_table("crime-train.txt")
 df_test = pd.read_table("crime-test.txt")
 \end{lstlisting}
 
-The data consist of local crime statistics for 1,994 US communities. The response $y$ is the crime rate. The name of the response variable isViolentCrimesPerPop, and it is held in the first column of df\_train and df\_test. There are 95 features.  These features include possibly relevant variables such as the size of the police force or the percentage of children that graduate high school. The data have been split for you into a training and test set with 1,595 and 399 entries, respectively.
+The data consist of local crime statistics for 1,994 US communities. The response $y$ is the crime rate. The name of the response variable isViolentCrimesPerPop, and it is held in the first column of df\_train and df\_test. There are 95 features. These features include possibly relevant variables such as the size of the police force or the percentage of children that graduate high school. The data have been split for you into a training and test set with 1,595 and 399 entries, respectively.
 
 We’d like to use this training set to fit a model which can predict the crime rate in new communities and evaluate model performance on the test set. As there are a considerable number of input variables, over fitting is a serious issue. In order to avoid this, use the coordinate descent LASSO algorithm you just implemented in the previous problem. Begin by running the LASSO solver with $\lambda = \lambda_{\max}$ defined above. For the initial weights, just use 0. Then, cut $\lambda$ down by a factor of 2 and run again, but this time pass in the values of $\widehat w$ from your $\lambda = \lambda_{\max}$ solution as your initial weights. This is faster than initializing with 0 weights each time. Continue the process of cutting $\lambda$ by a factor of 2 until the smallest value of $\lambda$ is less than 0.01. For all plots use a log-scale for the $\lambda$d dimension.
 
 \begin{enumerate}
-    \item \points{4} Plot the number of nonzeros of each solution versus $\lambda$
-    \item \points{4} Plot the regularization paths (in one plot) for the coefficients for input variables agePct12t29, pctWSocSec, pctUrban, agePct65up, and householdsize.
-    \item \points{4} Plot the squared error on the training and test data versus $\lambda$
-    \item \points{4} Sometimes a larger value of $\lambda$ performs nearly as well as a smaller value, but a larger value will select fewer variables and perhaps be more interpretable. Inspect the weights (on features) for $\lambda = 30$. Which feature variable had the largest (most positive) Lasso coefficient? What about the most negative? Discuss briefly. A description of the variables in the data set can be found here: \url{http://archive.ics.uci.edu/ml/machine-learning-databases/communities/communities.names}.
+    \item \points{4} Plot the number of nonzeros of each solution versus $\lambda$ \\
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\textwidth]{HW2/HW2_plots/A5ZerosVSLambdas.png}
+    \end{figure}
+    
+    \item \points{4} Plot the regularization paths (in one plot) for the coefficients for input variables agePct12t29, pctWSocSec, pctUrban, agePct65up, and householdsize. \\ 
+    
+    \item \points{4} Plot the squared error on the training and test data versus $\lambda$ \\
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\textwidth]{HW2/HW2_plots/MSEA5.png}
+    \end{figure}
+    
+    \item \points{4} Sometimes a larger value of $\lambda$ performs nearly as well as a smaller value, but a larger value will select fewer variables and perhaps be more interpretable. Inspect the weights (on features) for $\lambda = 30$. Which feature variable had the largest (most positive) Lasso coefficient? What about the most negative? Discuss briefly. A description of the variables in the data set can be found here: \url{http://archive.ics.uci.edu/ml/machine-learning-databases/communities/communities.names}. \\
+    
+    Maximal value of w 0.0650 belongs to feature PctIlleg
+    Maximal value of w -0.0440 belongs to feature PctKids2Par
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{l|c}
+    \centering
+        Feature Name              &  Magnitude \\
+        \hline
+        PctKids2Par               & -0.04397385 \\
+        PctFam2Par                & -0.03620545 \\
+        PctHousOccup              & -0.00761258 \\
+        PctWorkMom                & -0.00568891 \\
+        agePct12t29               & -0.00512930 \\
+        MedOwnCostPctIncNoMtg     & -0.00022142 \\
+        agePct16t24               & -0.00000470 \\
+        LemasPctOfficDrugUn       & 0.00000059 \\
+        PctVacantBoarded          & 0.00008108 \\
+        HispPerCap                & 0.00060973 \\
+        PctRecImmig10             & 0.00198887 \\
+        PersPerRentOccHous        & 0.00241677 \\
+        PctLargHouseFam           & 0.00513120 \\
+        MalePctDivorce            & 0.00551971 \\
+        pctUrban                  & 0.01056310 \\
+        NumStreet                 & 0.01547845 \\
+        HousVacant                & 0.02132531 \\
+        PctPersDenseHous          & 0.02492003 \\
+        PctIlleg                  & 0.06501996 
+    \end{tabular}{}
+\end{table}{}
+    
+
+
+    
     \item \points{4} Suppose there was a large negative weight on agePct65up and upon seeing this result, a politician suggests policies that encourage people over the age of 65 to move to high crime areas in an effort to reduce crime. What is the (statistical) flaw in this line of reasoning? (Hint:  fire trucks are often seen around burning buildings, do fire trucks cause fire?)
 \end{enumerate}
 
