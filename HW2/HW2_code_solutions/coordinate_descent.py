@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def descent(x, y, lambd, tolerance=0.001, initW=None):
+
+def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
     """Preforms coordinate descent Lasso algorithm on the given data.
 
     Parameters
@@ -14,9 +15,16 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
         A column vector of n model values.
     lambd: `float`
         Regularization parameter.
-    tolerance: `float`
-        Convergence is achieved when the absolute value of minimal difference
-        of old weights and the new weights estimates is less than tolerance.
+    tolerance: `float`, optional
+        Convergence is achieved when the convergence criterion is smaller than
+        tolerance.
+    convergeFast: `bool`, optional
+        When True, the convergence is calculated as the difference between
+        maximum of new weights and maximal value of old weights; implying that
+        it's likelythe two actually point to the same feature. This is not
+        optimal, bu is much faster than calculating absolute value of minimal
+        difference of the old and the new weights, as it's possible to avoid
+        storing the old weights. True by default.
     initW: `np.array`
         Initial weights, a vector of d feature weights.
 
@@ -38,9 +46,12 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
     # ensure convergence is not met on first loop
     convergeCriterion = tolerance + 1
     while convergeCriterion > tolerance:
-        # not optimal test, but fast
-        oldMax = w.max()
-        deltas = []
+        if convergeFast:
+            # not optimal test, but fast
+            oldMax = w.max()
+            deltas = []
+        else:
+            oldW = w.copy()
 
         # Algorithm 1 implementation
         b = np.mean(y - np.dot(x, w))
@@ -63,9 +74,14 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
                 delta = (ck - lambd) / ak
                 w[k] = delta
 
-            deltas.append(delta)
-        # Find maximum difference between iterations
-        convergeCriterion = abs(oldMax-max(deltas))
+            if convergeFast:
+                deltas.append(delta)
+        if convergeFast:
+            # Find maximum difference between iterations
+            convergeCriterion = abs(oldMax-max(deltas))
+        else:
+            convergeCriterion = np.max(np.abs(oldW-w))
+
     return w
 
 
@@ -224,6 +240,7 @@ def A4(nIter=20, tolerance=0.001):
     k = params['k']
 
     lambdas, numNonZeros, fdrs, tprs = [], [], [], []
+    w = np.zeros(params['d'])
     for i in range(nIter):
         w = descent(x, y, lambd, tolerance)
 
@@ -339,13 +356,31 @@ def A5ab():
     w = np.zeros(d)
     lambd = lMaxTrain
 
+    colNames = xTrain.columns.tolist()
+    idxAgePct12 = colNames.index('agePct12t29')
+    idxPctSoc = colNames.index('pctWSocSec')
+    idxPctUrban = colNames.index('pctUrban')
+    idxAgePct65 = colNames.index('agePct65up')
+    idxHouse = colNames.index('householdsize')
+
+    wAgePct12, wPctSoc, wPctUrban, wAgePct65, wHouseholdsize = [] ,[], [], [], []
     lambdas, numNonZeros, sqrErrTrain, sqrErrTest = [], [], [], []
+
+    # run the actual fit, note w overrides itself, do proper convergence
+    # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = descent(xTrain.values, yTrain.values, lambd, initW=w)
+        w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)
         sqrErrTrain.append(mean_square_error(xTrain.values, yTrain.values, w))
         sqrErrTest.append(mean_square_error(xTest.values, yTest.values, w))
+        wAgePct12.append(w[idxAgePct12])    
+        wPctSoc.append(w[idxPctSoc])
+        wPctUrban.append(w[idxPctUrban])
+        wAgePct65.append(w[idxAgePct65])
+        wHouseholdsize.append(w[idxHouse])
+
         lambd /= 2.0
 
     fig1, ax1 = plt.subplots(figsize=(10, 6))
@@ -353,15 +388,25 @@ def A5ab():
          ylabel="Number of non zero features",
          title="N of non-zero features VS lambda.")
 
+    c = plt.cm.viridis(np.linspace(0, 0.8, 5))
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    plot(ax2, lambdas, sqrErrTrain, label="MSE Train", lc="gray")
-    plot(ax2, lambdas, sqrErrTest, label="MSE Test", xlabel="Lambda",
-         ylabel="Mean Square Error", title="Mean Square Error VS lambda.")
+    plot(ax2, lambdas, wPctSoc, label="agePct12t29", lc=c[0])
+    plot(ax2, lambdas, wPctSoc, label="pctWSocSec", lc=c[1])
+    plot(ax2, lambdas, wPctUrban, label="pctUrban", lc=c[2])
+    plot(ax2, lambdas, wAgePct65, label="agePct65up", lc=c[3])
+    plot(ax2, lambdas, wHouseholdsize, label="Householdsize", xlabel="Lambda",
+         ylabel="Weight value", title="Number of variables VS lambda.", lc=c[4])
     ax2.legend()
+    
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    plot(ax3, lambdas, sqrErrTrain, label="MSE Train", lc="gray")
+    plot(ax3, lambdas, sqrErrTest, label="MSE Test", xlabel="Lambda",
+         ylabel="Mean Square Error", title="Mean Square Error VS lambda.")
+    ax3.legend()
     plt.show()
 
 
-def A5c():
+def A5cd():
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm with regularization value of 30. 
 
@@ -385,7 +430,7 @@ def A5c():
     lambd = 30
 
     lambdas, numNonZeros, sqrErr = [], [], []
-    w = descent(xTrain.values, yTrain.values, lambd, initW=w)
+    w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
     lambdas.append(lambd)
 
@@ -403,12 +448,12 @@ def A5c():
 
 
 def A5():
-    """Runs A5ab and A5c functions."""
+    """Runs A5ab and A5cd functions."""
     A5ab()
-    A5c()
+    A5cd()
 
 
 if __name__ == "__main__":
-    A4()
+#    A4()
     A5()
 
