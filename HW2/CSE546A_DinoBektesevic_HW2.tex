@@ -476,51 +476,53 @@ We’d like to use this training set to fit a model which can predict the crime 
     \item \points{4} Plot the number of nonzeros of each solution versus $\lambda$ \\
     \begin{figure}[h!]
         \centering
-        \includegraphics[width=0.8\textwidth]{HW2/HW2_plots/A5ZerosVSLambdas.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/A5ZerosVSLambdas.png}
     \end{figure}
     
+    \newpage
     \item \points{4} Plot the regularization paths (in one plot) for the coefficients for input variables agePct12t29, pctWSocSec, pctUrban, agePct65up, and householdsize. \\ 
     
     \item \points{4} Plot the squared error on the training and test data versus $\lambda$ \\
     \begin{figure}[h!]
         \centering
-        \includegraphics[width=0.8\textwidth]{HW2/HW2_plots/MSEA5.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
     \end{figure}
     
+    \newpage
     \item \points{4} Sometimes a larger value of $\lambda$ performs nearly as well as a smaller value, but a larger value will select fewer variables and perhaps be more interpretable. Inspect the weights (on features) for $\lambda = 30$. Which feature variable had the largest (most positive) Lasso coefficient? What about the most negative? Discuss briefly. A description of the variables in the data set can be found here: \url{http://archive.ics.uci.edu/ml/machine-learning-databases/communities/communities.names}. \\
     
-    Maximal value of w 0.0650 belongs to feature PctIlleg
-    Maximal value of w -0.0440 belongs to feature PctKids2Par
+    Maximal value of w 0.0650 belongs to feature PctIlleg. PctIlleg is percentage of kids born to never married persons indicative of unstable home life and lack of support system. Following with the next highest weights we can see that percentage of persons living in dense housing (more than 1 person per room), number of vacant households and number of homeless people counted on the streets also highly correlate with total number of violent crimes. This indicates that violent crimes tend to be more common in poorer areas, with poor living conditions. This is telling us that is still possible to be unmarried with a kid without committing a violent crime, as correlation is not necessarily causation.  \\
+    Minimal value of w -0.0440 belongs to feature PctKids2Par. PctKids2Par is percentage of kids in family housing with two parents. The feature is indicative of stable home life, an existence of support system, both financial and emotional, for the child so it does nto come as a surprise it anti-correlates with the total number of violent crimes per 100 000 population. 
 
-\begin{table}[]
+    \begin{table}[h!]
     \centering
-    \begin{tabular}{l|c}
-    \centering
-        Feature Name              &  Magnitude \\
-        \hline
-        PctKids2Par               & -0.04397385 \\
-        PctFam2Par                & -0.03620545 \\
-        PctHousOccup              & -0.00761258 \\
-        PctWorkMom                & -0.00568891 \\
-        agePct12t29               & -0.00512930 \\
-        MedOwnCostPctIncNoMtg     & -0.00022142 \\
-        agePct16t24               & -0.00000470 \\
-        LemasPctOfficDrugUn       & 0.00000059 \\
-        PctVacantBoarded          & 0.00008108 \\
-        HispPerCap                & 0.00060973 \\
-        PctRecImmig10             & 0.00198887 \\
-        PersPerRentOccHous        & 0.00241677 \\
-        PctLargHouseFam           & 0.00513120 \\
-        MalePctDivorce            & 0.00551971 \\
-        pctUrban                  & 0.01056310 \\
-        NumStreet                 & 0.01547845 \\
-        HousVacant                & 0.02132531 \\
-        PctPersDenseHous          & 0.02492003 \\
-        PctIlleg                  & 0.06501996 
-    \end{tabular}{}
-\end{table}{}
+        \begin{tabular}{l|c}
+        \centering
+            Feature Name              &  Magnitude \\
+            \hline
+            PctKids2Par               & -0.04397385 \\
+            PctFam2Par                & -0.03620545 \\
+            PctHousOccup              & -0.00761258 \\
+            PctWorkMom                & -0.00568891 \\
+            agePct12t29               & -0.00512930 \\
+            MedOwnCostPctIncNoMtg     & -0.00022142 \\
+            agePct16t24               & -0.00000470 \\
+            LemasPctOfficDrugUn       & 0.00000059 \\
+            PctVacantBoarded          & 0.00008108 \\
+            HispPerCap                & 0.00060973 \\
+            PctRecImmig10             & 0.00198887 \\
+            PersPerRentOccHous        & 0.00241677 \\
+            PctLargHouseFam           & 0.00513120 \\
+            MalePctDivorce            & 0.00551971 \\
+            pctUrban                  & 0.01056310 \\
+            NumStreet                 & 0.01547845 \\
+            HousVacant                & 0.02132531 \\
+            PctPersDenseHous          & 0.02492003 \\
+            PctIlleg                  & 0.06501996 
+        \end{tabular}{}
+    \end{table}{}
     
-
+    
 
     
     \item \points{4} Suppose there was a large negative weight on agePct65up and upon seeing this result, a politician suggests policies that encourage people over the age of 65 to move to high crime areas in an effort to reduce crime. What is the (statistical) flaw in this line of reasoning? (Hint:  fire trucks are often seen around burning buildings, do fire trucks cause fire?)
