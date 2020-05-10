@@ -201,7 +201,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def descent(x, y, lambd, tolerance=0.001, initW=None):
+
+def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
     """Preforms coordinate descent Lasso algorithm on the given data.
 
     Parameters
@@ -213,9 +214,16 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
         A column vector of n model values.
     lambd: `float`
         Regularization parameter.
-    tolerance: `float`
-        Convergence is achieved when the absolute value of minimal difference
-        of old weights and the new weights estimates is less than tolerance.
+    tolerance: `float`, optional
+        Convergence is achieved when the convergence criterion is smaller than
+        tolerance.
+    convergeFast: `bool`, optional
+        When True, the convergence is calculated as the difference between
+        maximum of new weights and maximal value of old weights; implying that
+        it's likelythe two actually point to the same feature. This is not
+        optimal, bu is much faster than calculating absolute value of minimal
+        difference of the old and the new weights, as it's possible to avoid
+        storing the old weights. True by default.
     initW: `np.array`
         Initial weights, a vector of d feature weights.
 
@@ -237,9 +245,12 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
     # ensure convergence is not met on first loop
     convergeCriterion = tolerance + 1
     while convergeCriterion > tolerance:
-        # not optimal test, but fast
-        oldMax = w.max()
-        deltas = []
+        if convergeFast:
+            # not optimal test, but fast
+            oldMax = w.max()
+            deltas = []
+        else:
+            oldW = w.copy()
 
         # Algorithm 1 implementation
         b = np.mean(y - np.dot(x, w))
@@ -262,9 +273,14 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
                 delta = (ck - lambd) / ak
                 w[k] = delta
 
-            deltas.append(delta)
-        # Find maximum difference between iterations
-        convergeCriterion = abs(oldMax-max(deltas))
+            if convergeFast:
+                deltas.append(delta)
+        if convergeFast:
+            # Find maximum difference between iterations
+            convergeCriterion = abs(oldMax-max(deltas))
+        else:
+            convergeCriterion = np.max(np.abs(oldW-w))
+
     return w
 
 
@@ -481,6 +497,11 @@ We’d like to use this training set to fit a model which can predict the crime 
     \newpage
     \item \points{4} Plot the regularization paths (in one plot) for the coefficients for input variables agePct12t29, pctWSocSec, pctUrban, agePct65up, and householdsize. \\ 
     
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/5RegPaths.png}
+    \end{figure}
+    
     \item \points{4} Plot the squared error on the training and test data versus $\lambda$ \\
     \begin{figure}[h!]
         \centering
@@ -490,8 +511,8 @@ We’d like to use this training set to fit a model which can predict the crime 
     \newpage
     \item \points{4} Sometimes a larger value of $\lambda$ performs nearly as well as a smaller value, but a larger value will select fewer variables and perhaps be more interpretable. Inspect the weights (on features) for $\lambda = 30$. Which feature variable had the largest (most positive) Lasso coefficient? What about the most negative? Discuss briefly. A description of the variables in the data set can be found here: \url{http://archive.ics.uci.edu/ml/machine-learning-databases/communities/communities.names}. \\
     
-    Maximal value of w 0.0650 belongs to feature PctIlleg. PctIlleg is percentage of kids born to never married persons indicative of unstable home life and lack of support system. Following with the next highest weights we can see that percentage of persons living in dense housing (more than 1 person per room), number of vacant households and number of homeless people counted on the streets also highly correlate with total number of violent crimes. This indicates that violent crimes tend to be more common in poorer areas, with poor living conditions. This is telling us that is still possible to be unmarried with a kid without committing a violent crime, as correlation is not necessarily causation.  \\
-    Minimal value of w -0.0440 belongs to feature PctKids2Par. PctKids2Par is percentage of kids in family housing with two parents. The feature is indicative of stable home life, an existence of support system, both financial and emotional, for the child so it does nto come as a surprise it anti-correlates with the total number of violent crimes per 100 000 population. 
+    Maximal value of w 0.0650 belongs to feature PctIlleg. PctIlleg is percentage of kids born to never married persons indicative of unstable home life and lack of support system. Following with the next highest weights we can see that percentage of persons living in dense housing (more than 1 person per room), number of vacant households and number of homeless people counted on the streets also highly correlate with total number of violent crimes. This indicates that violent crimes tend to be more common in poorer areas, with poor living conditions. This is telling us that is still possible to be unmarried with a kid, or a kid with unmarried parents, without committing a violent crime, as correlation is not necessarily causation.  \\
+    Minimal value of w -0.0440 belongs to feature PctKids2Par. PctKids2Par is percentage of kids in family housing with two parents. The feature is indicative of stable home life, an existence of support system, both financial and emotional, for the child so it does not come as a surprise it anti-correlates with the total number of violent crimes per 100 000 population. 
 
     \begin{table}[h!]
     \centering
@@ -517,23 +538,23 @@ We’d like to use this training set to fit a model which can predict the crime 
             NumStreet                 & 0.01547845 \\
             HousVacant                & 0.02132531 \\
             PctPersDenseHous          & 0.02492003 \\
-            PctIlleg                  & 0.06501996 
+            PctIlleg                  & 0.06501996
         \end{tabular}{}
     \end{table}{}
-    
-    
 
     
-    \item \points{4} Suppose there was a large negative weight on agePct65up and upon seeing this result, a politician suggests policies that encourage people over the age of 65 to move to high crime areas in an effort to reduce crime. What is the (statistical) flaw in this line of reasoning? (Hint:  fire trucks are often seen around burning buildings, do fire trucks cause fire?)
+    \item \points{4} Suppose there was a large negative weight on agePct65up and upon seeing this result, a politician suggests policies that encourage people over the age of 65 to move to high crime areas in an effort to reduce crime. What is the (statistical) flaw in this line of reasoning? (Hint:  fire trucks are often seen around burning buildings, do fire trucks cause fire?) \\
+    As mentioned above correlation is not necessarily causation. Moving elderly into violent crime areas would likely reduce some crime statistics that are not population-corrected but overall would not have a profound effect on crime, except perhaps providing criminals with easier-to-assault targets. That said, I have never seen a fire start but I have often seen fire trucks suspiciously close to one, so who knows. 
     
     
-    
+\newpage
 \begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def descent(x, y, lambd, tolerance=0.001, initW=None):
+
+def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
     """Preforms coordinate descent Lasso algorithm on the given data.
 
     Parameters
@@ -545,9 +566,16 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
         A column vector of n model values.
     lambd: `float`
         Regularization parameter.
-    tolerance: `float`
-        Convergence is achieved when the absolute value of minimal difference
-        of old weights and the new weights estimates is less than tolerance.
+    tolerance: `float`, optional
+        Convergence is achieved when the convergence criterion is smaller than
+        tolerance.
+    convergeFast: `bool`, optional
+        When True, the convergence is calculated as the difference between
+        maximum of new weights and maximal value of old weights; implying that
+        it's likelythe two actually point to the same feature. This is not
+        optimal, bu is much faster than calculating absolute value of minimal
+        difference of the old and the new weights, as it's possible to avoid
+        storing the old weights. True by default.
     initW: `np.array`
         Initial weights, a vector of d feature weights.
 
@@ -569,9 +597,12 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
     # ensure convergence is not met on first loop
     convergeCriterion = tolerance + 1
     while convergeCriterion > tolerance:
-        # not optimal test, but fast
-        oldMax = w.max()
-        deltas = []
+        if convergeFast:
+            # not optimal test, but fast
+            oldMax = w.max()
+            deltas = []
+        else:
+            oldW = w.copy()
 
         # Algorithm 1 implementation
         b = np.mean(y - np.dot(x, w))
@@ -594,48 +625,15 @@ def descent(x, y, lambd, tolerance=0.001, initW=None):
                 delta = (ck - lambd) / ak
                 w[k] = delta
 
-            deltas.append(delta)
-        # Find maximum difference between iterations
-        convergeCriterion = abs(oldMax-max(deltas))
+            if convergeFast:
+                deltas.append(delta)
+        if convergeFast:
+            # Find maximum difference between iterations
+            convergeCriterion = abs(oldMax-max(deltas))
+        else:
+            convergeCriterion = np.max(np.abs(oldW-w))
+
     return w
-
-
-def generate_data(n, d, k, sigma):
-    """Generates i.i.d. samples of the model:
-        y_i = w^T x_i + eps
-    where
-        w_j = j/k if j in {1,...,k}
-        w_j = 0 otherwise
-    and epsilon is random Gussian noise with the given sigma and X are also
-    drawn from a Normal distribution with sigma 1. 
-
-    Parameters
-    ----------
-    n : `int`
-        Number of samples drawn at random from the model.
-    d : `int`
-        Dimensionality of the feature space. 
-    k : `int`
-        Cutoff point after which elements of w are zero.
-
-    Returns
-    -------
-    x : `np.array`
-        n-by-d sized array of data.
-    y : `np.array`
-        Vector of n model values. 
-    """
-    # gaussian noise and data
-    eps = np.random.normal(0, sigma**2, size=n)
-    x = np.random.normal(size=(n, d))
-
-    # weights
-    w = np.arange(1, d + 1) / k
-    w[k:] = 0
-
-    # labels
-    y = np.dot(x, w) + eps
-    return x, y
 
 
 def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True, lc='black', lw=2):
@@ -785,13 +783,31 @@ def A5ab():
     w = np.zeros(d)
     lambd = lMaxTrain
 
+    colNames = xTrain.columns.tolist()
+    idxAgePct12 = colNames.index('agePct12t29')
+    idxPctSoc = colNames.index('pctWSocSec')
+    idxPctUrban = colNames.index('pctUrban')
+    idxAgePct65 = colNames.index('agePct65up')
+    idxHouse = colNames.index('householdsize')
+
+    wAgePct12, wPctSoc, wPctUrban, wAgePct65, wHouseholdsize = [] ,[], [], [], []
     lambdas, numNonZeros, sqrErrTrain, sqrErrTest = [], [], [], []
+
+    # run the actual fit, note w overrides itself, do proper convergence
+    # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = descent(xTrain.values, yTrain.values, lambd, initW=w)
+        w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)
         sqrErrTrain.append(mean_square_error(xTrain.values, yTrain.values, w))
         sqrErrTest.append(mean_square_error(xTest.values, yTest.values, w))
+        wAgePct12.append(w[idxAgePct12])    
+        wPctSoc.append(w[idxPctSoc])
+        wPctUrban.append(w[idxPctUrban])
+        wAgePct65.append(w[idxAgePct65])
+        wHouseholdsize.append(w[idxHouse])
+
         lambd /= 2.0
 
     fig1, ax1 = plt.subplots(figsize=(10, 6))
@@ -799,15 +815,25 @@ def A5ab():
          ylabel="Number of non zero features",
          title="N of non-zero features VS lambda.")
 
+    c = plt.cm.viridis(np.linspace(0, 0.8, 5))
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    plot(ax2, lambdas, sqrErrTrain, label="MSE Train", lc="gray")
-    plot(ax2, lambdas, sqrErrTest, label="MSE Test", xlabel="Lambda",
-         ylabel="Mean Square Error", title="Mean Square Error VS lambda.")
+    plot(ax2, lambdas, wPctSoc, label="agePct12t29", lc=c[0])
+    plot(ax2, lambdas, wPctSoc, label="pctWSocSec", lc=c[1])
+    plot(ax2, lambdas, wPctUrban, label="pctUrban", lc=c[2])
+    plot(ax2, lambdas, wAgePct65, label="agePct65up", lc=c[3])
+    plot(ax2, lambdas, wHouseholdsize, label="Householdsize", xlabel="Lambda",
+         ylabel="Weight value", title="Number of variables VS lambda.", lc=c[4])
     ax2.legend()
+    
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    plot(ax3, lambdas, sqrErrTrain, label="MSE Train", lc="gray")
+    plot(ax3, lambdas, sqrErrTest, label="MSE Test", xlabel="Lambda",
+         ylabel="Mean Square Error", title="Mean Square Error VS lambda.")
+    ax3.legend()
     plt.show()
 
 
-def A5c():
+def A5cd():
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm with regularization value of 30. 
 
@@ -831,7 +857,7 @@ def A5c():
     lambd = 30
 
     lambdas, numNonZeros, sqrErr = [], [], []
-    w = descent(xTrain.values, yTrain.values, lambd, initW=w)
+    w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
     lambdas.append(lambd)
 
@@ -849,12 +875,13 @@ def A5c():
 
 
 def A5():
-    """Runs A5ab and A5c functions."""
+    """Runs A5ab and A5cd functions."""
     A5ab()
-    A5c()
+    A5cd()
 
 
 if __name__ == "__main__":
+#    A4()
     A5()
 \end{lstlisting}
 \end{enumerate}
