@@ -85,44 +85,6 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
     return w
 
 
-def generate_data(n, d, k, sigma):
-    """Generates i.i.d. samples of the model:
-        y_i = w^T x_i + eps
-    where
-        w_j = j/k if j in {1,...,k}
-        w_j = 0 otherwise
-    and epsilon is random Gussian noise with the given sigma and X are also
-    drawn from a Normal distribution with sigma 1. 
-
-    Parameters
-    ----------
-    n : `int`
-        Number of samples drawn at random from the model.
-    d : `int`
-        Dimensionality of the feature space. 
-    k : `int`
-        Cutoff point after which elements of w are zero.
-
-    Returns
-    -------
-    x : `np.array`
-        n-by-d sized array of data.
-    y : `np.array`
-        Vector of n model values. 
-    """
-    # gaussian noise and data
-    eps = np.random.normal(0, sigma**2, size=n)
-    x = np.random.normal(size=(n, d))
-
-    # weights
-    w = np.arange(1, d + 1) / k
-    w[k:] = 0
-
-    # labels
-    y = np.dot(x, w) + eps
-    return x, y
-
-
 def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True, lc='black', lw=2):
     """Plots a line on given axis.
 
@@ -183,6 +145,44 @@ def lambda_max(x, y):
     return np.max(2 * np.abs(np.dot((y - np.mean(y)), x)))
 
 
+def generate_data(n, d, k, sigma):
+    """Generates i.i.d. samples of the model:
+        y_i = w^T x_i + eps
+    where
+        w_j = j/k if j in {1,...,k}
+        w_j = 0 otherwise
+    and epsilon is random Gussian noise with the given sigma and X are also
+    drawn from a Normal distribution with sigma 1. 
+
+    Parameters
+    ----------
+    n : `int`
+        Number of samples drawn at random from the model.
+    d : `int`
+        Dimensionality of the feature space. 
+    k : `int`
+        Cutoff point after which elements of w are zero.
+
+    Returns
+    -------
+    x : `np.array`
+        n-by-d sized array of data.
+    y : `np.array`
+        Vector of n model values. 
+    """
+    # gaussian noise and data
+    eps = np.random.normal(0, sigma**2, size=n)
+    x = np.random.normal(size=(n, d))
+
+    # weights
+    w = np.arange(1, d + 1) / k
+    w[k:] = 0
+
+    # labels
+    y = np.dot(x, w) + eps
+    return x, y
+
+
 def A4_setup(n=500, d=1000, k=100, sigma=1):
     """Creates data as instructed by A4 problem, calculates the smallest value
     of regularization parameter for which w is zero and returns data parameters,
@@ -218,7 +218,7 @@ def A4_setup(n=500, d=1000, k=100, sigma=1):
     return x, y, maxLambda, params
 
 
-def A4(nIter=20, tolerance=0.001):
+def A4(nIter=40, tolerance=0.001):
     """Sets the data up as instructed by problem A4 and runs coordinate
     descent Lasso algorithm nIter times, each time decreasing regularization
     parameter lambda by a factor of 1.5.
@@ -242,7 +242,7 @@ def A4(nIter=20, tolerance=0.001):
     lambdas, numNonZeros, fdrs, tprs = [], [], [], []
     w = np.zeros(params['d'])
     for i in range(nIter):
-        w = coordinate_descent(x, y, lambd, tolerance)
+        w = coordinate_descent(x, y, lambd, tolerance, convergeFast=False)
 
         nonZeros = np.count_nonzero(w)
         correctNonZeros = np.count_nonzero(w[:k])
@@ -331,7 +331,7 @@ def mean_square_error(x, y, w):
     return (a.T @ a)/len(y)
 
 
-def A5ab():
+def A5ab(tolerance=0.0001):
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm untill the change in regularization parameter is
     smaller than 0.01. Each iteration decreases regularization parameter by a
@@ -342,9 +342,6 @@ def A5ab():
 
     Parameters
     ----------
-    nIter: `int`, optional
-        Number of different regularization parameter iterations to run. Default
-        is 20.
     tolerance: `float`, optional
         Coordinate descent tolerance, sets convergence criteria (see
         coordinate_descent). Default: 0.001.
@@ -369,7 +366,8 @@ def A5ab():
     # run the actual fit, note w overrides itself, do proper convergence
     # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+        w = coordinate_descent(xTrain.values, yTrain.values, lambd,
+                               tolerance=tolerance, initW=w, convergeFast=False)
 
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)

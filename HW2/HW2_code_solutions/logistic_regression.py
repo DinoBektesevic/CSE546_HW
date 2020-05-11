@@ -409,6 +409,7 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
         testJ.append(J(testData, testLabels, wi, bi, lambd))
         trainMisslbls.append(count_missclassified(testData, wi, bi, testLabels))
 
+    print(w)
     print(f"{title}")
     print(f"    Converged to offset b={b:.4f}")
     print(f"    Objective converged for train to J={trainJ[-1]:.4f} and test J={testJ[-1]:.4f}")
