@@ -331,7 +331,7 @@ def mean_square_error(x, y, w):
     return (a.T @ a)/len(y)
 
 
-def A5ab(tolerance=0.0001):
+def A5ab(tolerance=0.001):
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm untill the change in regularization parameter is
     smaller than 0.01. Each iteration decreases regularization parameter by a
@@ -404,7 +404,7 @@ def A5ab(tolerance=0.0001):
     plt.show()
 
 
-def A5cd(tolerance=0.0001):
+def A5cd(tolerance=0.001):
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm with regularization value of 30. 
 
