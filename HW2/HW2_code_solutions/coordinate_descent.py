@@ -218,7 +218,7 @@ def A4_setup(n=500, d=1000, k=100, sigma=1):
     return x, y, maxLambda, params
 
 
-def A4(nIter=40, tolerance=0.001):
+def A4(nIter=30, tolerance=0.001):
     """Sets the data up as instructed by problem A4 and runs coordinate
     descent Lasso algorithm nIter times, each time decreasing regularization
     parameter lambda by a factor of 1.5.
@@ -231,7 +231,7 @@ def A4(nIter=40, tolerance=0.001):
     ----------
     nIter: `int`, optional
         Number of different regularization parameter iterations to run. Default
-        is 20.
+        is 30.
     tolerance: `float`, optional
         Coordinate descent tolerance, sets convergence criteria (see coordinate_descent).
         Default: 0.001.
@@ -404,7 +404,7 @@ def A5ab(tolerance=0.0001):
     plt.show()
 
 
-def A5cd():
+def A5cd(tolerance=0.0001):
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm with regularization value of 30. 
 
@@ -413,9 +413,6 @@ def A5cd():
 
     Parameters
     ----------
-    nIter: `int`, optional
-        Number of different regularization parameter iterations to run. Default
-        is 20.
     tolerance: `float`, optional
         Coordinate descent tolerance, sets convergence criteria (see
         coordinate_descent). Default: 0.001.
@@ -428,7 +425,8 @@ def A5cd():
     lambd = 30
 
     lambdas, numNonZeros, sqrErr = [], [], []
-    w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+    w = coordinate_descent(xTrain.values, yTrain.values, lambd,
+                           tolerance=tolerance, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
     lambdas.append(lambd)
 
@@ -441,7 +439,8 @@ def A5cd():
     print("-----------------------------------------")
     idxSorted = np.argsort(w)
     idxNonZeroSorted = np.nonzero(w[idxSorted])
-    for feature, w_i in zip(xTrain.columns[idxSorted][idxNonZeroSorted], w[idxSorted][idxNonZeroSorted]):
+    for feature, w_i in zip(xTrain.columns[idxSorted][idxNonZeroSorted],
+                            w[idxSorted][idxNonZeroSorted]):
         print(f"{feature:25} | {w_i:4.8f}")
 
 
