@@ -69,10 +69,12 @@ The answers to these questions should be answerable without referring to externa
     \item \points{2} Suppose that your estimated model for predicting house prices has a large positive weight on ’number of bathrooms’. Does it implies that if we remove the feature ”number of bathrooms” and refit the model, the new predictions will be strictly worse than before?  Why?\\
     If number of bathrooms is independent feature our predictions would be worse. But as we discussed in class, often it is hte case that number of bathrooms is really not an independent feature in the feature set, but instead the weights are split between several different factors that directly or indirectly measure the number of bathrooms. 
         
-    \item \points{2} Compared to L2 norm penalty,  explain why a L1 norm penalty is more likely to result in a larger number of 0s in the weight vector or not?\\
-    In class we said L1 penalty leads to sparse outputs. 
+    \item \points{2} Compared to L2 norm penalty, explain why a L1 norm penalty is more likely to result in a larger number of 0s in the weight vector or not?\\
+    L1 norm is the sum of the lengths of the projections of the vector components onto the coordinate axes. For example take a point $(1, 1)$. The L1 norm of that point is 2, while the L2 norm of that point is the, more commonly expected vector magnitude, $\sqrt2$. For the same vector magnitude, vector's L2 norm, L1 will claim point $(\sqrt 2, 0)$ is closer than point $(1, 1)$. L1 penalty will therefore penalize those points that are "more aligned" to the basis vectors of the space we're in. For a lack of a better way to verbalize this: penalizing using L1 norm produces sparser outputs because L1 norm awards points that can be expressed using smaller number of basis vectors. Basis vectors themselves are sparse and if we can force using less of them, the end weights will be expressible by using a smaller number of basis vectors, i.e. weights will have more zeros in them.
         
     \item \points{2} In at most one sentence each, state one possible upside and one possible downside of using the following regularizer: $\sum_i|w_i|^{0.5})$ \\
+    All these regularizers belong a different $L_p$ norms, where for $p=2$ we have Euclidian distance, $p=1$ the taxicab distance, $p=0$ the count of non-zero vector components, each producing a sparser solution than the previous one. \\
+    But the point of regularization is to restrict weight values to smaller values and the square root diverges closer to zero we get, which is exactly the opposite of what we want.
         
     \item \points{1} True or False:  If the step-size for gradient descent is too large, it may not converge. \\
     True. When jumps occur with a step-size much greater than the characteristic step length of a function we can end up constantly jumping to higher values and further away from the minimum.
