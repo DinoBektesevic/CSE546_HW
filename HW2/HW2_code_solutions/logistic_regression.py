@@ -127,9 +127,9 @@ def J(x, y, w, b, lambd):
     """
     n, d = x.shape
     exponential = np.exp(-(y*b + y*np.dot(x, w)))
-    log = np.log(1 + exponential)
+    log = np.log10(1 + exponential) / (n*np.log(10))
     regularization = lambd * np.dot(w.T, w)
-    return  np.sum(log/n) + regularization
+    return  np.sum(log) + regularization
 
 
 def mu(x, y, w, b):
@@ -155,7 +155,7 @@ def mu(x, y, w, b):
     mu : `float`
         Value of the substitution expression
     """
-    exponential = np.exp(-(y*b + y*np.dot(x, w)))
+    exponential = np.exp(-y*b - y*np.dot(x, w))
     return 1 / (1+exponential)
 
 
@@ -191,7 +191,7 @@ def grad_w_J(x, y, w, b, lambd):
     # sizes of the vectors and arrays by adding a dummy axis
     firstTerm = y[:, np.newaxis] * x * mus[:, np.newaxis]
     secondTerm = 2*lambd*w
-    return np.sum(firstTerm, axis=0)/n + secondTerm
+    return np.sum(firstTerm, axis=0) / (n*np.log(10)) + secondTerm
 
 
 def grad_b_J(x, y, w, b):
@@ -222,7 +222,7 @@ def grad_b_J(x, y, w, b):
     mus = mu(x, y, w, b) - 1
     # row-wise multiplication
     firstTerm = y[:, np.newaxis] * x * mus[:, np.newaxis]
-    return np.sum(firstTerm)/n
+    return np.sum(firstTerm) / (n*np.log(10))
 
 
 def classify(x, w, b):
@@ -409,6 +409,9 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
         testJ.append(J(testData, testLabels, wi, bi, lambd))
         trainMisslbls.append(count_missclassified(testData, wi, bi, testLabels))
 
+    print(f"{title}")
+    print(f"    Converged to offset b={b:.4f}")
+    print(f"    Objective converged for train to J={trainJ[-1]:.4f} and test J={testJ[-1]:.4f}")
 
     iters = np.arange(nIter)
 
@@ -428,24 +431,24 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
     plt.show()
 
 
-def A6b(nIter=100, lambd=0.1, step=0.01):
+def A6b(nIter=200, lambd=0.1, step=0.01):
     """Calls A6abc with parameters specified in problem A6 b"""
     A6abc(nIter, lambd, step)
 
 
-def A6c(nIter=100, lambd=0.1, step=0.01, stochastic=True, batchSize=1):
+def A6c(nIter=200, lambd=0.1, step=0.01, stochastic=True, batchSize=1):
     """Calls A6abc with parameters specified in problem A6 c"""
     A6abc(nIter, lambd, step, stochastic, batchSize, title="Stochastic Gradient Descent.")
 
 
-def A6d(nIter=100, lambd=0.1, step=0.01, stochastic=True, batchSize=100):
+def A6d(nIter=200, lambd=0.1, step=0.01, stochastic=True, batchSize=100):
     """Calls A6abc with parameters specified in problem A6 d"""
     A6abc(nIter, lambd, step, stochastic, batchSize, title="Stochastic Gradient Descent.")
 
 
 def A6():
-    #A6b()
-    #A6c()
+    A6b()
+    A6c()
     A6d()
     pass
 
