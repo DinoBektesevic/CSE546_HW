@@ -202,8 +202,8 @@ import numpy as np
 import pandas as pd
 
 
-def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
-    """Preforms coordinate descent Lasso algorithm on the given data.
+def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
+    """Preforms coordinate coordinate descent Lasso algorithm on the given data.
 
     Parameters
     ----------
@@ -432,15 +432,16 @@ def A4(nIter=20, tolerance=0.001):
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
+        Coordinate descent tolerance, sets convergence criteria (see coordinate_descent).
         Default: 0.001.
     """
     x, y, lambd, params = A4_setup()
     k = params['k']
 
     lambdas, numNonZeros, fdrs, tprs = [], [], [], []
+    w = np.zeros(params['d'])
     for i in range(nIter):
-        w = descent(x, y, lambd, tolerance)
+        w = coordinate_descent(x, y, lambd, tolerance)
 
         nonZeros = np.count_nonzero(w)
         correctNonZeros = np.count_nonzero(w[:k])
@@ -548,8 +549,8 @@ import numpy as np
 import pandas as pd
 
 
-def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
-    """Preforms coordinate descent Lasso algorithm on the given data.
+def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
+    """Preforms coordinate coordinate descent Lasso algorithm on the given data.
 
     Parameters
     ----------
@@ -690,7 +691,7 @@ def lambda_max(x, y):
     return np.max(2 * np.abs(np.dot((y - np.mean(y)), x)))
 
 
-def A5_setup(trainFile="crime-train.txt", testFile="crime-test.txt"):
+def A5_setup(trainFile="data/crime-train.txt", testFile="data/crime-test.txt"):
     """Reads the crime train and test data into a pandas dataframe and
     calculates maximum lambda value.
 
@@ -716,8 +717,8 @@ def A5_setup(trainFile="crime-train.txt", testFile="crime-test.txt"):
     lMaxTest: `float`
         Maximal value of lambda for which all weights are zero.
     """
-    train = pd.read_table("crime-train.txt")
-    test = pd.read_table("crime-test.txt")
+    train = pd.read_table(trainFile)
+    test = pd.read_table(testFile)
 
     yTrain = train["ViolentCrimesPerPop"]
     xTrain = train.drop("ViolentCrimesPerPop", axis=1)
@@ -749,7 +750,7 @@ def mean_square_error(x, y, w):
         Mean square error.
     """
     a = y - np.dot(x, w)
-    return a.T @ a
+    return (a.T @ a)/len(y)
 
 
 def A5ab():
@@ -767,8 +768,8 @@ def A5ab():
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
-        Default: 0.001.
+        Coordinate descent tolerance, sets convergence criteria (see
+        coordinate_descent). Default: 0.001.
     """
     xTrain, yTrain, lMaxTrain, xTest, yTest, lMaxTest = A5_setup()
 
@@ -790,7 +791,7 @@ def A5ab():
     # run the actual fit, note w overrides itself, do proper convergence
     # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+        w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
 
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)
@@ -840,8 +841,8 @@ def A5cd():
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
-        Default: 0.001.
+        Coordinate descent tolerance, sets convergence criteria (see
+        coordinate_descent). Default: 0.001.
     """
     xTrain, yTrain, lMaxTrain, xTest, yTest, lMaxTest = A5_setup()
 
@@ -851,7 +852,7 @@ def A5cd():
     lambd = 30
 
     lambdas, numNonZeros, sqrErr = [], [], []
-    w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+    w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
     lambdas.append(lambd)
 
@@ -875,7 +876,6 @@ def A5():
 
 
 if __name__ == "__main__":
-#    A4()
     A5()
 \end{lstlisting}
 \end{enumerate}
@@ -919,12 +919,12 @@ Note that the offset term $b$ is not regularized. For all experiments, use $\lam
         \item For both the training set and the test, plot $J(w,b)$ as a function of the iteration number (and show both curves on the same plot) \\
         \begin{figure}[h!]
         \centering
-            \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+            \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/JwbA6b.png}
         \end{figure}
         \item For both the training set and the test, classify the points according to the rule $sign(b+x^T_iw)$ and plot the misclassification error as a function of the iteration number (and show both curves on the same plot). Note that you are only optimizing on the training set. The $J(w,b)$ and misclassification error plots should be on separate plots.
         \begin{figure}[h!]
         \centering
-            \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+            \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/missclassificationsA6b.png}
         \end{figure}
     \end{enumerate}
     
@@ -933,29 +933,29 @@ Note that the offset term $b$ is not regularized. For all experiments, use $\lam
     
     \begin{figure}[h!]
     \centering
-        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/JwbA6c.png}
     \end{figure}
     
     \begin{figure}[h!]
     \centering
-        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/missclassificationsA6c.png}
     \end{figure}
 
-
+    \newpage
     \item \points{7} Repeat (b) using stochastic gradient descent with batch size of 100. That is, instead of approximating the gradient with a single example, use 100. Note, the expected gradient with respect to the random selection should be equal to the gradient found in part (a).
     
     \begin{figure}[h!]
     \centering
-        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/JwbA6d.png}
     \end{figure}
     
     \begin{figure}[h!]
     \centering
-        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/MSEA5.png}
+        \includegraphics[width=0.6\textwidth]{HW2/HW2_plots/missclassificationsA6d.png}
     \end{figure}
 \end{enumerate}
 
-
+\newpage
 \begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
