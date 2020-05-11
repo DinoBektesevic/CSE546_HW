@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 
 
-def descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
-    """Preforms coordinate descent Lasso algorithm on the given data.
+def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
+    """Preforms coordinate coordinate descent Lasso algorithm on the given data.
 
     Parameters
     ----------
@@ -233,7 +233,7 @@ def A4(nIter=20, tolerance=0.001):
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
+        Coordinate descent tolerance, sets convergence criteria (see coordinate_descent).
         Default: 0.001.
     """
     x, y, lambd, params = A4_setup()
@@ -242,7 +242,7 @@ def A4(nIter=20, tolerance=0.001):
     lambdas, numNonZeros, fdrs, tprs = [], [], [], []
     w = np.zeros(params['d'])
     for i in range(nIter):
-        w = descent(x, y, lambd, tolerance)
+        w = coordinate_descent(x, y, lambd, tolerance)
 
         nonZeros = np.count_nonzero(w)
         correctNonZeros = np.count_nonzero(w[:k])
@@ -269,7 +269,7 @@ def A4(nIter=20, tolerance=0.001):
     plt.show()
 
 
-def A5_setup(trainFile="crime-train.txt", testFile="crime-test.txt"):
+def A5_setup(trainFile="data/crime-train.txt", testFile="data/crime-test.txt"):
     """Reads the crime train and test data into a pandas dataframe and
     calculates maximum lambda value.
 
@@ -295,8 +295,8 @@ def A5_setup(trainFile="crime-train.txt", testFile="crime-test.txt"):
     lMaxTest: `float`
         Maximal value of lambda for which all weights are zero.
     """
-    train = pd.read_table("crime-train.txt")
-    test = pd.read_table("crime-test.txt")
+    train = pd.read_table(trainFile)
+    test = pd.read_table(testFile)
 
     yTrain = train["ViolentCrimesPerPop"]
     xTrain = train.drop("ViolentCrimesPerPop", axis=1)
@@ -328,7 +328,7 @@ def mean_square_error(x, y, w):
         Mean square error.
     """
     a = y - np.dot(x, w)
-    return a.T @ a
+    return (a.T @ a)/len(y)
 
 
 def A5ab():
@@ -346,8 +346,8 @@ def A5ab():
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
-        Default: 0.001.
+        Coordinate descent tolerance, sets convergence criteria (see
+        coordinate_descent). Default: 0.001.
     """
     xTrain, yTrain, lMaxTrain, xTest, yTest, lMaxTest = A5_setup()
 
@@ -369,7 +369,7 @@ def A5ab():
     # run the actual fit, note w overrides itself, do proper convergence
     # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+        w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
 
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)
@@ -419,8 +419,8 @@ def A5cd():
         Number of different regularization parameter iterations to run. Default
         is 20.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see descent).
-        Default: 0.001.
+        Coordinate descent tolerance, sets convergence criteria (see
+        coordinate_descent). Default: 0.001.
     """
     xTrain, yTrain, lMaxTrain, xTest, yTest, lMaxTest = A5_setup()
 
@@ -430,7 +430,7 @@ def A5cd():
     lambd = 30
 
     lambdas, numNonZeros, sqrErr = [], [], []
-    w = descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
+    w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
     lambdas.append(lambd)
 
@@ -454,6 +454,6 @@ def A5():
 
 
 if __name__ == "__main__":
-#    A4()
+    A4()
     A5()
 

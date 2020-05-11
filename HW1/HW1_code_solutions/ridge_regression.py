@@ -167,7 +167,7 @@ def mainA6(lambd=1e-4):
     """
     trainData, trainLabels, testData, testLabels = load_mnist_dataset()
     n, d = trainData.shape
-    labelDim = trainLabels.max() + 1 
+    labelDim = trainLabels.max() + 1
 
     trainOneHot = np.array([one_hot(labelDim, y) for y in trainLabels])
     testOneHot  = np.array([one_hot(labelDim, y) for y in testLabels])
@@ -195,7 +195,7 @@ def transform(data, p, G=None, b=None):
     Parameters
     ----------
     data : `np.array`
-        Data to transform, can be a 
+        Data to transform
     p : `int`
         Dimension of the image of the transformation.
     G : `np.array`, optional
@@ -266,7 +266,7 @@ def mainB2(lambd=1e-4, splitFraction=0.8):
 
     Outputs the p, training accuracy, training error, validation accuracy and
     validation error into a file "B2Accuracy" as a space separated columnar
-    data file. 
+    data file.
 
     Parameters
     ----------
@@ -284,12 +284,12 @@ def mainB2(lambd=1e-4, splitFraction=0.8):
         in the directory the code was run from.
     """
     trainData, trainLabels, testData, testLabels = load_mnist_dataset()
-    labelDim = trainLabels.max() + 1 
+    labelDim = trainLabels.max() + 1
     trainOneHots = np.array([one_hot(labelDim, y) for y in trainLabels])
     testOneHots  = np.array([one_hot(labelDim, y) for y in testLabels])
 
     trainData, trainLabels, valData, valLabels = split(trainData, trainOneHots, splitFraction)
-    
+
     ps = np.hstack(np.arange(1, 7000, 50))
     with open("B2Accuracy", "w") as outfile:
         outfile.write("# p trainAccuracy trainError testAccuracy testError \n")
@@ -307,7 +307,7 @@ def mainB2(lambd=1e-4, splitFraction=0.8):
 
 def plotB2():
     """Plots B2Accuracy data, specifically the training and validation error
-    columns, and displays the plot. 
+    columns, and displays the plot.
     """
     data = np.loadtxt("B2Accuracy")
 
@@ -350,7 +350,7 @@ def confidence_intervalB2(lambd=1e-4, splitFraction=0.8, d=0.05):
         testErr +- hoeff give the confidence interval we are looking for.
     """
     trainData, trainLabels, testData, testLabels = load_mnist_dataset()
-    labelDim = trainLabels.max() + 1 
+    labelDim = trainLabels.max() + 1
     trainOneHots = np.array([one_hot(labelDim, y) for y in trainLabels])
     testOneHots  = np.array([one_hot(labelDim, y) for y in testLabels])
 
