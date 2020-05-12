@@ -266,10 +266,10 @@ def count_missclassified(data, w, b, trueLabels):
     count: `int`
         Number of missclassified points.
     """
-    return  np.sum(np.abs( classify(data, w, b) - trueLabels )) / (2*len(trueLabels))
+    return np.sum(np.abs( classify(data, w, b) - trueLabels )) / (len(trueLabels))
 
 
-def gradient_descent(data, labels, lambd, step, nIter=10, stochastic=False,  batchSize=1):
+def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,  batchSize=1):
     """Performs gradient, or stochastic gradient, descent on the given data.
 
     Parameters
@@ -284,7 +284,7 @@ def gradient_descent(data, labels, lambd, step, nIter=10, stochastic=False,  bat
         Steps size to take in the direction of the gradient.
     nIter: `int`, optional
         Number of iterations to preform, note that the function does not test
-        for convergence so ensure sufficient number of steps. Default: 10
+        for convergence so ensure sufficient number of steps. Default: 20
     stochastic: `bool`, optional
         If True preforms stochastic gradient descent. Default: False
     batchSize: `int`, optional
@@ -409,8 +409,9 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
         testJ.append(J(testData, testLabels, wi, bi, lambd))
         trainMisslbls.append(count_missclassified(testData, wi, bi, testLabels))
 
-    print(w)
     print(f"{title}")
+    print(f"    Converged weights max={w.max():.4f}   min={w.min():.4f}")
+    print(f"                      mean={w.mean():.4f}   median={np.median(w):.4f}   std={w.std():.4f}")
     print(f"    Converged to offset b={b:.4f}")
     print(f"    Objective converged for train to J={trainJ[-1]:.4f} and test J={testJ[-1]:.4f}")
 
@@ -426,8 +427,8 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
     ax2 = plot(ax2, iters, testMisslbls, label="Training missclassifications.",
                lc="gray")
     ax2 = plot(ax2, iters, trainMisslbls, label="Test missclassifications.",
-               title="title", xlabel="Iteration number",
-               ylabel="N. missclassified labels.")
+               title=f"{title}", xlabel="Iteration number",
+               ylabel="% of missclassified labels.")
     ax2.legend()
     plt.show()
 
