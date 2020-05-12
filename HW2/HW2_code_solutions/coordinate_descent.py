@@ -365,7 +365,7 @@ def A5ab(tolerance=0.001):
     wAgePct12, wPctSoc, wPctUrban, wAgePct65, wHouseholdsize = [], [], [], [], []
     lambdas, numNonZeros, sqrErrTrain, sqrErrTest = [], [], [], []
 
-    # run the actual fit, note w overrides itself, do proper convergence
+    # run the actual fit, note w overrides itself, do proper convergence test
     # because this is much shorter loop than a.
     while lambd > 0.01:
         w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w,
@@ -426,7 +426,7 @@ def A5cd(tolerance=0.001):
     w = np.zeros(d)
     lambd = 30
 
-    lambdas, numNonZeros, sqrErr = [], [], []
+    lambdas, numNonZeros, = [], []
     w = coordinate_descent(xTrain.values, yTrain.values, lambd,
                            tolerance=tolerance, initW=w, convergeFast=False)
     numNonZeros.append(np.count_nonzero(w))
