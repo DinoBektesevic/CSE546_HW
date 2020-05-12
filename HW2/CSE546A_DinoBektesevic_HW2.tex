@@ -197,9 +197,8 @@ where $\epsilon_i \approx \N(0,\sigma^2)$ is some Gaussian noise (in the model a
     No features are selected in the first step, i.e. close to $\lambda_{\max}$. Successive iterations relax regularization penalties so more and more features are selected. Simultaneously TPR increases very rapidly initially and then tapers off the rapid growth. This occurs because we quickly learn the most important features after which adding more features just doesn't add that much more valuable information to the model. Simultaneously our FDR skyrockets because the additional features over-specify our model. Eventually TPR jumps to nearly one as, I assume, we just fit all the points. \\
 
 Conclusions provided courtesy of my brain, figures provided courtesy of the following code:
-    
-\lstinputlisting[language=Python,firstline=0,lastline=269]{HW2_code_solutions/coordinate_descent.py}
-\lstinputlisting[language=Python,firstline=451,lastline=454]{HW2_code_solutions/coordinate_descent.py}
+ 
+\lstinputlisting[linerange={0-269,454-456}]{HW2_code_solutions/coordinate_descent.py}  
 \end{enumerate}
 
 
@@ -276,9 +275,7 @@ We’d like to use this training set to fit a model which can predict the crime 
     
     
 \newpage
-\lstinputlisting[language=Python,firstline=0,lastline=148]{HW2_code_solutions/coordinate_descent.py}
-\lstinputlisting[language=Python,firstline=309, lastline=453]{HW2_code_solutions/coordinate_descent.py}
-\lstinputlisting[language=Python,firstline=455]{HW2_code_solutions/coordinate_descent.py}
+\lstinputlisting[linerange={0-148,309-455,457-}]{HW2_code_solutions/coordinate_descent.py}
 \end{enumerate}
 
 
