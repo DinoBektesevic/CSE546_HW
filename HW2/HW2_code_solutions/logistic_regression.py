@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from scipy import linalg
 
 from mnist import MNIST
 
@@ -49,7 +47,7 @@ def encode_labels(labels, matchVals, encodeVals):
     return labels
 
 
-def mnist_numbers(path="data/mnist_data/", numbers=(2,7), encodeVals=(-1, 1)):
+def mnist_numbers(path="data/mnist_data/", numbers=(2, 7), encodeVals=(-1, 1)):
     """Loads MNIST data, located at path, normalizes, separates the desired
     numbers and encodes the matching data labels with given values.
 
@@ -87,7 +85,7 @@ def mnist_numbers(path="data/mnist_data/", numbers=(2,7), encodeVals=(-1, 1)):
     mndata = MNIST(path)
 
     train, trainLabels = map(np.array, mndata.load_training())
-    test, testLabels  = map(np.array, mndata.load_testing())
+    test, testLabels = map(np.array, mndata.load_testing())
 
     train = train/255.0
     test = test/255.0
@@ -103,7 +101,7 @@ def mnist_numbers(path="data/mnist_data/", numbers=(2,7), encodeVals=(-1, 1)):
 def J(x, y, w, b, lambd):
     """Calculates the regularized negative log likelihood function:
 
-        J(w, b) = 1/n \sum log( 1/mu_i + lambda ||w||^2
+        J(w, b) = 1/n \\sum log( 1/mu_i + lambda ||w||^2
 
     see `mu` for `mu_i(w, b)` for more.
 
@@ -135,7 +133,7 @@ def J(x, y, w, b, lambd):
 def mu(x, y, w, b):
     """Calculates the value of the substitution expression:
 
-        mu(w, b)  = 1 / ( 1+ exp(y(b + x^Tw)))
+        mu(w, b)  = 1 / ( 1 + exp(y(b + x^Tw)))
 
     that makes gradient calculations easier.
 
@@ -163,7 +161,7 @@ def grad_w_J(x, y, w, b, lambd):
     """Calculates gradient of the regularized negative log likelihood function
     with respect to the weights:
 
-        J(w, b) = 1/n \sum y_i x_i (1-mu_i) + 2 lambda w
+        J(w, b) = 1/n \\sum y_i x_i (1-mu_i) + 2 lambda w
 
     see `mu` for more on `mu_i`
 
@@ -198,7 +196,7 @@ def grad_b_J(x, y, w, b):
     """Calculates gradient of the regularized negative log likelihood function
     with respect to the offset:
 
-        J(w, b) = 1/n \sum y_i (1-mu_i)
+        J(w, b) = 1/n \\sum y_i (1-mu_i)
 
     see `mu` for more on `mu_i`
 
@@ -266,10 +264,11 @@ def count_missclassified(data, w, b, trueLabels):
     count: `int`
         Number of missclassified points.
     """
-    return np.sum(np.abs( classify(data, w, b) - trueLabels )) / (len(trueLabels))
+    return np.sum(np.abs(classify(data, w, b) - trueLabels)) / (len(trueLabels))
 
 
-def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,  batchSize=1):
+def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,
+                     batchSize=1):
     """Performs gradient, or stochastic gradient, descent on the given data.
 
     Parameters
@@ -304,7 +303,7 @@ def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,  bat
     wSteps: `np.array`
         Leaned weights in each step, used to estimate J and missclass. on test.
     bSteps: `np.array`
-        Learned offsets in each step, used to estimate J and missclass. on test.
+        Learned offsets in each step, to estimate J and missclass. on test.
     """
     n, d = data.shape
     w = np.zeros(d)
@@ -312,7 +311,7 @@ def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,  bat
 
     calcJ, missclassified, wSteps, bSteps = [], [], [], []
     for i in range(nIter):
-        # append results befoe we alter values to capture zeroth element correctly
+        # append results befoe altering values for correct zeroth element
         wSteps.append(w)
         bSteps.append(b)
         calcJ.append(J(data, labels, w, b, lambd))
@@ -331,7 +330,8 @@ def gradient_descent(data, labels, lambd, step, nIter=20, stochastic=False,  bat
     return w, b, calcJ, missclassified, wSteps, bSteps
 
 
-def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=False, lc='black', lw=1):
+def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=False,
+         lc='black', lw=1):
     """Plots a line on given axis.
 
     Parameters
@@ -371,7 +371,8 @@ def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=False, lc='bla
     return ax
 
 
-def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Descent"):
+def A6abc(nIter, lambd, step, stochastic=False, batchSize=1,
+          title="Gradient Descent"):
     """Reads MNIST dataset separates numbers 2 and 7, encodes -1 and 1 labels
     for the numbers respectively, performs gradient descent with the given
     parameters, estimates objective and missclassified labels in each step for
@@ -400,8 +401,12 @@ def A6abc(nIter, lambd, step, stochastic=False, batchSize=1, title="Gradient Des
     trainData, trainLabels, testData, testLabels = mnist_numbers()
 
     # annoyingly we have to re-iterate or live with ugly grad_desc func.
-    w, b, trainJ, testMisslbls, wSteps, bSteps =  gradient_descent(trainData, trainLabels, lambd,
-                                                                   step, nIter=nIter, stochastic=stochastic,
+    w, b, trainJ, testMisslbls, wSteps, bSteps =  gradient_descent(trainData,
+                                                                   trainLabels,
+                                                                   lambd,
+                                                                   step,
+                                                                   nIter=nIter,
+                                                                   stochastic=stochastic,
                                                                    batchSize=batchSize)
 
     testJ, trainMisslbls = [], []
@@ -440,12 +445,14 @@ def A6b(nIter=200, lambd=0.1, step=0.01):
 
 def A6c(nIter=200, lambd=0.1, step=0.01, stochastic=True, batchSize=1):
     """Calls A6abc with parameters specified in problem A6 c"""
-    A6abc(nIter, lambd, step, stochastic, batchSize, title="Stochastic Gradient Descent.")
+    A6abc(nIter, lambd, step, stochastic, batchSize,
+          title="Stochastic Gradient Descent.")
 
 
 def A6d(nIter=200, lambd=0.1, step=0.01, stochastic=True, batchSize=100):
     """Calls A6abc with parameters specified in problem A6 d"""
-    A6abc(nIter, lambd, step, stochastic, batchSize, title="Stochastic Gradient Descent.")
+    A6abc(nIter, lambd, step, stochastic, batchSize,
+          title="Stochastic Gradient Descent.")
 
 
 def A6():

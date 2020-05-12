@@ -3,8 +3,9 @@ import numpy as np
 import pandas as pd
 
 
-def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=True):
-    """Preforms coordinate coordinate descent Lasso algorithm on the given data.
+def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None,
+                       convergeFast=True):
+    """Preforms coordinate descent Lasso algorithm on the given data.
 
     Parameters
     ----------
@@ -41,7 +42,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
         w = initW
 
     # precalculate values used in the loop in advance
-    squaredX =  2.0 * x**2
+    squaredX = 2.0 * x**2
 
     # ensure convergence is not met on first loop
     convergeCriterion = tolerance + 1
@@ -57,7 +58,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
         b = np.mean(y - np.dot(x, w)) / n
         for k in range(d):
             xk = x[:, k]
-            ak = squaredX[:,k].sum()
+            ak = squaredX[:, k].sum()
 
             # ck sum must ignore k-th dimension so we set it to zero and use
             # dot product. This matches the definition of w too, so we can
@@ -85,7 +86,8 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
     return w
 
 
-def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True, lc='black', lw=2):
+def plot(ax, x, y, label="", xlabel="", ylabel="", title="", xlog=True,
+         lc='black', lw=2):
     """Plots a line on given axis.
 
     Parameters
@@ -185,8 +187,8 @@ def generate_data(n, d, k, sigma):
 
 def A4_setup(n=500, d=1000, k=100, sigma=1):
     """Creates data as instructed by A4 problem, calculates the smallest value
-    of regularization parameter for which w is zero and returns data parameters,
-    data and calculated lambda.
+    of regularization parameter for which w is zero and returns data creation
+    parameters, data and calculated lambda.
 
     Parameters
     ----------
@@ -233,8 +235,8 @@ def A4(nIter=30, tolerance=0.001):
         Number of different regularization parameter iterations to run. Default
         is 30.
     tolerance: `float`, optional
-        Coordinate descent tolerance, sets convergence criteria (see coordinate_descent).
-        Default: 0.001.
+        Coordinate descent tolerance, sets convergence criteria (see
+        coordinate_descent). Default: 0.001.
     """
     x, y, lambd, params = A4_setup()
     k = params['k']
@@ -360,14 +362,14 @@ def A5ab(tolerance=0.001):
     idxAgePct65 = colNames.index('agePct65up')
     idxHouse = colNames.index('householdsize')
 
-    wAgePct12, wPctSoc, wPctUrban, wAgePct65, wHouseholdsize = [] ,[], [], [], []
+    wAgePct12, wPctSoc, wPctUrban, wAgePct65, wHouseholdsize = [], [], [], [], []
     lambdas, numNonZeros, sqrErrTrain, sqrErrTest = [], [], [], []
 
     # run the actual fit, note w overrides itself, do proper convergence
     # because this is much shorter loop than a.
     while lambd > 0.01:
-        w = coordinate_descent(xTrain.values, yTrain.values, lambd,
-                               tolerance=tolerance, initW=w, convergeFast=False)
+        w = coordinate_descent(xTrain.values, yTrain.values, lambd, initW=w,
+                               tolerance=tolerance, convergeFast=False)
 
         numNonZeros.append(np.count_nonzero(w))
         lambdas.append(lambd)
@@ -393,7 +395,7 @@ def A5ab(tolerance=0.001):
     plot(ax2, lambdas, wPctUrban, label="pctUrban", lc=c[2])
     plot(ax2, lambdas, wAgePct65, label="agePct65up", lc=c[3])
     plot(ax2, lambdas, wHouseholdsize, label="Householdsize", xlabel="Lambda",
-         ylabel="Weight value", title="Number of variables VS lambda.", lc=c[4])
+         ylabel="Weight value", title="N. of variables VS lambda.", lc=c[4])
     ax2.legend()
 
     fig3, ax3 = plt.subplots(figsize=(10, 6))
@@ -432,16 +434,16 @@ def A5cd(tolerance=0.001):
 
     idxMaxW = w == max(w)
     idxMinW = w == min(w)
-    print(f"Maximal value of w {w[idxMaxW][0]:.4f} belongs to feature {xTrain.columns[idxMaxW][0]}")
-    print(f"Maximal value of w {w[idxMinW][0]:.4f} belongs to feature {xTrain.columns[idxMinW][0]}")
+    print(f"Maximal value of $w={w[idxMaxW][0]:.4f}$ belongs to feature {xTrain.columns[idxMaxW][0]}")
+    print(f"Minimal value of $w={w[idxMinW][0]:.4f}$ belongs to feature {xTrain.columns[idxMinW][0]}")
     print()
-    print("Feature Name              |  Magnitude")
-    print("-----------------------------------------")
+    print("Feature Name              &  Magnitude")
+    print("\\hline")
     idxSorted = np.argsort(w)
     idxNonZeroSorted = np.nonzero(w[idxSorted])
     for feature, w_i in zip(xTrain.columns[idxSorted][idxNonZeroSorted],
                             w[idxSorted][idxNonZeroSorted]):
-        print(f"{feature:25} | {w_i:4.8f}")
+        print(f"{feature:25} & {w_i:4.8f} \\\\")
 
 
 def A5():
@@ -453,4 +455,3 @@ def A5():
 if __name__ == "__main__":
     A4()
     A5()
-
