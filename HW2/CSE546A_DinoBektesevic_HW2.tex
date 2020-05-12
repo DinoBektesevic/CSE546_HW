@@ -89,7 +89,7 @@ The answers to these questions should be answerable without referring to externa
 
 
 
-\newpage
+
 \section*{Convexity and Norms \points{10}}
 A.1. A norm $||\cdot||$ over $R^n$ is defined by the properties:
 \begin{enumerate}
@@ -146,8 +146,7 @@ Therefore it's not clear that the triangle inequality holds.
 Context: norms are often used in regularization to encourage specific behaviors of solutions. If we define $||x||_p:= (\sum^n_i = \1|x_i|^p)^{1/p}$ then one can show that $||x||^p$ is a norm for all $p\ge1$. The important cases of $p=2$ and $p=1$ correspond to the penalty for ridge regression and the lasso, respectively.
 
 
-
-\newpage
+\vskip 2cm
 A 2.\points{3} A set $A\subseteq \R^n$ is convex if $\lambda x + (1-\lambda)y \in A \forall x,y \in A$ and $\lambda\in [0,1]$. For each of the grey-shaded sets (I-III), state whether each one is convex, or state why it is not convex using any of the points a,b,c,d in your answer.\\
 I is not convex because we exit the image if we connect b and c. \\
 II is convex, there are no combinations of points that would exit the image. \\
@@ -156,7 +155,7 @@ III is not convex because it is possible to connect points d and a in a way that
 
 
 
-\newpage 
+\vskip 2cm
 A 3.\points{4} We say a function $f:\R^d\rightarrow\R$ is convex on a set $A \iff (\lambda x + (1-\lambda)y)\leq \lambda f(x) + (1-\lambda)f(y) \forall x,y \in A$ and $\lambda\in [0,1]$. For each of the grey-colored functions (I-III), state whether each one is convex on the given interval or state why not with a counter example using any of the points a,b,c,d in your answer
 
 \begin{enumerate}
@@ -196,7 +195,7 @@ where $\epsilon_i \approx \N(0,\sigma^2)$ is some Gaussian noise (in the model a
     \item \points{5} Comment on the effect of $\lambda$ in these two plots. \\
     No features are selected in the first step, i.e. close to $\lambda_{\max}$. Successive iterations relax regularization penalties so more and more features are selected. Simultaneously TPR increases very rapidly initially and then tapers off the rapid growth. This occurs because we quickly learn the most important features after which adding more features just doesn't add that much more valuable information to the model. Simultaneously our FDR skyrockets because the additional features over-specify our model. Eventually TPR jumps to nearly one as, I assume, we just fit all the points. \\
 
-Conclusions provided courtesy of my brain, figures provided courtesy of the following code:
+Figures provided by the following code:
  
 \lstinputlisting[linerange={0-269,454-456}]{HW2_code_solutions/coordinate_descent.py}  
 \end{enumerate}
