@@ -31,7 +31,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
     Returns
     -------
     w: `np.array`
-        New feature weights estimates. 
+        New feature weights estimates.
     """
     n, d = x.shape
 
@@ -54,7 +54,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
             oldW = w.copy()
 
         # Algorithm 1 implementation
-        b = np.mean(y - np.dot(x, w))
+        b = np.mean(y - np.dot(x, w)) / n
         for k in range(d):
             xk = x[:, k]
             ak = squaredX[:,k].sum()
@@ -62,7 +62,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None, convergeFast=Tr
             # ck sum must ignore k-th dimension so we set it to zero and use
             # dot product. This matches the definition of w too, so we can
             # leave it wth zero value unless smaller than -lambda or bigger
-            # than lambda anyhow. 
+            # than lambda anyhow.
             w[k] = 0
             delta = 0
             ck = 2.0 * np.dot(xk, y - (b + np.dot(x, w)))
@@ -152,14 +152,14 @@ def generate_data(n, d, k, sigma):
         w_j = j/k if j in {1,...,k}
         w_j = 0 otherwise
     and epsilon is random Gussian noise with the given sigma and X are also
-    drawn from a Normal distribution with sigma 1. 
+    drawn from a Normal distribution with sigma 1.
 
     Parameters
     ----------
     n : `int`
         Number of samples drawn at random from the model.
     d : `int`
-        Dimensionality of the feature space. 
+        Dimensionality of the feature space.
     k : `int`
         Cutoff point after which elements of w are zero.
 
@@ -168,7 +168,7 @@ def generate_data(n, d, k, sigma):
     x : `np.array`
         n-by-d sized array of data.
     y : `np.array`
-        Vector of n model values. 
+        Vector of n model values.
     """
     # gaussian noise and data
     eps = np.random.normal(0, sigma**2, size=n)
@@ -373,7 +373,7 @@ def A5ab(tolerance=0.001):
         lambdas.append(lambd)
         sqrErrTrain.append(mean_square_error(xTrain.values, yTrain.values, w))
         sqrErrTest.append(mean_square_error(xTest.values, yTest.values, w))
-        wAgePct12.append(w[idxAgePct12])    
+        wAgePct12.append(w[idxAgePct12])
         wPctSoc.append(w[idxPctSoc])
         wPctUrban.append(w[idxPctUrban])
         wAgePct65.append(w[idxAgePct65])
@@ -395,7 +395,7 @@ def A5ab(tolerance=0.001):
     plot(ax2, lambdas, wHouseholdsize, label="Householdsize", xlabel="Lambda",
          ylabel="Weight value", title="Number of variables VS lambda.", lc=c[4])
     ax2.legend()
-    
+
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     plot(ax3, lambdas, sqrErrTrain, label="MSE Train", lc="gray")
     plot(ax3, lambdas, sqrErrTest, label="MSE Test", xlabel="Lambda",
@@ -406,7 +406,7 @@ def A5ab(tolerance=0.001):
 
 def A5cd(tolerance=0.001):
     """Sets the data up as instructed by problem A5 and runs coordinate
-    descent Lasso algorithm with regularization value of 30. 
+    descent Lasso algorithm with regularization value of 30.
 
     Prints the weights and the names of the features with most positive, most
     negative value and a sorted table of features with non-zero values.
