@@ -55,7 +55,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None,
             oldW = w.copy()
 
         # Algorithm 1 implementation
-        b = np.mean(y - np.dot(x, w)) / n
+        b = np.mean(y - np.dot(x, w))
         for k in range(d):
             xk = x[:, k]
             ak = squaredX[:, k].sum()
@@ -77,6 +77,7 @@ def coordinate_descent(x, y, lambd, tolerance=0.001, initW=None,
 
             if convergeFast:
                 deltas.append(delta)
+
         if convergeFast:
             # Find maximum difference between iterations
             convergeCriterion = abs(oldMax-max(deltas))
@@ -333,7 +334,7 @@ def mean_square_error(x, y, w):
     return (a.T @ a)/len(y)
 
 
-def A5ab(tolerance=0.001):
+def A5ab(tolerance=0.0001):
     """Sets the data up as instructed by problem A5 and runs coordinate
     descent Lasso algorithm untill the change in regularization parameter is
     smaller than 0.01. Each iteration decreases regularization parameter by a
@@ -390,7 +391,7 @@ def A5ab(tolerance=0.001):
 
     c = plt.cm.viridis(np.linspace(0, 0.8, 5))
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    plot(ax2, lambdas, wPctSoc, label="agePct12t29", lc=c[0])
+    plot(ax2, lambdas, wAgePct12, label="agePct12t29", lc=c[0])
     plot(ax2, lambdas, wPctSoc, label="pctWSocSec", lc=c[1])
     plot(ax2, lambdas, wPctUrban, label="pctUrban", lc=c[2])
     plot(ax2, lambdas, wAgePct65, label="agePct65up", lc=c[3])
@@ -426,12 +427,9 @@ def A5cd(tolerance=0.001):
     w = np.zeros(d)
     lambd = 30
 
-    lambdas, numNonZeros, = [], []
     w = coordinate_descent(xTrain.values, yTrain.values, lambd,
                            tolerance=tolerance, initW=w, convergeFast=False)
-    numNonZeros.append(np.count_nonzero(w))
-    lambdas.append(lambd)
-
+ 
     idxMaxW = w == max(w)
     idxMinW = w == min(w)
     print(f"Maximal value of $w={w[idxMaxW][0]:.4f}$ belongs to feature {xTrain.columns[idxMaxW][0]}")
