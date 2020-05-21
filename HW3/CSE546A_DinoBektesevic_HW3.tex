@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amsopn,bm}
+\usepackage[margin=.9in]{geometry}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+ 
+\lstset{language=Python, 
+        basicstyle=\ttfamily\tiny, 
+        keywordstyle=\color{keywords},
+        commentstyle=\color{comments},
+        stringstyle=\color{red},
+        showstringspaces=false}
+
+\newcommand{\argmax}{\arg\!\max}
+\newcommand{\argmin}{\arg\!\min}
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\E}{\mathbb{E}} 
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\N}{\mathcal{N}} % NormalDist
+\newcommand{\R}{\field{R}} % real domain
+% \newcommand{\C}{\field{C}} % complex domain
+\newcommand{\F}{\field{F}} % functional domain
+\newcommand{\T}{^{\textrm T}} % transpose
+\def\diag{\text{diag}}
+
+%% operator in linear algebra, functional analysis
+\newcommand{\inner}[2]{#1\cdot #2}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\twonorm}[1]{\|#1\|_2^2}
+% operator in functions, maps such as M: domain1 --> domain 2
+\newcommand{\Map}[1]{\mathcal{#1}}
+\renewcommand{\theenumi}{\alph{enumi}} 
+
+\newcommand{\Perp}{\perp \! \! \! \perp}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\vct}[1]{\boldsymbol{#1}} % vector
+\newcommand{\mat}[1]{\boldsymbol{#1}} % matrix
+\newcommand{\cst}[1]{\mathsf{#1}} % constant
+\newcommand{\ProbOpr}[1]{\mathbb{#1}}
+\newcommand{\points}[1]{\small\textcolor{magenta}{\emph{[#1 points]}} \normalsize}
+\date{{}}
+
+\setlength\parindent{0px}
+
+\begin{document}
+\title{Homework \#3 A}
+\author{\normalsize{Spring 2020, CSE 446/546: Machine Learning}\\
+\normalsize{Dino Bektesevic}}
+\maketitle
+
+Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
+
+\section*{Conceptual Questions \points{10} }
+\begin{enumerate}
+    \item \points{2} alalala
+\end{enumerate}
+
+
+
+\section*{Convexity and Norms \points{10}}
+
+\begin{align*}
+\centering
+    -|a|\leq a &\leq |a| \\
+    -|b|\leq b &\leq |b|
+\end{align*}
+
+\vskip 2cm
+
+%\lstinputlisting[linerange={0-269,452-454}]{HW2_code_solutions/coordinate_descent.py}  
+
+
+%\begin{table}[h!]
+%\centering
+    %\begin{tabular}{l|c}
+     %\centering
+ %       Feature Name              &  Magnitude \\
+ %       \hline
+ %       PctKids2Par               & -0.07017508 \\
+ %       PctHousOccup              & -0.00724790 \\
+ %       PctWorkMom                & -0.00544586 \\
+ %       agePct12t29               & -0.00367240 \\
+ %       LemasPctOfficDrugUn       & 0.00051549 \\
+ %       PctVacantBoarded          & 0.00126885 \\
+ %       pctUrban                  & 0.01042646 \\
+ %       MalePctDivorce            & 0.01102267 \\
+ %       NumStreet                 & 0.01575945 \\
+ %       HousVacant                & 0.02049849 \\
+ %       PctPersDenseHous          & 0.03062536 \\
+ %       PctIlleg                  & 0.06802481 
+ %   \end{tabular}{}
+%\end{table}{}
+
+
+\end{document}
