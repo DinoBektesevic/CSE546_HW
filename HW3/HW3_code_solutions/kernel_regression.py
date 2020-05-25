@@ -448,21 +448,6 @@ def A3b(kernelType, x, y, bestFit):
     return fig, axes
 
 
-def bootstrap(x, y, B, x_test, predictor, *predictor_args):
-    n = x.shape[0]
-    predictions = np.zeros((B, x_test.shape[0]))
-    
-    for i in range(B):
-        bootstrap_idxs = np.random.choice(np.arange(n), size=n)
-        x_bootstrap = x[bootstrap_idxs]
-        y_bootstrap = y[bootstrap_idxs]
-
-        predictor.train(x_bootstrap, y_bootstrap, *predictor_args)
-        predictions[i] = predictor.predict(x_test)
-
-    return predictions
-
-
 def A3(doPoly=True, doRBF=True):
     n, foldSize = 30, 30
     x = np.random.uniform(size=n)
@@ -489,38 +474,6 @@ def A3(doPoly=True, doRBF=True):
 
     plt.show()
 
-
-x_test = np.linspace(0, 1, 100)
-B = 300
-
-poly_predictions = bootstrap(x_30, y_30, B, x_test, Kernel("poly"), best_predictor_arg_poly_30, best_lambda_poly_30)
-rbf_predictions = bootstrap(x_30, y_30, B, x_test, Kernel("rbf"), best_predictor_arg_rbf_30, best_lambda_rbf_30)
-
-
-def percentile_plot(x, y, predictions, title):
-    x_test = np.linspace(0, 1, 100)
-    
-    plt.scatter(x, y, alpha=0.3, label="Data")
-    
-    # Mean prediction
-    plt.plot(x_test, np.mean(predictions, axis=0), color='orange', lw=2, label="Kernel Regression")
-
-    # Confidence Intervals
-    plt.fill_between(x_test, np.percentile(predictions, 5, axis=0), 
-                 np.percentile(predictions, 95, axis=0), color='orange', alpha=0.3)
-    plt.plot(x_test, np.percentile(predictions, 95, axis=0), color='orange', ls='-')
-    plt.plot(x_test, np.percentile(predictions, 5, axis=0), color='orange', ls='-')
-
-    # True f(x)
-    plt.plot(x_test, f(x_test), color='blue', ls='--', lw=2, label="True f(x)")
-    
-    plt.title(title)
-    
-    plt.ylim((y.min() - 1, y.max() + 1))
-    
-    plt.legend()
-    
-    plt.show()
 
 if __name__ == "__main__":
     A3()
