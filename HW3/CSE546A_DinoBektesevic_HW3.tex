@@ -139,23 +139,24 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
     \item \points{5} Repeat parts a, b, and c with $n=300$, but use 10-fold CV instead of leave-one-out for part a.
     \begin{figure}[h!]
     \centering 
-        \subfloat[Cross validation error]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_PolyFit.png} }}
-        \subfloat[Best fitting kernel plot.]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_PolyBasis.png} }} \\
-        \subfloat[Bootstrapped CIs]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_PolyBootstrapCI.png} }}
+        \subfloat[Cross validation error]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_PolyFit.png} }}
+        \subfloat[Best fitting kernel plot.]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_PolyBasis.png} }}
+        \subfloat[Bootstrapped CIs]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_PolyBootstrapCI.png} }}
         \caption{Part a-c using Polynomial kernel}
     \end{figure}
     \begin{figure}[h!]
     \centering 
-        \subfloat[Cross validation error]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_RBFFit.png} }}
-        \subfloat[Best fitting kernel plot.]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_RBFBasis.png} }} \\
-        \subfloat[Bootstrapped CIs]{{\includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A3d_RBFBootstrapCI.png} }}
-        \caption{Part a-c using Polynomial kernel}
+        \subfloat[Cross validation error]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_RBFFit.png} }}
+        \subfloat[Best fitting kernel plot.]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_RBFBasis.png} }}
+        \subfloat[Bootstrapped CIs]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_RBFBootstrapCI.png} }}
+        \caption{Part a-c using RBF kernel}
     \end{figure}
     
-    \newpage
     \item \points{5}For this problem, use the $\widehat f_{\text{poly}}$ and $\widehat f_{\text{rbf}}$ learned in part d. Suppose $m=1000$ additional samples $(x'_1,y'_1),\hdots ,(x'_m,y'_m)$ are drawn i.i.d. the same way the first $n$ samples were drawn. Use the non-parametric bootstrap with $B=300$ to construct a confidence interval on $E[(Y - \widehat f_{\text{poly}} (X))^2 - (Y - \widehat f_{\text{rbf}})^2]$ (i.e. randomly draw with replacement $m$ samples denoted as $\{(\tilde x'_i, \tilde y'_i)\}^m_{i=1}$ from $\{(\tilde x'_i, \tilde y'_i)\}^m_{i=1}$ and compute 
-    $$\frac{1}{m}\sum^m_{i=1} ((\tilde  y'_i - \widehat f_{\text{poly}} (\tilde x'_i))^2 - (\tilde y'_i - ]widehat f_{\text{rbf}} (\tilde x'_i))^2)$$
+    $$\frac{1}{m}\sum^m_{i=1} \left[(\tilde  y'_i - \widehat f_{\text{poly}} (\tilde x'_i))^2 - (\tilde y'_i - \widehat f_{\text{rbf}} (\tilde x'_i))^2\right]$$
     repeat this $B$ times) and find 5\% and 95\% percentiles. Report these values.Using this confidence interval, is there statistically significant evidence to suggest that one of $\widehat f_{\text{poly}}$ $\widehat f_{\text{rbf}}$ is better than the other at predicting $Y$ from $X$? (Hint:  does the confidence interval contain 0?)
+    
+    I retrieve the 5th and 95th percentile interval of the given expression to be from 0.132 to 0.364. The interval does not contain zero, therefore we conclude we are 95\% confident that there is a statistically significant evidence in favor of fitting with the RBF kernel. 
 \end{enumerate}
 
 
