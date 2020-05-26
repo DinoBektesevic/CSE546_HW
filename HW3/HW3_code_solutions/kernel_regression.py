@@ -127,12 +127,6 @@ class Kernel:
         """
         return np.mean((self.predict(x) - y)**2)
 
-    def plot_basis(self, ax, x):
-        basis = self.eval(self.x, x)
-        for a, b in zip(self.alpha, basis):
-            ax.plot(x, a*b)
-        return ax
-
 
 class PolynomialKernel(Kernel):
     """Class implementing the polynomial kernel."""
@@ -438,7 +432,7 @@ def A3a(kernelType, x, y, foldSize, lambdas, hyperparams, xlabel="", title=""):
     return samples, best
 
 
-def A3b(kernelType, x, y, bestFit, caxes=None, titles=None):
+def A3b(kernelType, x, y, bestFit, axis=None, title=None):
     """Using best fit parameters plots the data, the truth (true model) and the
     best fitting kernel.
 
@@ -453,37 +447,31 @@ def A3b(kernelType, x, y, bestFit, caxes=None, titles=None):
     bestFit: `dict`
         A dictionary containing the minimal sampled cross validation error and
         the values of lambda and hyperparameter at that error.
-    caxes: `tuple`
-        Custom axes on which to plot, otherwise a new figure will be created.
-    titles: `tuple`
-        Tuple of string titles to use.
+    axis: `matplotlib.pyplot.Axes`
+        Axis on which to plot, otherwise a new figure will be created.
+    title: `str`
+        Title to use.
     """
     kernel = KernelFactory.create(kernelType, bestFit['lambda'], bestFit['hyperparam'])
     kernel.fit(x, y)
 
-    if titles is None:
-        titles = ("", "")
-    if caxes is None:
-        fig, axes = plt.subplots(1, 2)
-    else:
-        axes = caxes
+    if title is None:
+        title = ""
+    if axis is None:
+        fig, axis = plt.subplots()
 
     # we need more evenly spaced arrays for plots, otherwise ugly
     xTest = np.linspace(x.min(), x.max(), 100)
     yHat = kernel.predict(xTest)
 
-    axes[0].scatter(x, y, label="Data")
-    axes[0].plot(xTest, truth(xTest), label="Truth (true model)")
-    axes[0].plot(xTest, yHat, label="Kernel Regression")
+    axis.scatter(x, y, label="Data")
+    axis.plot(xTest, truth(xTest), label="Truth (true model)")
+    axis.plot(xTest, yHat, label="Kernel Regression")
 
-    axes[0].set_title(titles[0])
-    axes[0].legend()
+    axis.set_title(title)
+    axis.legend()
 
-    if len(axes) > 1:
-        kernel.plot_basis(axes[1], xTest)
-        axes[1].set_title(titles[1])
-        return axes
-    return axes[0]
+    return axis
 
 
 def bootstrap(x, y, B, kernel):
@@ -545,7 +533,7 @@ def A3c(kernelType, x, y, bestFit, B=300, title=""):
         the values of lambda and hyperparameter at that error.
     """
     fig, ax = plt.subplots()
-    ax = A3b(kernelType, x, y, bestFit, caxes=(ax,), titles=(title,))
+    ax = A3b(kernelType, x, y, bestFit, axis=ax, title=title)
 
     kernel = KernelFactory.create(kernelType, bestFit['lambda'], bestFit['hyperparam'])
     predictions, percentile5, percentile95 = bootstrap(x, y, B, kernel)
@@ -629,7 +617,7 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
         lambdas = np.linspace(0.5, 0.9, 150)
         degrees = np.arange(30, 60, 1)        
         samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees)
-        A3b("poly", x, y, bestPoly, titles=("Polynomial Kernel", "Basis Functions"))
+        A3b("poly", x, y, bestPoly, title="Polynomial Kernel")
         A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=30) confidence intervals.")
             
     if doRBF:
@@ -637,7 +625,7 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
         gammas = np.linspace(30, 150, 150)
         samplesRdf, bestRdf = A3a("rbf", x, y, foldSize, lambdas, gammas,
                                   xlabel="gamma", title="RBF Kernel")
-        A3b("rbf", x, y, bestRdf, titles=("RBF Kernel", "Basis Functions"))
+        A3b("rbf", x, y, bestRdf, title="RBF Kernel")
         A3c("rbf", x, y, bestRdf, title="RBF Bootstrap (B=30) confidence intervals.")
 
     if doA3e:
@@ -652,12 +640,13 @@ def A3parallel(nprocs=None):
     time.
     """
     args = [(30, 30, True, False), (30, 30, False, True),
-            (300, 10, True, False), (300, 10, False, True),
-            (300, 10, True, True, True)]
+#            (300, 10, True, False), (300, 10, False, True),
+#            (300, 10, True, True, True)
+            ]
     nprocs = len(args) if nprocs is None else nprocs
     with mp.Pool(nprocs) as p:
         p.starmap(A3, args)
 
 
 if __name__ == "__main__":
-    #A3parallel()
+    A3parallel()
