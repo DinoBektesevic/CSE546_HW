@@ -119,16 +119,22 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
     \item \points{10} Let $\widehat f_{\text{poly}}(x)$ and $\widehat f_{\text{rbf}} (x)$ be the functions learned using the hyperparameters you found in part a. For a single plot per function $\widehat f\in \{\widehat f_{\text{poly}}(x), \widehat f_{\text{poly}}(x)\}$, plot the original data $\{(x_i,y_i)\}^n_{i=1}$, the true $f(x)$,and $\widehat f(x)$ (i.e., define a fine grid on $[0,1]$ to plot the functions). 
     \begin{figure}[h!]
     \centering 
-        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_PolyFit.png} }}
-        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_RBFFit.png} }}
-        \caption{Cross validated error sampled at different pairs of regularization (y-axis) and hyper (x-axis) parameters. White cross marks the minimal sampled cross validation error.}
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3b_PolyBasis.png} }}
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3b_RBFBasis.png} }}
+        \caption{Kernels evaluated on [0,1] using the best fit values of regularization and hyper parameters.}
     \end{figure}
     
-   
+    \newpage
     \item \points{5} We wish to build bootstrap percentile confidence intervals for $\widehat f_{\text{poly}}(x)$ and $\widehat f_{\text{rbf}}(x)$ for all $x\in[0,1]$ from part b. Use the non-parametric bootstrap with $B=300$ bootstrap iterations to find 5\% and 95\% percentiles at each point $x$ on a fine grid over $[0,1]$. 
     
-    
     Specifically, for each bootstrap sample $b\in\{1,...,B\}$, draw uniformly at randomly with replacement $n$ samples from $\{(x_i,y_i)\}^n_{i=1}$, train an $\widehat f_n$ using the $b$-th resampled dataset, compute $\widehat f_b(x)$ for each $x$ in your fine grid; let the 5th percentile at point $x$ be the largest value $\nu$ such that $B\sum^B_{b=1} \1\{\widehat f_b (x) \leq \nu \} leq .05$, define the 95\% analogously. Plot the 5 and 95 percentile curves on the plots from part b.
+    \begin{figure}[h!]
+    \centering 
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3c_PolyBootstrapCI.png} }}
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3c_RBFBootstrapCI.png} }}
+        \caption{Bootstrapped 5th and 95th percentile confidence interval.}
+    \end{figure}
+    
     
     \item \points{5} Repeat parts a, b, and c with $n=300$, but use 10-fold CV instead of leave-one-out for part a.
     
