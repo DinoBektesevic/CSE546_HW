@@ -639,9 +639,9 @@ def A3parallel(nprocs=None):
     folding size in a parallel manner to amortize the total serial execution
     time.
     """
-    args = [(30, 30, True, False), (30, 30, False, True),
-#            (300, 10, True, False), (300, 10, False, True),
-#            (300, 10, True, True, True)
+    args = [#(30, 30, True, False), (30, 30, False, True),
+            (300, 10, True, False), (300, 10, False, True),
+            #(300, 10, True, True, True)
             ]
     nprocs = len(args) if nprocs is None else nprocs
     with mp.Pool(nprocs) as p:
