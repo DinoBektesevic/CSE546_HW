@@ -8,6 +8,7 @@
 \usepackage{multirow}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{subfig}
 
 \definecolor{keywords}{RGB}{255,0,90}
 \definecolor{comments}{RGB}{0,0,113}
@@ -102,13 +103,30 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
     \begin{enumerate}
         \item $k_{poly}(x,z) = (1 +x^Tz)^d$ where $d\in\N$ is a hyperparameter,
         \item $k_{rbf}(x,z) = \exp(-\gamma ||x-z||^2$ where $\gamma>0$ is a hyperparameter,
-    \end{enumerate} Report the values of $d$,$\gamma$, and the $\lambda$ values for both kernels.
+    \end{enumerate} Report the values of $d$,$\gamma$, and the $\lambda$ values for both kernels.\\
     
+    For RBF kernel I find optimal lambda: 0.07757, gamma: 141.9 sampled \@ minimal error: 1.603 (log(err)=0.4717). \\
+    For polynomial kernel I find optimal lambda: 0.8221, degree: 48.0 sampled \@ minimal error: 1.87 (log(err)=0.626). 
+    \begin{figure}[h!]
+        \centering 
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_PolyFit.png} }}
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_RBFFit.png} }}
+        \caption{Cross validated error sampled at different pairs of regularization (y-axis) and hyper (x-axis) parameters. White cross marks the minimal sampled cross validation error.}
+    \end{figure}
+
+
+    \newpage
+    \item \points{10} Let $\widehat f_{\text{poly}}(x)$ and $\widehat f_{\text{rbf}} (x)$ be the functions learned using the hyperparameters you found in part a. For a single plot per function $\widehat f\in \{\widehat f_{\text{poly}}(x), \widehat f_{\text{poly}}(x)\}$, plot the original data $\{(x_i,y_i)\}^n_{i=1}$, the true $f(x)$,and $\widehat f(x)$ (i.e., define a fine grid on $[0,1]$ to plot the functions). 
+    \begin{figure}[h!]
+    \centering 
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_PolyFit.png} }}
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_RBFFit.png} }}
+        \caption{Cross validated error sampled at different pairs of regularization (y-axis) and hyper (x-axis) parameters. White cross marks the minimal sampled cross validation error.}
+    \end{figure}
     
-    \item \points{10} Let $\widehat f_{\text{poly}}(x)$ and $\widehat f_{\text{rbf}} (x)$ be the functions learned using the hyperparameters you found in part a. For a single plot per function $\widehat f\in \{\widehat f_{\text{poly}}(x), \widehat f_{\text{poly}}(x)\}$, plot the original data $\{(x_i,y_i)\}^n_{i=1}$, the true $f(x)$,and $\widehat f(x)$ (i.e., define a fine grid on $[0,1]$ to plot the functions)
-    
-    
+   
     \item \points{5} We wish to build bootstrap percentile confidence intervals for $\widehat f_{\text{poly}}(x)$ and $\widehat f_{\text{rbf}}(x)$ for all $x\in[0,1]$ from part b. Use the non-parametric bootstrap with $B=300$ bootstrap iterations to find 5\% and 95\% percentiles at each point $x$ on a fine grid over $[0,1]$. 
+    
     
     Specifically, for each bootstrap sample $b\in\{1,...,B\}$, draw uniformly at randomly with replacement $n$ samples from $\{(x_i,y_i)\}^n_{i=1}$, train an $\widehat f_n$ using the $b$-th resampled dataset, compute $\widehat f_b(x)$ for each $x$ in your fine grid; let the 5th percentile at point $x$ be the largest value $\nu$ such that $B\sum^B_{b=1} \1\{\widehat f_b (x) \leq \nu \} leq .05$, define the 95\% analogously. Plot the 5 and 95 percentile curves on the plots from part b.
     
