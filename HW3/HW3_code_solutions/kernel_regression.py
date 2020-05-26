@@ -618,7 +618,7 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
         degrees = np.arange(30, 60, 1)        
         samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees)
         A3b("poly", x, y, bestPoly, title="Polynomial Kernel")
-        A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=30) confidence intervals.")
+        A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=300) confidence intervals.")
             
     if doRBF:
         lambdas = np.linspace(0.0001, 0.1, 50)
@@ -626,7 +626,7 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
         samplesRdf, bestRdf = A3a("rbf", x, y, foldSize, lambdas, gammas,
                                   xlabel="gamma", title="RBF Kernel")
         A3b("rbf", x, y, bestRdf, title="RBF Kernel")
-        A3c("rbf", x, y, bestRdf, title="RBF Bootstrap (B=30) confidence intervals.")
+        A3c("rbf", x, y, bestRdf, title="RBF Bootstrap (B=300) confidence intervals.")
 
     if doA3e:
         A3e(bestPoly, bestRdf)
