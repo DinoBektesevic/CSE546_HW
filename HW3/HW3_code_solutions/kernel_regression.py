@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
+import multiprocessing as mp
 import time
 from mnist import MNIST
 
@@ -342,8 +343,10 @@ def sampler(x, y, lambdas, hyperparams, foldSize, kernelType):
     minErr = samples['error'][idxMinErr]
     optimLambda = samples['lambda'][idxMinErr]
     optimHParam = samples['hyperparams'][idxMinErr]
-    print(f"Optimal lambda: {optimLambda:.4}, hyperparam: {optimHParam:.4} sampled "
-          f"@ minimal error: {minErr:.4} (log(err)={np.log(minErr):.4}).")
+
+    print(f"Using {kernelType} with fold size={foldSize}: ")
+    print(f"    Optimal lambda: {optimLambda:.4}, hyperparam: {optimHParam:.4} "
+          f"sampled @ minimal error: {minErr:.4} (log(Err)={np.log(minErr):.4}).")
 
     return samples, {"minErr": minErr, "lambda": optimLambda,
                      "hyperparam": optimHParam}
@@ -402,20 +405,28 @@ def plotA3a(fig, ax, x, y, z, bestFit, xlabel="Hyperparameter",
     return ax, cbar
 
 
-def A3a(kernelType, x, y, n, foldSize, lambdas, hyperparams, xlabel="degree",
-        title="Polynomial Kernel"):
+def A3a(kernelType, x, y, foldSize, lambdas, hyperparams, xlabel="", title=""):
     """Samples the cross validation error on a grid for both polynomial and RBF
     kernels. Reports the minimal found error values and plots the errors.
 
     Parameters
     ----------
+    kernelType: `str`
+        Kernel type (``poly`` or ``rbf``)
+    x: `np.array`
+        Features
+    y: `np.array`
+        Labels
     foldSize: `int`
         Cross validationsubset size
-    lambdas: `np.array`, optional
+    lambdas: `np.array`
         Regularization parameters at which to calculate cross validation error.
-        Default: np.logspace(10, -13, 50).
-    plot: `bool`
-        Display plots.
+    hyperparams: `np.array`
+        Hyperparameters at which to calculate cross validation error.
+    xlabel: `str`
+        X axis label
+    title: `str`
+        Axis title
     """
     samples, best = sampler(x, y, lambdas, hyperparams, foldSize=foldSize,
                             kernelType=kernelType)
@@ -427,53 +438,226 @@ def A3a(kernelType, x, y, n, foldSize, lambdas, hyperparams, xlabel="degree",
     return samples, best
 
 
-def A3b(kernelType, x, y, bestFit):    
+def A3b(kernelType, x, y, bestFit, caxes=None, titles=None):
+    """Using best fit parameters plots the data, the truth (true model) and the
+    best fitting kernel.
+
+    Parameters
+    ----------
+    kernelType: `str`
+        Kernel type to use (``poly`` or ``rbf``)
+    x: `np.array`
+        Features (train data set)
+    y: `np.array`
+        Labels (train data set)
+    bestFit: `dict`
+        A dictionary containing the minimal sampled cross validation error and
+        the values of lambda and hyperparameter at that error.
+    caxes: `tuple`
+        Custom axes on which to plot, otherwise a new figure will be created.
+    titles: `tuple`
+        Tuple of string titles to use.
+    """
     kernel = KernelFactory.create(kernelType, bestFit['lambda'], bestFit['hyperparam'])
     kernel.fit(x, y)
-    
-    fig, axes = plt.subplots(1, 2)
 
+    if titles is None:
+        titles = ("", "")
+    if caxes is None:
+        fig, axes = plt.subplots(1, 2)
+    else:
+        axes = caxes
+
+    # we need more evenly spaced arrays for plots, otherwise ugly
     xTest = np.linspace(x.min(), x.max(), 100)
     yHat = kernel.predict(xTest)
 
     axes[0].scatter(x, y, label="Data")
+    axes[0].plot(xTest, truth(xTest), label="Truth (true model)")
     axes[0].plot(xTest, yHat, label="Kernel Regression")
-    axes[0].plot(xTest, truth(xTest), label="True f(x)")
-    kernel.plot_basis(axes[1], xTest)
 
-    axes[0].set_title("Polynomial Kernel n = 30")
+    axes[0].set_title(titles[0])
     axes[0].legend()
-    axes[1].set_title("Kernel Basis functions")
 
-    return fig, axes
+    if len(axes) > 1:
+        kernel.plot_basis(axes[1], xTest)
+        axes[1].set_title(titles[1])
+        return axes
+    return axes[0]
 
 
-def A3(doPoly=True, doRBF=True):
-    n, foldSize = 30, 30
+def bootstrap(x, y, B, kernel):
+    """Performs a non-parametric bootstrap on the given dataset. Selects,
+    with replacement, a subset of given features and labels, trains a kernel
+    and creates new predictions on a (min(x), max(x)) range. Returns all made
+    predictions.
+
+    Parameters
+    ----------
+    x: `np.array`
+        Features
+    y: `np.array`
+        Labels
+    B: `int`
+        Number of bootstrap iterations.
+
+    Returns
+    -------
+    predictions: `np.array`
+        Array each element of which is a set of predictions on a min(x)-max(x)
+        range, i.e. each element are that bootstrap iterations predictions.
+    percentile5: `np.array`
+       Array each element of which is the 5th percentile of corresponding
+       predictions element.
+    percentile95: `np.array`
+       Array each element of which is the 95th percentile of corresponding
+       predictions element.
+    """  
+    n = len(x)
+    xTest = np.linspace(x.min(), x.max(), 100)
+    predictions = np.zeros((B, len(xTest)))
+
+    indices = np.arange(n)
+    for i in range(B):
+        idxs = np.random.choice(indices, size=n, replace=True)
+        kernel.fit(x[idxs], y[idxs])
+        predictions[i] = kernel.predict(xTest)
+
+    return (predictions,
+            np.percentile(predictions, 5, axis=0, interpolation="lower"),
+            np.percentile(predictions, 95, axis=0, interpolation="higher"))
+
+
+def A3c(kernelType, x, y, bestFit, B=300, title=""):
+    """Bootstraps and estimates 5th and 95th percentile and then overplots it
+    on data, true model and best fit estimate model.
+
+    Parameters
+    ---------
+    kernelType: `str`
+        Kernel type (``poly`` or `rbf`)
+    x: `np.array`
+        Features
+    y: `np.array`
+        Labels
+    bestFit: `dict`
+        A dictionary containing the minimal sampled cross validation error and
+        the values of lambda and hyperparameter at that error.
+    """
+    fig, ax = plt.subplots()
+    ax = A3b(kernelType, x, y, bestFit, caxes=(ax,), titles=(title,))
+
+    kernel = KernelFactory.create(kernelType, bestFit['lambda'], bestFit['hyperparam'])
+    predictions, percentile5, percentile95 = bootstrap(x, y, B, kernel)
+
+    xTest = np.linspace(x.min(), x.max(), 100)
+    ax.fill_between(xTest, percentile5, percentile95, alpha=0.3, color="gray")
+    ax.plot(xTest, percentile95, color="darkgray", ls="--", alpha=0.5)
+    ax.plot(xTest, percentile5, color="darkgray", ls="--", alpha=0.5)
+    ax.set_ylim((y.min()-1, y.max()+1))
+
+    return fig, ax
+
+
+def A3e(bestPoly, bestRbf, n=1000, B=300):
+    """Using the given kernel parameters fits olynomial and RBF kernels to
+    the data, created according to the same truth, and calculates the mean
+    difference of the squared errors of the kernels predictions via
+    non-parametric bootstrap approach.
+
+    Prints the 5th and 95th percentile of the confidence interval squared
+    errors differences.
+
+    Parameters
+    ----------
+    bestPoly: `dict`
+        A dictionary containing the minimal sampled cross validation error and
+        the values of lambda and hyperparameter at that error.
+    bestRbf: `dict`
+        A dictionary containing the minimal sampled cross validation error and
+        the values of lambda and hyperparameter at that error.
+    n: `int`, optional
+        Number of newly generated data points, default: 1000.
+    B: `int`, optional
+        number of bootstrap iterations, default: 300.
+    """
     x = np.random.uniform(size=n)
     y = truth(x) + np.random.normal(size=n)
 
-    # A.3 for poly
+    poly = KernelFactory.create("poly", bestPoly['lambda'], bestPoly['hyperparam'])
+    rbf = KernelFactory.create("rbf", bestRbf['lambda'], bestRbf['hyperparam'])
+    poly.fit(x, y)
+    rbf.fit(x, y)
+
+    sqErr = []
+    indices = np.arange(n)
+    for i in range(B):
+        idxs = np.random.choice(indices, size=n, replace=True)
+        predictPoly = poly.predict(x[idxs])
+        predictRbf = rbf.predict(x[idxs])
+        sqErr.append( np.mean((y[idxs]-predictPoly)**2 - (y[idxs]-predictRbf)**2) )
+
+    percentile5 = np.percentile(sqErr, 5, axis=0, interpolation="lower")
+    percentile95 = np.percentile(sqErr, 95, axis=0, interpolation="higher")
+
+    print(f"Confidence interval difference: {percentile5} to {percentile95}")
+
+
+def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
+    """Problem A3 from a-d: creates data and labels based on truth and adds
+    gaussian noise, performs a grid search for best regularization and
+    hyperparameter values by minimizing the cross validation error, plots the
+    fits, uses reported values to fit kernels accross the range of the given
+    data, plots the kernel basis functions, the best fit kernels and boostraps
+    5th and 95th percentile confidence intervals over the data range.
+
+    Parameters
+    ----------
+    n: `int`, optional
+        Number of data points to create, default: 30.
+    foldSize: `int`, optional
+        Cross validation set size, default: 30.
+    doPoly: `bool`, optional
+        Use polynomial kernel, default: True.
+    doRBF: `bool`, optional
+        Use RBF kernel, default: True.
+    """
+    x = np.random.uniform(size=n)
+    y = truth(x) + np.random.normal(size=n)
+
     if doPoly:
-        lambdas = np.linspace(0.4, 1, 100)
-        degrees = np.arange(30, 60, 1)
-        samples, bestFit = A3a("poly", x, y, n, foldSize, lambdas, degrees)
-        A3b("poly", x, y, bestFit)
-
-        x_test = np.linspace(0, 1, 100)
-        kernel = KernelFactory.create(kernelType, bestFit['lambda'], bestFit['hyperparam'])
-        bootstrap(x, y, x_test, kernel, )
-
-    # A.3 for RBF
+        lambdas = np.linspace(0.5, 0.9, 150)
+        degrees = np.arange(30, 60, 1)        
+        samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees)
+        A3b("poly", x, y, bestPoly, titles=("Polynomial Kernel", "Basis Functions"))
+        A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=30) confidence intervals.")
+            
     if doRBF:
         lambdas = np.linspace(0.0001, 0.1, 50)
-        gammas = np.linspace(120, 160, 60)
-        samples, bestFit = A3a("rbf", x, y, n, foldSize, lambdas, gammas,
-                               xlabel="gamma", title="RBF Kernel")
-        A3b("rbf", x, y, bestFit)
+        gammas = np.linspace(30, 150, 150)
+        samplesRdf, bestRdf = A3a("rbf", x, y, foldSize, lambdas, gammas,
+                                  xlabel="gamma", title="RBF Kernel")
+        A3b("rbf", x, y, bestRdf, titles=("RBF Kernel", "Basis Functions"))
+        A3c("rbf", x, y, bestRdf, title="RBF Bootstrap (B=30) confidence intervals.")
+
+    if doA3e:
+        A3e(bestPoly, bestRdf)
 
     plt.show()
 
 
+def A3parallel(nprocs=None):
+    """Runs A3 with 30 and 300 data points and 30 and 10 cross validation
+    folding size in a parallel manner to amortize the total serial execution
+    time.
+    """
+    args = [(30, 30, True, False), (30, 30, False, True),
+            (300, 10, True, False), (300, 10, False, True),
+            (300, 10, True, True, True)]
+    nprocs = len(args) if nprocs is None else nprocs
+    with mp.Pool(nprocs) as p:
+        p.starmap(A3, args)
+
+
 if __name__ == "__main__":
-    A3()
+    #A3parallel()
