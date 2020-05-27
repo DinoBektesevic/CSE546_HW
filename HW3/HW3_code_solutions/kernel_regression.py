@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import itertools
 import multiprocessing as mp
 import time
-from mnist import MNIST
 
 np.random.seed(0)
 
@@ -48,6 +47,9 @@ class Kernel:
         lambd = kwargs.pop("lambd", None)
         hyperparams = kwargs
 
+        self._mean = None
+        self._std = None
+
         if x is not None:
             self.x = x
         if y is not None:
@@ -61,10 +63,19 @@ class Kernel:
         """Defines kernel action, i.e. given an x_i, x_j evaluates the kernel.
         Needs to be an vectorized operation, such that supplying two vectors
         with dimensions n and m returns n-by-m matrix.
-        Supplying a single vector x as both arguments should returns a diagonal
-        matrix.
         """
         raise NotImplementedError
+
+    def standardize(self, x, mean=None, std=None):
+        """Returns a standardized copy of the array using the given weights.
+        """
+        if mean is None:
+            self._mean = np.mean(x)
+            mean = self._mean
+        if std is None:
+            self._std = np.std(x)
+            std = self._std
+        return (x-mean)/std
 
     def fit(self, x, y):
         """Given features x and labels y, updates the class attributes and
@@ -79,6 +90,7 @@ class Kernel:
             Labels for corresponding features.
         """
         self.update(x=x, y=y)
+        x = self.standardize(x)
         K = self.eval(x, x)
         self.alpha = np.linalg.solve(K + self.lambd * np.eye(len(K)), y)
 
@@ -104,8 +116,10 @@ class Kernel:
         """
         if self.alpha is None:
             raise AttributeError("Kernel has not been trained.")
-        basis = self.eval(self.x, x)
-        return np.dot(self.alpha, basis)
+        sx = self.standardize(self.x, self._mean, self._std)
+        xx = self.standardize(x, self._mean, self._std)
+        kernel = self.eval(sx, xx)
+        return np.dot(self.alpha, kernel)
 
     def score(self, x, y):
         """Predicts the labels of the given features and compares them to the
@@ -432,7 +446,7 @@ def A3a(kernelType, x, y, foldSize, lambdas, hyperparams, xlabel="", title=""):
     return samples, best
 
 
-def A3b(kernelType, x, y, bestFit, axis=None, title=None):
+def A3b(kernelType, x, y, bestFit, axis=None, title=None, xlabel="samples", ylabel="f-hat"):
     """Using best fit parameters plots the data, the truth (true model) and the
     best fitting kernel.
 
@@ -469,6 +483,8 @@ def A3b(kernelType, x, y, bestFit, axis=None, title=None):
     axis.plot(xTest, yHat, label="Kernel Regression")
 
     axis.set_title(title)
+    axis.set_xlabel(xlabel)
+    axis.set_ylabel(ylabel)
     axis.legend()
 
     return axis
@@ -614,15 +630,16 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
     y = truth(x) + np.random.normal(size=n)
 
     if doPoly:
-        lambdas = np.linspace(0.5, 0.9, 150)
-        degrees = np.arange(30, 60, 1)        
-        samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees)
+        lambdas = np.arange(0.3, 0.7, 0.01)
+        degrees = np.arange(0, 20, 1)        
+        samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees,
+                                    xlabel="degree", title="Polynomial kernel")
         A3b("poly", x, y, bestPoly, title="Polynomial Kernel")
         A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=300) confidence intervals.")
             
     if doRBF:
-        lambdas = np.linspace(0.0001, 0.1, 50)
-        gammas = np.linspace(30, 150, 150)
+        lambdas = np.arange(0.001, 0.6, 0.01)
+        gammas = np.arange(0.1, 20, 0.25)
         samplesRdf, bestRdf = A3a("rbf", x, y, foldSize, lambdas, gammas,
                                   xlabel="gamma", title="RBF Kernel")
         A3b("rbf", x, y, bestRdf, title="RBF Kernel")
