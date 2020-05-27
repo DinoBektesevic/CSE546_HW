@@ -92,14 +92,25 @@ def cluster_data(points, centers):
 
 def calculate_centers(clusters):
     """Calculates centers of given clusters by calculating the mean of the
-    individual coordinates of points in that cluster. 
+    individual coordinates of points in that cluster.
+
+    Parameters
+    ---------
+    clusters: `np.array`
+        An array in which each element is an array of points belonging to the
+        cluster.
+
+    Returns
+    -------
+    centers: `np.array`
+        Cluster centers.
     """
     cluster_sizes = np.array([cluster.shape[0] for cluster in clusters])
     centers = np.array([np.mean(cluster, axis=0) for cluster in clusters])
     return centers
 
 
-def loyds_alg(points, nClusters, tolerance=0.01):
+def loyds_alg(points, nClusters, tolerance=0.01, nIter=None):
     """Iteratively calculates centers and re-assinged clusters based on those
     centers until convergence is achieved. Intial centers are selected as
     random points from the given dataset. Convergence is achieved then the new
@@ -107,28 +118,53 @@ def loyds_alg(points, nClusters, tolerance=0.01):
     coordinates is smaller than tolerance. This is known as Loyd's algorithm
     for calculating k-means.
 
-
+    Paramaters
+    ----------
+    points: `np.array`
+        Array of points to cluster
+    nClusters: `int`
+        Number of clusters
+    tolerance: `float`, optional
+        If new centers move, cumulatively, by less than tolerance the iteration
+        is terminated. Unless a specific number of iterations was given. By
+        default: 0.01
+    nIter: `int`, optional
+        If given, tolerance is ignored and iterations are carried out for the
+        given number of iterations. 
     """
     # assign first centers to be random points in the dataset
     centers = points[np.random.permutation(np.arange(len(points)))[:nClusters]]
     clusters = cluster_data(points, centers)
 
     oldCenters, oldClusters = centers, clusters
-    converged = False
     objectives = []
+    converged, drOld, i = False, None, 0
     while not converged:
         centers = calculate_centers(clusters)
         clusters = cluster_data(points, centers)
-        
-        convergence_difference = np.max(np.abs(centers - oldCenters))
-        if convergence_difference < tolerance:
-            converged = True
+
+        # worlds most complicated break-out logic
+        dr = np.linalg.norm(centers - oldCenters)
+        if drOld is None:
+            print(dr)
+            drOld = dr
+        elif np.abs(drOld-dr) < tolerance:
+            print(dr, "         ", drOld-dr)
+            if nIter is not None:
+                if i >= nIter:
+                    converged = True
+            else:
+                converged = True
+        else:
+            print(dr, "         ", drOld-dr)
+            drOld = dr
         
         objective = k_means_objective(clusters, centers)
         objectives.append(objective)
         
         oldCenters = centers
         oldClusters = clusters
+        i+=1
 
     return centers, clusters, objectives
 
@@ -175,9 +211,23 @@ def plot_centers(axes, centers, title=""):
         plt.axis("off")
     return axes
 
-def A4b(k=10):
+
+def A4b(k=10, tolerance=0.01, nIter=100):
+    """Runs Loyd's k-means algorithm on the MNIST test data-set for 100
+    iterations, clustering the data into 10 clusters, and plots the objective
+    function vs iteration number and the found centers.
+
+    Parameters
+    ----------
+    k: `int`
+        Number of clusters
+    tolerance: `float`, optional
+        Convergence tolerance, ignored if nIter is given.
+    nIter: `int`, optional
+        Number of iterations to carry out, defaults to 100.
+    """
     test, testLabels, train, trainLabels = load_mnist_dataset()
-    centers, clusters, objectives = loyds_alg(test, k)
+    centers, clusters, objectives = loyds_alg(test, k, tolerance, nIter)
 
     fig1, axis1 = plt.subplots()
     plot_objectives(axis1, objectives)
@@ -189,18 +239,65 @@ def A4b(k=10):
     plt.show()
 
 
+def error(clusters, centers, nPoints=1):
+    """Given clusters and centers calculates the total distance of points in
+    that cluster to its center ("spread of points") and adds the least spread
+    out cluster distances together into a total distance. Normalizes the total
+    distance by the number of points.
+
+    Paramters
+    ---------
+    clusters: `np.array`
+        Array of clusters of points.
+    centers: `np.array`
+        Array of centers of clusters.
+    nPoints: `int`, optional
+        Normalization factor. Defaults to 1.
+
+    Returns
+    -------
+    totDist: `float`
+        Total sum of "spreads" of all the points in their respective clusters.
+    """
+    totDist = 0
+    for center in centers:
+        allDists = []
+        for cluster in clusters:
+            dr = np.linalg.norm(cluster-center, axis=1)
+            allDists.append(np.sum(dr))
+        totDist += min(allDists)
+    return totDist/nPoints
+
+
 def A4c(k=(2, 4, 6, 8, 16, 32, 64)):
+    """Clusters MNIST test and train datasets into 2^n n=1,2,3,4,5,6 clusters
+    and calculates the total error of the clustering as a function of the
+    number of clusters. Plots the error.
+    Clustering iterations are terminated when the total moved center distances
+    are less than 0.01.
+
+    Parameters
+    ----------
+    k: `tuple`
+        Tuple of integers representing number of iterations.
+    """
     test, testLabels, train, trainLabels = load_mnist_dataset()
-    centers, clusters, objectives = loyds_alg(test, k)
 
-    fig1, axis1 = plt.subplots()
-    plot_objectives(axis1, objectives)
-    plt.show()
+    testErrors, trainErrors = [], []
+    for nClusters in k:
+        centers, clusters, objectives = loyds_alg(test, nClusters)
+        testErrors.append(error(clusters, centers, len(test)))
+        testClusters = cluster_data(train, centers)
+        trainErrors.append(error(testClusters, centers, len(train)))
 
-    fig, axes = plt.subplots(2, 5, figsize=(10, 25), sharex=True, sharey=True)
-    plot_centers(axes, centers)
+    plt.plot(k, testErrors, label="test errors")
+    plt.plot(k, trainErrors, label="train errors")
+    plt.xlabel("N. Clusters (k)")
+    plt.ylabel("Error")
+    plt.legend()
     plt.show()
 
 
 if __name__ == "__main__":
     A4b()
+    A4c()
