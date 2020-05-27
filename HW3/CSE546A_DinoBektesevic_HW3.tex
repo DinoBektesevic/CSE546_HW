@@ -105,8 +105,8 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
         \item $k_{rbf}(x,z) = \exp(-\gamma ||x-z||^2$ where $\gamma>0$ is a hyperparameter,
     \end{enumerate} Report the values of $d$,$\gamma$, and the $\lambda$ values for both kernels.\\
     
-    For RBF kernel I find optimal lambda: 0.07757, gamma: 141.9 sampled \@ minimal error: 1.603 (log(err)=0.4717). \\
-    For polynomial kernel I find optimal lambda: 0.8221, degree: 48.0 sampled \@ minimal error: 1.87 (log(err)=0.626). 
+    For polynomial kernel I find optimal lambda: 0.56, degree: 16.0 sampled @ minimal error: 3.165 (log(Err)=1.152).\\
+    For RBF kernel I find optimal 0.071, gamma: 10.85 sampled @ minimal error: 1.58 (log(Err)=0.4577).
     \begin{figure}[h!]
         \centering 
         \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW3/HW3_plots/A3a_PolyFit.png} }}
@@ -136,7 +136,11 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
     \end{figure}
     
     \newpage
-    \item \points{5} Repeat parts a, b, and c with $n=300$, but use 10-fold CV instead of leave-one-out for part a.
+    \item \points{5} Repeat parts a, b, and c with $n=300$, but use 10-fold CV instead of leave-one-out for part a.\\
+
+    For polynomial kernel I find optimal lambda: 0.33, degree: 17.0 sampled @ minimal error: 1.059 (log(Err)=0.05697).\\
+    For RBF kernel I find optimal lambda: 0.061, gamma: 6.1 sampled @ minimal error: 1.03 (log(Err)=0.02964). \\
+    These numbers indicate that the RBF fits in a) are not the best because there are significant changes between the fitted parameters, but the ones for the polynomial fit seem to be stable. 
     \begin{figure}[h!]
     \centering 
         \subfloat[Cross validation error]{{\includegraphics[width=0.3\textwidth]{HW3/HW3_plots/A3d_PolyFit.png} }}
@@ -156,8 +160,13 @@ where $K_{i,j}=k(x_i,x_j)$ is a kernel evaluation and $\lambda$ is the regulariz
     $$\frac{1}{m}\sum^m_{i=1} \left[(\tilde  y'_i - \widehat f_{\text{poly}} (\tilde x'_i))^2 - (\tilde y'_i - \widehat f_{\text{rbf}} (\tilde x'_i))^2\right]$$
     repeat this $B$ times) and find 5\% and 95\% percentiles. Report these values.Using this confidence interval, is there statistically significant evidence to suggest that one of $\widehat f_{\text{poly}}$ $\widehat f_{\text{rbf}}$ is better than the other at predicting $Y$ from $X$? (Hint:  does the confidence interval contain 0?)
     
-    I retrieve the 5th and 95th percentile interval of the given expression to be from 0.132 to 0.364. The interval does not contain zero, therefore we conclude we are 95\% confident that there is a statistically significant evidence in favor of fitting with the RBF kernel. 
+    I retrieve the 5th and 95th percentile interval of the given expression to be from  0.001955 to 0.023875. The interval does not contain zero, therefore we conclude we are 95\% confident that there is a statistically significant evidence in favor of fitting with the RBF kernel.
 \end{enumerate}
+
+The above plots and numbers were produced by the attached code. Note that the values of searched parameters were retrieved by manually scanning smaller and smaller intervals, using a finer and finer grid. This is generally considered bad (there are no guarantees that there are no other local minima accidentally "skipped" over during gridding). I froze the random seed at 0 so that I could at least compare the results with my colleagues.
+\lstinputlisting{HW3_code_solutions/kernel_regression.py}  
+
+
 
 
 \newpage
@@ -169,7 +178,7 @@ Above, $\{\pi_i\}^k_{i=1}$ is a partition of $\{1,2,\hdots,n\}$. The objective i
 \begin{enumerate}
     \item \points{5} Implement Lloyd’s algorithm for solving the $k$-means objective. Do not use any off-the-shelf implementations, such as those found in scikit-learn.  Include your code in your submission.
     \item \points{5} Run the algorithm on the training dataset of MNIST with k=10, plotting the objective function as a function of the iteration number. Visualize (and include in your report) the cluster centers as a28$\times$28 image.
-    \item \points{5} Fork=$\{2,4,8,16,32,64\}$ run the algorithm on the training dataset to obtain centers $\{\mu_i\}^k_{i=1}$. If $\{(x_i,y_i)\}^n_{i=1}$ and $\{(x'_i,y'_i)\}^m_{i=1}$ denote the training and test sets, respectively, plot the training error $\frac{1}{n}\sum^n_{i=1}\min_{j=1,\hdots,k} ||\mu_j - x_i ||^2_2$ and test error $\frac{1}{m}\sum^m_{i=1} \min_{j=1,\hdots,k} ||\mu_j - x'_i||^2_2$ as a function of $k$ on the same plot.
+    \item \points{5} For $k=\{2,4,8,16,32,64\}$ run the algorithm on the training dataset to obtain centers $\{\mu_i\}^k_{i=1}$. If $\{(x_i,y_i)\}^n_{i=1}$ and $\{(x'_i,y'_i)\}^m_{i=1}$ denote the training and test sets, respectively, plot the training error $\frac{1}{n}\sum^n_{i=1}\min_{j=1,\hdots,k} ||\mu_j - x_i ||^2_2$ and test error $\frac{1}{m}\sum^m_{i=1} \min_{j=1,\hdots,k} ||\mu_j - x'_i||^2_2$ as a function of $k$ on the same plot.
 \end{enumerate}
 
 
