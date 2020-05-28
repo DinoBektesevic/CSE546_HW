@@ -244,9 +244,14 @@ For this assignment, use the Adam optimizer from torch.optim. Adam is a more adv
     \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A5b_DeepNet.png}
     \end{figure}
     
-     \item \points{5} Compute the total number of parameters of each network and report them. Then compare the number of parameters as well as the test accuracy the networks achieved. Is one of the approaches (wide,shallow vs narrow, deeper) better than the other? Give an intuition for why or why not. 
+     \item \points{5} Compute the total number of parameters of each network and report them. Then compare the number of parameters as well as the test accuracy the networks achieved. Is one of the approaches (wide,shallow vs narrow, deeper) better than the other? Give an intuition for why or why not. \\
+     The total number of parameters is the total number of elements in all layers. For shallow net for example we have zeroth layer with weights in a $d\times h$ where $d=784$ and $h=64$ and offsets with dimensions 1-by-64. The next layer has 64-by-10 weights and 1-by-10 offsets. Therefore there are $784\cdot 64 + 64 + 64\cdot 10 + 10=50890$ parameters. Same calculation holds for the deep neural net which as $k=26506$ parameters. \\
+     
+     The test accuracy are very similar but the deep network has significantly less parameters so we should probably pick that one. Bayesian information criterion is usually used to asses the model performance, with lower BIC preferred. BIC can be calculated as:
+     $$ BIC = k\ln{n} - 2\ln{\widehat L}$$
+     where $n$ is the number of samples, $k$ number of parameters and $\widehat L$ the maximized value of the likelihood function of the model, i.e. the test accuracy for best fitting trained model. There are 10 000 images in the test data set, this is our $n$, and the number of parameters we calculated above. \\
+     Putting in the numbers we get that for $BIC_a = 468714.3$ and $BIC_b=244129.4$. This confirms the idea that the deep network out-preforms the shallow network. I don't think this is a surprise because applying the non-linear activator twice would be better, purely intuitively, at discerning  the smaller differences between numbers such as 3 and 8 for example. In a single, more linear-like, neural network these differences will be closer in the projected space than in the deep network. 
 \end{enumerate}
-
 \newpage
 \lstinputlisting{HW3_code_solutions/neural_net.py}
 
