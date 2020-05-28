@@ -67,17 +67,23 @@ Collaborated: Conor Sayers, Joachim Moeyenes, Jessica Birky, Leah Fulmer
 \section*{Conceptual Questions}
 A1. The answers to these questions should be answerable without referring to external materials.  Briefly justify your answers with a few word
 \begin{enumerate}
-\item \points{2} True or False: Given a data matrix $X\in \R^{n\times d}$ where $d$is much smaller than $n$, if we project our data onto a $k$ dimensional subspace using PCA where $k=\text{rank} X$, our projection will have 0 reconstruction error (we find a perfect representation of our data, with no information loss)
+\item \points{2} True or False: Given a data matrix $X\in \R^{n\times d}$ where $d$is much smaller than $n$, if we project our data onto a $k$ dimensional subspace using PCA where $k=\text{rank} X$, our projection will have 0 reconstruction error (we find a perfect representation of our data, with no information loss)\\
+True. The rank of $X$ is the number of non-zero eigenvalues, i.e. the maximal number of linearly independent rows. By definition this is maximally $d$, since $d<<n$. The remaining entries in $X$ can then be represented as a linear combination of these vectors.
 
-\item \points{2} True or False: The maximum margin decision boundaries that support vector machines construct have the lowest generalization error among all linear classifiers.
+\item \points{2} True or False: The maximum margin decision boundaries that support vector machines construct have the lowest generalization error among all linear classifiers.\\
+False. 
 
-\item \points{2} True or False: An individual observation $x_i$ can occur multiple times in a single bootstrap sample from a dataset $X$, even if $x_i$ only occurs once in $X$.
+\item \points{2} True or False: An individual observation $x_i$ can occur multiple times in a single bootstrap sample from a dataset $X$, even if $x_i$ only occurs once in $X$. \\
+True. Bootstrap with replacements does exactly this, it leaves the picked data in the dataset from which we pick again, so it's quite possible to sample a pont twice. \\
 
-\item \points{2} True or False: Suppose that the SVD of a square $n\times n$ matrix $X$ is $USV^T$, where $S$ is a diagonal $n\times n$ matrix. Then the rows of $V$ are equal to the eigenvectors of $X^TX$.
+\item \points{2} True or False: Suppose that the SVD of a square $n\times n$ matrix $X$ is $USV^T$, where $S$ is a diagonal $n\times n$ matrix. Then the rows of $V$ are equal to the eigenvectors of $X^TX$. \\
+False. Columns are eigenvectors, not rows. This follows from the definition of V in SVD.
 
-\item \points{2} True or False: Performing PCA to reduce the feature dimensionality and then applying the Lasso results in an interpretable linear model.
+\item \points{2} True or False: Performing PCA to reduce the feature dimensionality and then applying the Lasso results in an interpretable linear model. \\
+Not necessarily. For example, in astronomy, doing PCA on galaxy spectra usually recovers the spectral continuum as the zeroth PCA components. Following component are spiky and tend to isolate spectral emission lines, usually where H emission is, and sometimes some components can even capture a known source of noise in the data. I guess then a linear combination of the recovered features would give you an interpretable model (e.g. zeroing out the noise while adding the remaining ones recovers a "clean" spectra, i.e. physically interpretable spectra). This is, however, not the case in general. In the case of spectra it's because the total galaxy spectra is a just a linear superposition of all the sources. If that weren't linear I suspect this scheme wouldn't work that well.
 
-\item \points{2} True or False: choosing $k$ to minimize the k-means objective (see Equation (1) below) is a good way to find meaningful clusters.
+\item \points{2} True or False: choosing $k$ to minimize the k-means objective (see Equation (1) below) is a good way to find meaningful clusters. \\
+False, unless we are familiar with the system we are modeling there is no reason to believe k-means will recover meaningful clusters. 
 
 \item \points{2} Say you trained an SVM classifier with an RBF kernel ($K(u,v) = \exp(\frac{-||u-v||^2_2}{ 2\sigma^2}$)). It seems to under-fit the training set: should you increase or decrease $\sigma$?
 \end{enumerate}
@@ -85,9 +91,19 @@ A1. The answers to these questions should be answerable without referring to ext
 
 \newpage
 \section*{Kernels and the Bootstrap}
-A2.\points{5} Suppose that our inputs $x$ are one-dimensional and that our feature map is infinite-dimensional: $\psi(x)$ is a vector whose $i$-th component is 
-$$\frac{1}{\sqrt{i!}}e^{\frac{-x^2}{2}}x^i$$
-for all nonnegative integers $i$. (Thus, $\psi$ is an infinite-dimensional vector.) Show that $K(x,x') =e^{-1/2(x-x')^2}$ is a kernel function for this feature map, i.e., $\psi(x)\cdot \psi(x') = e^{-1/2(x-x')^2}$. Hint:Use the Taylor expansion of $e$. (This is the one dimensional version of the Gaussian (RBF) kernel).
+A2.\points{5} Suppose that our inputs $x$ are one-dimensional and that our feature map is infinite-dimensional: $\phi(x)$ is a vector whose $i$-th component is 
+$$\phi_i(x) = \frac{1}{\sqrt{i!}}e^{\frac{-x^2}{2}}x^i$$
+for all nonnegative integers $i$. (Thus, $\phi$ is an infinite-dimensional vector.) Show that $K(x,x') =e^{-1/2(x-x')^2}$ is a kernel function for this feature map, i.e., $\phi(x)\cdot \phi(x') = e^{-1/2(x-x')^2}$. \\ Hint:Use the Taylor expansion of $e$. (This is the one dimensional version of the Gaussian (RBF) kernel). \\
+
+\begin{align*}
+    \phi_i(x)\cdot\phi_i(x') &= \left[\frac{1}{\sqrt{i!}}e^{\frac{-x^2}{2}}x^i\right] \cdot \left[\frac{1}{\sqrt{i!}}e^{\frac{-x'^2}{2}}x'^i\right] \\
+    &= \sum_i^\infty \frac{1}{i!} x^i x'^i e^{\frac{-x^2-x'^2}{2}} \\
+    &= e^{\frac{-x^2-x'^2}{2}} \sum_i^\infty \frac{x^i x'^i}{i!} \\
+    &= e^{\frac{-x^2-x'^2}{2}} e^{-xx'} \\
+    &= e^{\frac{-x^2}{2}-\frac{x'^2}{2}-xx'} \\
+    &= e^{-\frac{(x-x')^2}{2}} \\
+\end{align*}
+Where we recognized that the sum resulting from writing out the dot product is the Taylor expansion of exponential function. 
 
 
 \newpage
