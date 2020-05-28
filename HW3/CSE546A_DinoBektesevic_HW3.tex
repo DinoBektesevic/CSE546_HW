@@ -196,7 +196,7 @@ Above, $\{\pi_i\}^k_{i=1}$ is a partition of $\{1,2,\hdots,n\}$. The objective i
     \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A4c_Errors1.png}
     \end{figure}
 \end{enumerate}
-\lstinputlisting{HW3_code_solutions/k_means.py}  
+\lstinputlisting{HW3_code_solutions/k_means.py}
 
 
 \newpage
@@ -226,17 +226,32 @@ For this assignment, use the Adam optimizer from torch.optim. Adam is a more adv
     Loss (train): 0.03885 \\
     Accuracy (test) 96.02 \\
     Loss (test): 0.17849 \\
-     \begin{figure}[h!]
+    \begin{figure}[h!]
     \centering 
-    \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A4c_Errors1.png}
+    \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A5a_ShallowNet.png}
     \end{figure}
     
+    \newpage
     \item \points{10} Let $W_0\in\R^{h_0\times d}$, $b_0\in\R^{h_0}$, $W_1\in\R^{h_1\times h_0}$, $b_1 \in \R^{h_1}$, $W_2\in \R^{k\times h_2}$, $b_2 \in \R^k$ and $\sigma (z): \R \rightarrow \R$ some non-linear activation function. Given some $x\in\R^d$, the forward pass of the network can be formulated as:
     $$\F_2(x) = W_2\sigma(W_1\sigma (W_0x + b_0) +b_1) + b_2$$
-    Use $h_0 = h_1= 32$ and perform the same steps as in part a.
+    Use $h_0 = h_1= 32$ and perform the same steps as in part a.\\
+    Accuracy (train): 99.123 \\
+    Loss (train): 0.04016 \\
+    Accuracy (test) 96.4 \\
+    Loss (test): 0.20875 \\
+    \begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A5b_DeepNet.png}
+    \end{figure}
     
-     \item \points{5} Compute the total number of parameters of each network and report them. Then compare the number of parameters as well as the test accuracies the networks achieved. Is one of the approaches (wide,shallow vs narrow, deeper) better than the other? Give an intuition for why or why not.
+     \item \points{5} Compute the total number of parameters of each network and report them. Then compare the number of parameters as well as the test accuracy the networks achieved. Is one of the approaches (wide,shallow vs narrow, deeper) better than the other? Give an intuition for why or why not. 
 \end{enumerate}
+
+\newpage
+\lstinputlisting{HW3_code_solutions/neural_net.py}
+
+
+
 
 \newpage
 \section*{PCA}
