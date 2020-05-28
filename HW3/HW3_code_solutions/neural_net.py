@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mnist import MNIST
-import time
 import torch
 import torch.nn as nn
 
@@ -213,6 +212,7 @@ def A5a(learnRate=0.05, batchSize=6):
     b0 = torch.DoubleTensor(1, h).uniform_(-tDim, tDim).requires_grad_()
     w1 = torch.DoubleTensor(h, k).uniform_(-lDim, lDim).requires_grad_()
     b1 = torch.DoubleTensor(1, k).uniform_(-lDim, lDim).requires_grad_()
+    breakpoint()
 
     trainData, trainLabels, testData, testLabels = load_mnist_dataset()
    

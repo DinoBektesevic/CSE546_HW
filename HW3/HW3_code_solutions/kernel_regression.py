@@ -13,14 +13,14 @@ class Kernel:
         a = argmin ||K*a - y||^2 + l*a^T*K*a
     where a is alpha, l - lambda and K the kernel itself and K=k(x_i, x_j) an
     kernel action. Kernel action is defined by its eval method, which must be
-    overriden by subclass. 
+    overriden by subclass.
 
     Attributes
     ----------
     x: `np.array`, optional
         Feature space.
     y: `np.array`, optional
-        Labels. 
+        Labels.
     lambd: `float`, optional
         Regularization parameter
     hyperparams: `dict`, optional
@@ -34,7 +34,7 @@ class Kernel:
     with the ones given for training.
 
     Hyperparameters must be registered in the hyperparameters dictionary when
-    inheriting. 
+    inheriting.
     """
     def __init__(self, x=None, y=None, lambd=None, **kwargs):
         self.update(x=x, y=y, lambd=lambd, **kwargs)
@@ -516,7 +516,7 @@ def bootstrap(x, y, B, kernel):
     percentile95: `np.array`
        Array each element of which is the 95th percentile of corresponding
        predictions element.
-    """  
+    """
     n = len(x)
     xTest = np.linspace(x.min(), x.max(), 100)
     predictions = np.zeros((B, len(xTest)))
@@ -631,12 +631,12 @@ def A3(n=30, foldSize=30, doPoly=True, doRBF=True, doA3e=False):
 
     if doPoly:
         lambdas = np.arange(0.3, 0.7, 0.01)
-        degrees = np.arange(0, 20, 1)        
+        degrees = np.arange(0, 20, 1)
         samplesPoly, bestPoly = A3a("poly", x, y, foldSize, lambdas, degrees,
                                     xlabel="degree", title="Polynomial kernel")
         A3b("poly", x, y, bestPoly, title="Polynomial Kernel")
         A3c("poly", x, y, bestPoly, title="Polynomial Bootstrap (B=300) confidence intervals.")
-            
+
     if doRBF:
         lambdas = np.arange(0.001, 0.6, 0.01)
         gammas = np.arange(0.1, 20, 0.25)
