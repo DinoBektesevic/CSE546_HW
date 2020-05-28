@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools
-import multiprocessing as mp
-import time
 from mnist import MNIST
 
 np.random.seed(0)
