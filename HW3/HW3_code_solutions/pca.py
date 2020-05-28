@@ -140,7 +140,7 @@ def plot_pca(x, y, eigenvectors, mu, digits =(2, 4, 8, 9), ks=(5, 15, 40, 100)):
     eigenvectors: `np.array`
         Eigenvectors
     mu: `np.array`
-        Mean of the given data used to demean training dataset.
+        Fitted mu.
     eigenvectors: `np.array`
         Eigenvectors
     digits: `tuple`
