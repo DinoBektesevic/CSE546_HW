@@ -265,17 +265,45 @@ Let’s do PCA on MNIST dataset and reconstruct the digits in the dimensionality
 
 A6. Let $\mu\in\R^d$ denote the average of the training examples in $X_{\text{train}}$, i.e., $\mu = \frac{1}{d} X^T_{\text{train}}$. Now let $\sum (X_{\text{train}} - \1 \mu^T)^T (X_{\text{train}} - \1\mu^T)/50000$ denote the sample covariance matrix of the training examples, and let $\sum =UDU^T$ denote the eigenvalue decomposition of $\sum$
 \begin{enumerate}
-    \item \points{2} If $\lambda_i$ denotes the $i-th$ largest eigenvalue of $\sum$, what are the eigenvalues $\lambda_1, \lambda_2, \lambda_{10}, \lambda_{30}$, and $\lambda_{50}$? What is the sum of eigenvalues $\sum^d_{i=1}\lambda_i$?
+    \item \points{2} If $\lambda_i$ denotes the $i-th$ largest eigenvalue of $\sum$, what are the eigenvalues $\lambda_1, \lambda_2, \lambda_{10}, \lambda_{30}$, and $\lambda_{50}$? What is the sum of eigenvalues $\sum^d_{i=1}\lambda_i$? \\
+    1th eigenvalue: 243279.88 \\
+    2th eigenvalue: 211503.84 \\
+    10th eigenvalue: 72312.41 \\
+    30th eigenvalue: 22562.38 \\
+    50th eigenvalue: 10937.32 \\
+    Sum of eigenvalues: 3428445.43 \\
+
     
     \item \points{5} Any example $x\in\R^d$ (including those from either the training or test set) can be approximated using just $\mu$ and the first $k$ eigenvalue, eigenvector pairs, for any $k=1,2,\hdots,d$.  For any k, provide a formula for computing this approximation.
     
+    \newpage
     \item \points{5} Using this approximation, plot the reconstruction error from $k=1$ to 100 (the X-axis is $k$ and the Y-axis is the mean-squared error reconstruction error) on the training set and the test set (using the $\mu$ and the basis learned from the training set). On a separate plot, plot 
     $$1 - \frac{\sum^k_{i=1}\lambda_i}{\sum^d_{i=1}\lambda_i}$$
-    from $k=1$ to 100.
+    from $k=1$ to 100. \\
+    \begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A6a_MSE.png}
+    \end{figure}
+    \begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.4\textwidth]{HW3/HW3_plots/A6a_EigenFrac.png}
+    \end{figure}
     
-    \item \points{3} Now let us get a sense of what the top PCA directions are capturing. Display the first  10 eigenvectors as images, and provide a brief interpretation of what you think they capture.
+    \newpage
+    \item \points{3} Now let us get a sense of what the top PCA directions are capturing. Display the first  10 eigenvectors as images, and provide a brief interpretation of what you think they capture. \\
+    It's not very obvious, I think they focus on points and areas at the edges of numbers because they use those areas to ascertain which numbers they aren't (e.g. Number 7 and 1 are only possible if bottom middle pixel is illuminated, ergo they can't be the sought after number if bottom left/right are). This becomes a little bit more obvious if mu is added back to the plots, since mu is kind of the average of all the numbers added together so it ocmbines the total information. Others capture background levels.\\
+    \begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.6\textwidth]{HW3/HW3_plots/A6b_Eigenvectors.png}
+    \end{figure}
     
-    \item \points{3} Finally, visualize a set of reconstructed digits from the training set for different values of $k$. In particular provide the reconstructions for digits 2,6,7 with values $k=5,15,40,100$ (just choose an image from each digit arbitrarily). Show the original image side-by-side with its reconstruction.  Provide a brief interpretation, in terms of your perceptions of the quality of these reconstructions and the dimensionality you used.
+    \item \points{3} Finally, visualize a set of reconstructed digits from the training set for different values of $k$. In particular provide the reconstructions for digits 2,6,7 with values $k=5,15,40,100$ (just choose an image from each digit arbitrarily). Show the original image side-by-side with its reconstruction.  Provide a brief interpretation, in terms of your perceptions of the quality of these reconstructions and the dimensionality you used.\\
+    I think reconstruction after 40 used eigenvectors is rather really good. The 100
+    \begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.6\textwidth]{HW3/HW3_plots/A6c_Digits.png}
+    \end{figure}
+    
 \end{enumerate}
 
 \end{document}
