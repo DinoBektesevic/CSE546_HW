@@ -315,12 +315,13 @@ A6. Let $\mu\in\R^d$ denote the average of the training examples in $X_{\text{tr
     \end{figure}
     
     \item \points{3} Finally, visualize a set of reconstructed digits from the training set for different values of $k$. In particular provide the reconstructions for digits 2,6,7 with values $k=5,15,40,100$ (just choose an image from each digit arbitrarily). Show the original image side-by-side with its reconstruction.  Provide a brief interpretation, in terms of your perceptions of the quality of these reconstructions and the dimensionality you used.\\
-    I think reconstruction after 40 used eigenvectors is rather really good. The 100
+    I think the number reconstruction after 40 used eigenvectors is rather really good. The issue then seems to be the uneven background reconstruction, as the basis used can not produce an equal zeroed out plane. This is greatly improved by the time we use 100 PCA components and would certainly be better and better with more components. 
     \begin{figure}[h!]
     \centering 
     \includegraphics[width=0.6\textwidth]{HW3/HW3_plots/A6c_Digits.png}
     \end{figure}
     
 \end{enumerate}
+\newpage
 \lstinputlisting{HW3_code_solutions/pca.py}
 \end{document}
