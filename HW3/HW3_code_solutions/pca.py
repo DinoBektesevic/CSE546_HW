@@ -215,7 +215,7 @@ def pca():
         print(f"{i}th eigenvalue: {eigenvalues[i-1]}")
     print(f"Sum of eigenvalues: {totEigenSum}")
 
-    plot_n_eigenvectors(25, eigenvectors, nXaxes=5, nYaxes=5)
+    plot_n_eigenvectors(16, eigenvectors, nXaxes=4, nYaxes=4)
     plot_eigen_fraction(k, eigenRatios)
     plot_errors(k, trainErrors, testErrors)
     plot_pca(train, trainLabels, eigenvectors, mu)
