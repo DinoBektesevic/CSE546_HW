@@ -33,6 +33,9 @@ def load_mnist_dataset(path="data/mnist_data/"):
     train, trainLabels = map(np.array, mndata.load_training())
     test, testLabels  = map(np.array, mndata.load_testing())
 
+    train = train/255.0
+    test = test/255.0
+
     return train, trainLabels, test, testLabels
 
 
@@ -119,7 +122,7 @@ def plot_n_eigenvectors(n, eigenvectors, nXaxes=2, nYaxes=5):
     """
     fig, axes = plt.subplots(nXaxes, nYaxes)
 
-    for ax, k, eigVec in zip(axes.ravel(), range(n), eigenvectors):
+    for ax, k, eigVec in zip(axes.ravel(), range(n), eigenvectors.T):
         ax.imshow(eigVec.reshape((28, 28)))
         ax.set_title(f"k={k}")
         ax.axis("off")
@@ -127,7 +130,7 @@ def plot_n_eigenvectors(n, eigenvectors, nXaxes=2, nYaxes=5):
     plt.show()
 
 
-def plot_pca(x, y, eigenvectors, mu, digits =(2, 4, 8, 9), ks=(5, 15, 40, 100)):
+def plot_pca(x, y, eigenvectors, mu, digits =(2, 6, 7), ks=(5, 15, 40, 100)):
     """Plots the original digits and their reconstruction for different number
     of used eigenvectors.
 
@@ -156,15 +159,14 @@ def plot_pca(x, y, eigenvectors, mu, digits =(2, 4, 8, 9), ks=(5, 15, 40, 100)):
     idxDigits = [np.where(y==digit)[0][0] for digit in digits]
 
     for yax, digit, idxDigit in zip(axes[:, 0], digits, idxDigits):
-        yax.imshow((x+mu.T)[idxDigit].reshape((28, 28)))
+        yax.imshow(x[idxDigit].reshape((28, 28)))
         yax.set_title(f"Original image (digit {digit})")
         yax.axis("off")
 
     for yax, digit, idxDigit in zip(axes[:, 1:], digits, idxDigits):
         for xax, k in zip(yax, ks):
             Vk = eigenvectors[:, :k]
-            #breakpoint()
-            reconstruction = np.dot(Vk, np.dot(Vk.T, x[idxDigit])).reshape((784, 1))
+            reconstruction = np.dot(Vk, np.dot(Vk.T, (x-mu.T)[idxDigit])).reshape((784, 1))
             reconstruction += mu
             xax.imshow(reconstruction.reshape((28, 28)))
             xax.set_title(f"Reconstructed (k= {k})")
@@ -193,30 +195,29 @@ def pca():
     sigElem = train - np.dot(I, mu.T)
     sigma = np.dot(sigElem.T, sigElem)/n
 
-    eigenvalues, eigenvectors = np.linalg.eig(sigma)
+    eigenvalues, eigenvectors = np.linalg.eigh(sigma)
+    eigenvalues = eigenvalues[np.argsort(-1 * eigenvalues)]
+    eigenvectors = eigenvectors[:, np.argsort(eigenvalues)]
+
     totEigenSum = np.sum(eigenvalues)
 
-    # de-mean features
-    train = train - mu.T
-    test = test - mu.T
-
-    trainErrors, testErrors, eigenRatios = [], [], []
-    eigenSum, k = 0, np.arange(100)
-    for i in k:
-        Vk = eigenvectors[:, :(i+1)]
-        transMatrix = np.dot(Vk, Vk.T)
-        trainErrors.append(calculate_errors(train, transMatrix=transMatrix))
-        testErrors.append(calculate_errors(test, transMatrix=transMatrix))
-        eigenSum += eigenvalues[i]
-        eigenRatios.append(1 - (eigenSum/totEigenSum))
-
-    for i in (1, 2, 10, 30, 50):
-        print(f"{i}th eigenvalue: {eigenvalues[i]}")
-    print(f"Sum of eigenvalues: {totEigenSum}")
-
-    plot_n_eigenvectors(25, eigenvectors, nXaxes=5, nYaxes=5)
-    plot_eigen_fraction(k, eigenRatios)
-    plot_errors(k, trainErrors, testErrors)
+#    trainErrors, testErrors, eigenRatios = [], [], []
+#    eigenSum, k = 0, np.arange(100)
+#    for i in k:
+#        Vk = eigenvectors[:, :(i+1)]
+#        transMatrix = np.dot(Vk, Vk.T)
+#        trainErrors.append(calculate_errors(train, transMatrix=transMatrix))
+#        testErrors.append(calculate_errors(test, transMatrix=transMatrix))
+#        eigenSum += eigenvalues[i]
+#        eigenRatios.append(1 - (eigenSum/totEigenSum))
+#
+#    for i in (1, 2, 10, 30, 50):
+#        print(f"{i}th eigenvalue: {eigenvalues[i-1]}")
+#    print(f"Sum of eigenvalues: {totEigenSum}")
+#
+#    plot_n_eigenvectors(25, eigenvectors, nXaxes=5, nYaxes=5)
+#    plot_eigen_fraction(k, eigenRatios)
+#    plot_errors(k, trainErrors, testErrors)
     plot_pca(train, trainLabels, eigenvectors, mu)
 
 
