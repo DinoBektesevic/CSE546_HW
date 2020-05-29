@@ -201,23 +201,23 @@ def pca():
 
     totEigenSum = np.sum(eigenvalues)
 
-#    trainErrors, testErrors, eigenRatios = [], [], []
-#    eigenSum, k = 0, np.arange(100)
-#    for i in k:
-#        Vk = eigenvectors[:, :(i+1)]
-#        transMatrix = np.dot(Vk, Vk.T)
-#        trainErrors.append(calculate_errors(train, transMatrix=transMatrix))
-#        testErrors.append(calculate_errors(test, transMatrix=transMatrix))
-#        eigenSum += eigenvalues[i]
-#        eigenRatios.append(1 - (eigenSum/totEigenSum))
-#
-#    for i in (1, 2, 10, 30, 50):
-#        print(f"{i}th eigenvalue: {eigenvalues[i-1]}")
-#    print(f"Sum of eigenvalues: {totEigenSum}")
-#
-#    plot_n_eigenvectors(25, eigenvectors, nXaxes=5, nYaxes=5)
-#    plot_eigen_fraction(k, eigenRatios)
-#    plot_errors(k, trainErrors, testErrors)
+    trainErrors, testErrors, eigenRatios = [], [], []
+    eigenSum, k = 0, np.arange(100)
+    for i in k:
+        Vk = eigenvectors[:, :(i+1)]
+        transMatrix = np.dot(Vk, Vk.T)
+        trainErrors.append(calculate_errors(train, transMatrix=transMatrix))
+        testErrors.append(calculate_errors(test, transMatrix=transMatrix))
+        eigenSum += eigenvalues[i]
+        eigenRatios.append(1 - (eigenSum/totEigenSum))
+
+    for i in (1, 2, 10, 30, 50):
+        print(f"{i}th eigenvalue: {eigenvalues[i-1]}")
+    print(f"Sum of eigenvalues: {totEigenSum}")
+
+    plot_n_eigenvectors(25, eigenvectors, nXaxes=5, nYaxes=5)
+    plot_eigen_fraction(k, eigenRatios)
+    plot_errors(k, trainErrors, testErrors)
     plot_pca(train, trainLabels, eigenvectors, mu)
 
 
