@@ -308,7 +308,7 @@ A6. Let $\mu\in\R^d$ denote the average of the training examples in $X_{\text{tr
     
     \newpage
     \item \points{3} Now let us get a sense of what the top PCA directions are capturing. Display the first  10 eigenvectors as images, and provide a brief interpretation of what you think they capture. \\
-    It's not very obvious, I think they focus on points and areas at the edges of numbers because they use those areas to ascertain which numbers they aren't (e.g. Number 7 and 1 are only possible if bottom middle pixel is illuminated, ergo they can't be the sought after number if bottom left/right are). This becomes a little bit more obvious if mu is added back to the plots, since mu is kind of the average of all the numbers added together so it ocmbines the total information. Others capture background levels.\\
+    I think they mainly focus on areas where most numbers overlap. For example only zero will fill a circle in the image, while all other numbers will have at least one line cross the middle of the image. So it's not surprising the first PCA components is very much focused on the middle. The following components begin to fill out arches of the numbers (e.g. where top of the 9, 5 or 3 would be). Zero is then constructed as a combination of all outer arches etc. In any case, it looks as if PCA components focus more on areas where the numbers "aren't", on the differences between numbers rather than their common components. The common component then is reconstructed by some linear combination of the oth basis vector.\\
     \begin{figure}[h!]
     \centering 
     \includegraphics[width=0.6\textwidth]{HW3/HW3_plots/A6b_Eigenvectors.png}
