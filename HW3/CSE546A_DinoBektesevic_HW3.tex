@@ -71,21 +71,22 @@ A1. The answers to these questions should be answerable without referring to ext
 True. The rank of $X$ is the number of non-zero eigenvalues, i.e. the maximal number of linearly independent rows. By definition this is maximally $d$, since $d<<n$. The remaining entries in $X$ can then be represented as a linear combination of these vectors.
 
 \item \points{2} True or False: The maximum margin decision boundaries that support vector machines construct have the lowest generalization error among all linear classifiers.\\
-False. 
+False. There is no reason to assume SVMs would be the optimal of all linear classifiers.\footnote{A guess.} 
 
 \item \points{2} True or False: An individual observation $x_i$ can occur multiple times in a single bootstrap sample from a dataset $X$, even if $x_i$ only occurs once in $X$. \\
-True. Bootstrap with replacements does exactly this, it leaves the picked data in the dataset from which we pick again, so it's quite possible to sample a pont twice. \\
+True. Bootstrap with replacements does exactly this, it leaves the picked data in the dataset from which we pick again, so it's quite possible to sample a point twice. 
 
 \item \points{2} True or False: Suppose that the SVD of a square $n\times n$ matrix $X$ is $USV^T$, where $S$ is a diagonal $n\times n$ matrix. Then the rows of $V$ are equal to the eigenvectors of $X^TX$. \\
 False. Columns are eigenvectors, not rows. This follows from the definition of V in SVD.
 
 \item \points{2} True or False: Performing PCA to reduce the feature dimensionality and then applying the Lasso results in an interpretable linear model. \\
-Not necessarily. For example, in astronomy, doing PCA on galaxy spectra usually recovers the spectral continuum as the zeroth PCA components. Following component are spiky and tend to isolate spectral emission lines, usually where H emission is, and sometimes some components can even capture a known source of noise in the data. I guess then a linear combination of the recovered features would give you an interpretable model (e.g. zeroing out the noise while adding the remaining ones recovers a "clean" spectra, i.e. physically interpretable spectra). This is, however, not the case in general. In the case of spectra it's because the total galaxy spectra is a just a linear superposition of all the sources. If that weren't linear I suspect this scheme wouldn't work that well.
+False. In astronomy, PCA on galaxy spectra usually recovers the spectral continuum and emission lines as the PCA components (sometimes even known sources of noise). I guess then a linear combination of the recovered features would give you an interpretable model (e.g. zeroing out the noise while adding the remaining components recovers a "clean" spectra, i.e. physically interpretable spectra). This is, however, not the case in general. In the case of spectra it's because the total galaxy spectra is a just a linear superposition of all the sources. If that weren't linear this scheme wouldn't work that well.
 
 \item \points{2} True or False: choosing $k$ to minimize the k-means objective (see Equation (1) below) is a good way to find meaningful clusters. \\
 False, unless we are familiar with the system we are modeling there is no reason to believe k-means will recover meaningful clusters. 
 
-\item \points{2} Say you trained an SVM classifier with an RBF kernel ($K(u,v) = \exp(\frac{-||u-v||^2_2}{ 2\sigma^2}$)). It seems to under-fit the training set: should you increase or decrease $\sigma$?
+\item \points{2} Say you trained an SVM classifier with an RBF kernel ($K(u,v) = \exp(\frac{-||u-v||^2_2}{ 2\sigma^2}$)). It seems to under-fit the training set: should you increase or decrease $\sigma$?\\
+Low $\gamma$ value increases the margin considered. High $\gamma$ values has very tight margins and will consider only the points in the immediate vicinity of the maximum margin boundary. Relaxing that condition, i.e. using smaller $\gamma$ values, helps with overfitting. Since $\gamma = \frac{1}{2\sigma^2}$, we need to increase $\sigma$ to reduce $\gamma$.
 \end{enumerate}
 
 
@@ -263,7 +264,7 @@ For this assignment, use the Adam optimizer from torch.optim. Adam is a more adv
      \item \points{5} Compute the total number of parameters of each network and report them. Then compare the number of parameters as well as the test accuracy the networks achieved. Is one of the approaches (wide,shallow vs narrow, deeper) better than the other? Give an intuition for why or why not. \\
      The total number of parameters is the total number of elements in all layers. For shallow net for example we have zeroth layer with weights in a $d\times h$ where $d=784$ and $h=64$ and offsets with dimensions 1-by-64. The next layer has 64-by-10 weights and 1-by-10 offsets. Therefore there are $784\cdot 64 + 64 + 64\cdot 10 + 10=50890$ parameters. Same calculation holds for the deep neural net which as $k=26506$ parameters. \\
      
-     The test accuracy are very similar but the deep network has significantly less parameters so we should probably pick that one. Bayesian information criterion is usually used to asses the model performance, with lower BIC preferred. BIC can be calculated as:
+     The test accuracy are very similar but the deep network has significantly less parameters so we should probably pick that one intuitively. Bayesian information criterion is usually used to asses the model performance quantitatively, where the model that has a lower BIC is the preferred one. BIC can be calculated as:
      $$ BIC = k\ln{n} - 2\ln{\widehat L}$$
      where $n$ is the number of samples, $k$ number of parameters and $\widehat L$ the maximized value of the likelihood function of the model, i.e. the test accuracy for best fitting trained model. There are 10 000 images in the test data set, this is our $n$, and the number of parameters we calculated above. \\
      Putting in the numbers we get that for $BIC_a = 468714.3$ and $BIC_b=244129.4$. This confirms the idea that the deep network out-preforms the shallow network. I don't think this is a surprise because applying the non-linear activator twice would be better, purely intuitively, at discerning  the smaller differences between numbers such as 3 and 8 for example. In a single, more linear-like, neural network these differences will be closer in the projected space than in the deep network. 
@@ -291,8 +292,10 @@ A6. Let $\mu\in\R^d$ denote the average of the training examples in $X_{\text{tr
 
 
     
-    \item \points{5} Any example $x\in\R^d$ (including those from either the training or test set) can be approximated using just $\mu$ and the first $k$ eigenvalue, eigenvector pairs, for any $k=1,2,\hdots,d$.  For any k, provide a formula for computing this approximation.
-    
+    \item \points{5} Any example $x\in\R^d$ (including those from either the training or test set) can be approximated using just $\mu$ and the first $k$ eigenvalue, eigenvector pairs, for any $k=1,2,\hdots,d$.  For any k, provide a formula for computing this approximation. \\
+    $$\tilde{x} = \mu + VV^T(\vec x - \mu^T)$$
+    where $V\in\R^{d,k}$ matrix in which each column is an eigenvector of $\sigma$ (these are the selected $k$ PCA components), $x\in\R^d$ is a vector (a single sample from the feature dataset) and $\mu\in\R^d$ is the average of the train dataset $x_\text{train}/d$. 
+
     \newpage
     \item \points{5} Using this approximation, plot the reconstruction error from $k=1$ to 100 (the X-axis is $k$ and the Y-axis is the mean-squared error reconstruction error) on the training set and the test set (using the $\mu$ and the basis learned from the training set). On a separate plot, plot 
     $$1 - \frac{\sum^k_{i=1}\lambda_i}{\sum^d_{i=1}\lambda_i}$$
@@ -322,6 +325,5 @@ A6. Let $\mu\in\R^d$ denote the average of the training examples in $X_{\text{tr
     \end{figure}
     
 \end{enumerate}
-\newpage
 \lstinputlisting{HW3_code_solutions/pca.py}
 \end{document}
