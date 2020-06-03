@@ -64,15 +64,14 @@ def load_mnist_dataset(path="data/mnist_data/", digit=None):
     return trainLoader, testLoader
 
 
-train_loader, test_loader = load_mnist_dataset(digit=9)
+train_loader, test_loader = load_mnist_dataset()
 
 
 class Autoencoder(nn.Module):
-    def __init__(self, med_size=400, lat_size=2):
+    def __init__(self, med_size=400):
         super().__init__()
         self.en1 = nn.Linear(img_size, med_size)
         self.de1 = nn.Linear(med_size, img_size)
-        self.lat_size = lat_size
 
     def encode(self, x):
         return functional.relu(self.en1(x))
