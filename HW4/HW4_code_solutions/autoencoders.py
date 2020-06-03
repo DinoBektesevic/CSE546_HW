@@ -12,7 +12,7 @@ from torchvision.utils import make_grid
 
 
 batch_size   = 128  # input batch size for training
-epochs       = 10   # number of epochs to train
+epochs       = 3   # number of epochs to train
 seed         = 1    # random seed
 lr           = 1e-3 # learning rate
 img_size     = 28*28 # MNIST images are 28x28
@@ -67,11 +67,45 @@ def load_mnist_dataset(path="data/mnist_data/", digit=None):
 train_loader, test_loader = load_mnist_dataset()
 
 
+
 class Autoencoder(nn.Module):
-    def __init__(self, med_size=400):
+    def __init__(self, med_size=32, lat_size=2):
+        super().__init__()
+
+        self.enMu = nn.Linear(img_size, med_size)
+        self.enVar = nn.Linear(med_size, lat_size)
+
+        self.deMu = nn.Linear(lat_size, med_size)
+        self.deVar = nn.Linear(med_size, img_size)
+
+        self.lat_size = lat_size
+
+    def encode(self, x):
+        lat1 = functional.relu(self.enMu(x))
+        return self.enVar(lat1)
+
+    def decode(self, z):
+        lat2 = functional.relu(self.deMu(z))
+        return self.deVar(lat2)
+
+    def forward(self, x):
+        z = self.encode(x.view(-1, img_size))
+        return self.decode(z), z
+    
+    def loss(self, x):
+        reconstructed, z = self.forward(x)
+        loss = functional.mse_loss(reconstructed, x.view(-1, img_size))
+        return loss
+
+
+
+class Autoencoder2(nn.Module):
+    def __init__(self, med_size=128):
         super().__init__()
         self.en1 = nn.Linear(img_size, med_size)
         self.de1 = nn.Linear(med_size, img_size)
+
+        self.lat_size = 1
 
     def encode(self, x):
         return functional.relu(self.en1(x))
@@ -81,10 +115,10 @@ class Autoencoder(nn.Module):
 
     def forward(self, x):
         z = self.encode(x.view(-1, img_size))
-        return self.decode(z)
+        return self.decode(z), z
     
     def loss(self, x):
-        reconstructed = self.forward(x)
+        reconstructed, latent = self.forward(x)
         loss = functional.mse_loss(reconstructed, x.view(-1, img_size))
         return loss
 
@@ -99,7 +133,7 @@ def train(model, optimizer, epoch):
         trainLoss += loss.item()
         optimizer.step()
 
-        if i % 10 == 0:
+        if i % 20 == 0:
             # data loader length is number of batches that fit in the dataset.
             # The length of data, loaded by loader, is at most the batch size
             # and the length of the dataset is the actual number of data points
@@ -144,15 +178,24 @@ def show_recon(model, n=9):
     with torch.no_grad():
         for i, (data, labels) in enumerate(train_loader):
             if i == 0:
-                # this is a call to forward, that returns reconstructed image,
-                # mu and the variance
-                batchReconstructions = model(data)
+                batchReconstructions = model(data)[0]
                 comparison = torch.cat([data[:n],
                                       batchReconstructions.view(batch_size, 1, 28, 28)[:n]])
                 show(make_grid(comparison, nrow=n))
 
 
+def show_encoding(model, axes=(0,1)):
+    for i, (data, label) in enumerate(train_loader):
+        with torch.no_grad():
+            data = data.to(device)
+            mu = model(data.view(-1, 784))[1]
+            plt.scatter(mu[:,axes[0]], mu[:,axes[1]], c='b', alpha=0.1)   
+    plt.show()
+
+
+
 AC = Autoencoder().to(device)
-learn(AC, 10)
+learn(AC, epochs)
 show_recon(AC)
+show_encoding(AC)
 plt.show()
