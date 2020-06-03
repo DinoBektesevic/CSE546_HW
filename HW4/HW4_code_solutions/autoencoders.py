@@ -12,7 +12,7 @@ from torchvision.utils import make_grid
 
 
 batch_size   = 128  # input batch size for training
-epochs       = 3   # number of epochs to train
+epochs       = 10   # number of epochs to train
 seed         = 1    # random seed
 lr           = 1e-3 # learning rate
 img_size     = 28*28 # MNIST images are 28x28
@@ -53,6 +53,7 @@ def load_mnist_dataset(path="data/mnist_data/", digit=None):
 
     trainMask, testMask = np.arange(len(train)), np.arange(len(test))
     if digit is not None:
+
         trainMask = np.where(train.targets == digit)[0]
         testMask = np.where(test.targets == digit)[0]
 
@@ -185,11 +186,23 @@ def show_recon(model, n=9):
 
 
 def show_encoding(model, axes=(0,1)):
-    for i, (data, label) in enumerate(train_loader):
+    from matplotlib import cm
+    digits = range(10)
+    colors = [cm.tab10(digit/10.0) for digit in digits]
+    for d, c in zip(digits, colors):
+        plt.scatter(-100, -100, c=[c], label=d)
+    plt.legend()
+    for i, (data, labels) in enumerate(train_loader):
         with torch.no_grad():
             data = data.to(device)
             mu = model(data.view(-1, 784))[1]
-            plt.scatter(mu[:,axes[0]], mu[:,axes[1]], c='b', alpha=0.1)   
+            for digit, color in zip(digits, colors):
+                digitMask = labels == digit
+                plt.scatter(mu[:,axes[0]][digitMask], mu[:,axes[1]][digitMask],
+                            c=[color], alpha=0.1)
+
+    plt.xlim(-2, 2)
+    plt.ylim(0, 5)
     plt.show()
 
 
