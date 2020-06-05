@@ -46,7 +46,7 @@ def load_mnist_dataset(path="data/mnist_data/", digit=None, batchSize=1):
     """
     trans = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        #transforms.Normalize((0.1307,), (0.3081,))
     ])
     train = datasets.MNIST(path, train=True, download=True, transform=trans)
     test = datasets.MNIST(path, train=False, transform=trans)
@@ -219,7 +219,7 @@ def test(dataLoader, model, optimizer):
             data = data.to(DEVICE)
             testLoss += model.loss(data).item()
     testLoss /= len(dataLoader.dataset)
-    print(f"Test set loss: {testLoss:.4f}")
+    print(f"Test set loss: {testLoss:.8f}")
 
 
 def learn(trainDataLoader, testDataLoader, model, epochs, learningRate, verbosity=20):
@@ -369,7 +369,7 @@ def A3():
 
 if __name__ == "__main__":
     A3()
-
+    pass
 
 
 
@@ -398,40 +398,20 @@ class MyAutoencoder(MNISTAutoencoder):
         )
 
     def forward_mu(self, x):
-        return self.encode(x.view(-1, self.imgSize))
-
-
-class MyAutoencoder(MNISTAutoencoder):
-    def __init__(self, imgSize=28*28, h1=128, h2=64, latSize=2, **kwargs):
-        super().__init__(
-            encode = nn.Sequential(
-                nn.Linear(imgSize, h1),
-                nn.ReLU(),
-                nn.Linear(h1, h2),
-                nn.ReLU(),
-                nn.Linear(h2, latSize)
-            ),
-            decode = nn.Sequential(
-                nn.Linear(latSize, h2),
-                nn.ReLU(),
-                nn.Linear(h2, h1),
-                nn.Linear(h1, imgSize)
-            ),
-            imgSize = imgSize,
-            **kwargs
-        )
-
-    def forward_mu(self, x):
+        """Get the latent space layer back."""
         return self.encode(x.view(-1, self.imgSize))
 
 
 
-
-def plot_latent(dataLoader, model):
+def plot_latent(dataLoader, model, vectors=(0,1)):
+    """For 2D latent spaces 
+    """
 
     digits = range(10)
     colors = [cm.tab10(digit/10.0) for digit in digits]
     coldict = {d:c for d, c in zip(digits, colors)}
+
+    fig, axes = plt.subplots()
 
     # fake legend
     for d, c in zip(digits, colors):
@@ -445,40 +425,37 @@ def plot_latent(dataLoader, model):
             mu = model.forward_mu(data.view(-1, 784))
             for digit, color in zip(digits, colors):
                 digitMask = labels == digit
-                plt.scatter(mu[:,0][digitMask], mu[:,1][digitMask],
-                            c=[color], alpha=0.15)
+                x, y = vectors
+                plt.scatter(mu[:, x][digitMask], mu[:, y][digitMask],
+                            c=[color], alpha=0.12)
 
     plt.title("Autoencoders Latent space")
-    plt.xlabel("Dimension 1 (mu, probably)")
-    plt.ylabel("Dimension 1 (variance, probably)")
+    plt.xlabel(f"Dimension {vectors[0]}")
+    plt.ylabel(f"Dimension {vectors[1]}")
     plt.xlim(-15, 15)
     plt.ylim(-5, 5)
     plt.show()
 
 
 
-def extra_autoencoder(epochs=10, learningRate=1e-3, batchSize=256):
+def extra_autoencoder(epochs=10, learningRate=1e-3, batchSize=1024):
     trainLoader, testLoader = load_mnist_dataset(batchSize=batchSize)
 
-    hiddenDim, latDim = 64, 2
+    hiddenDim, latDim = 400, 3
     AC = MyAutoencoder(hiddenSize=hiddenDim, latSize=latDim).to(DEVICE)
     learn(trainLoader, testLoader, AC, epochs, learningRate)
     fig, axes = plot_reconstructions(trainLoader, AC)
-    fig.suptitle("Digit reconstruction, non-linear \n"
-                 f"(h={latDim}, Nbatch={batchSize}, epochs={epochs}, "
+    fig.suptitle("Digit reconstruction, non-linear (my autoencoder) \n"
+                 f"(h={hiddenDim}, latDim={latDim}, Nbatch={batchSize}, epochs={epochs}, "
                  f"lr={learningRate})")
     plt.show()
 
     plot_latent(trainLoader, AC)
     plt.show()
+    plot_latent(trainLoader, AC, (0, 2))
+    plt.show()
+    plot_latent(trainLoader, AC, (1, 2))
+    plt.show()
 
 
 #extra_autoencoder()
-
-
-
-
-
-
-        
-
