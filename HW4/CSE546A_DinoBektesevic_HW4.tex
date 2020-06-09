@@ -105,7 +105,14 @@ Use optim.Adam for this question. Experiment with different learning rates. Use 
 \begin{enumerate}
     \item \points{10} Use a network with a single linear layer. Let $W_e\in\R^{h\times d}$ and $W_d\in\R^{d\times h}$. Given some $x\in\R^d$, the forward pass is formulated as 
     $$\F_1(x) =W_dW_ex$$
-    Run experiments for $h\in \{32,64,128\}$. For each of the different $h$ values, report your  final error and visualize a set of 10 reconstructed digits, side-by-side with the original image. Note: we omit the bias term in the formulation for notational convenience since nn.Linear learns bias parameters alongside weight parameters by default.
+    Run experiments for $h\in \{32,64,128\}$. For each of the different $h$ values, report your  final error and visualize a set of 10 reconstructed digits, side-by-side with the original image. Note: we omit the bias term in the formulation for notational convenience since nn.Linear learns bias parameters alongside weight parameters by default. \\
+    \begin{figure}[h!]
+        \centering 
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h32.png} }}\\
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h64.png} }}\\
+        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h128.png} }}
+        \caption{MNIST reconstructions using various different hyperparameters.}
+    \end{figure}
     
     \item \points{10} Use a single-layer network with non-linearity. Let $W_e\in\R^{h\times d}$,$W_d\in\R^{d\times h}$, and activation $\sigma:\R\rightarrow\R$. Given some $x\in\R^d$, the forward pass is formulated as 
     $$\F_2(x) = \sigma(W_d\sigma(W_ex))$$
