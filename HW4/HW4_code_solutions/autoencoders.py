@@ -270,7 +270,7 @@ def showimages(images, interpolation="nearest"):
     axes : `matplotlib.pyplot.Axes`
         Axes
     """
-    fig, axes = plt.subplots(1, len(images), figsize=(10, 4), sharex=True, sharey=True)
+    fig, axes = plt.subplots(1, len(images), figsize=(10, 3), sharex=True, sharey=True)
     axes = np.array([axes]) if len(images) == 1 else axes
     for img, ax in zip(images, axes.ravel()):
         ax.imshow(img.cpu(), interpolation=interpolation)
