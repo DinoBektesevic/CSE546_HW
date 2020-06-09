@@ -369,7 +369,7 @@ def A3b(epochs=5, learningRate=1e-3, batchSize=128, verbosity=5):
 def A3():
     """Runs part a and b of problem A3 in HW4"""
     A3a()
-#    A3b()
+    A3b()
 
 
 if __name__ == "__main__":
@@ -467,4 +467,4 @@ def extra_autoencoder(epochs=10, learningRate=1e-3, batchSize=1024):
     plt.show()
 
 
-#extra_autoencoder()
+extra_autoencoder()
