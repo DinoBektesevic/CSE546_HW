@@ -9,7 +9,6 @@ from torch.nn import functional
 import torch.utils.data as datutils
 
 from torchvision import datasets, transforms
-from torchvision.utils import make_grid
 
 
 torch.manual_seed(0)
@@ -46,7 +45,7 @@ def load_mnist_dataset(path="data/mnist_data/", digit=None, batchSize=1):
     """
     trans = transforms.Compose([
         transforms.ToTensor(),
-        #transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
     train = datasets.MNIST(path, train=True, download=True, transform=trans)
     test = datasets.MNIST(path, train=False, transform=trans)
@@ -158,7 +157,6 @@ class A3bAutoencoder(MNISTAutoencoder):
         self.hiddenSize = hiddenSize
         
 
-
 def train(dataLoader, model, optimizer, epoch, verbosity=20):
     """Trains the model using the given batched data. Calculates loss for each
     batch as well as the total average loss across the epoch and prints them.
@@ -177,28 +175,35 @@ def train(dataLoader, model, optimizer, epoch, verbosity=20):
         How often are batch losses printed, larger number means less prints.
         Epoch average loss is always printed.
     """
-    trainLoss = 0
+    # DataLoader length is number of batches that fit in the dataset.
+    # Length of the dataset is the actual number of data points
+    # used (f.e. the total number of CIFAR images)
+    nAll, nBatches = len(dataLoader.dataset), len(dataLoader)
+    verbosity = 1 if nBatches/verbosity < 1 else np.ceil(nBatches/verbosity)
+    trainLoss, avgTrainLoss = 0, 0
+    print(f"Epoch: {epoch}:")
     for i, (data, labels) in enumerate(dataLoader):
         data = data.to(DEVICE)
 
         optimizer.zero_grad()
         loss = model.loss(data)
         loss.backward()
-        trainLoss += loss.item()
         optimizer.step()
 
-        if i % verbosity == 0:
-            # data loader length is number of batches that fit in the dataset.
-            # The length of data, loaded by loader, is at most the batch size
-            # and the length of the dataset is the actual number of data points
-            # used (f.e. the total number mnist images of the same digit)
-            nAll, nBatches = len(dataLoader.dataset), len(dataLoader)
+        lss = loss.item()
+        trainLoss += lss
+        avgTrainLoss += lss
+        if i % verbosity == 0 and i!=0:
+            # The length of data, loaded by loader, is at most the batch size,
+            # not neccessarily equal for all batches (i.e. last one might be shorter).
             nBatch = len(data)
-            print(f'    Train Epoch: {epoch:<4} [{i*nBatch:>6}/{nAll:>6} '
-                  f'({100.0*i/nBatches:<5.4}%)]    Loss: {loss.item()/nBatch:>10.8f}')
+            print(
+                f"    [{i*nBatch:>6}/{nAll:>6} ({100.0*i/nBatches:<5.4}%)]"
+                f"    Loss: {trainLoss/verbosity:>10.8f}"
+            )
+            trainLoss = 0.0
 
-    print('Epoch: {} Average loss: {:.8f}'.format(
-          epoch, trainLoss / len(dataLoader.dataset)))
+    print(f"    Avg train loss: {avgTrainLoss/nBatches:>15.4f}")
 
 
 def test(dataLoader, model, optimizer):
@@ -219,10 +224,11 @@ def test(dataLoader, model, optimizer):
             data = data.to(DEVICE)
             testLoss += model.loss(data).item()
     testLoss /= len(dataLoader.dataset)
-    print(f"Test set loss: {testLoss:.8f}")
+    print(f"Test set loss: {testLoss:.8f}\n")
 
 
-def learn(trainDataLoader, testDataLoader, model, epochs, learningRate, verbosity=20):
+def learn(trainDataLoader, testDataLoader, model, epochs, learningRate=1e-3,
+          verbosity=20):
     """Trains a model for n epochs using Adam optimizer, and then estimates
     test dataset losses.
 
@@ -236,11 +242,11 @@ def learn(trainDataLoader, testDataLoader, model, epochs, learningRate, verbosit
         One of the Autoencoders or some other nn.Module with a loss method.
     epochs : `int`
         Number of epochs to train for.
-    learningRate : `float`
-        Learning rate of the Adam optimizer.
+    learningRate : `float`, optional
+        Learning rate of the Adam optimizer. Default: 0.001
     verbosity: `int`
         How often are batch losses printed, larger number means less prints.
-        Epoch average loss is always printed.
+        Epoch average loss is always printed. Default: 20
     """
     optimizer = optim.Adam(model.parameters(), lr=learningRate)
     for epoch in range(1, epochs + 1):
@@ -267,7 +273,7 @@ def showimages(images, interpolation="nearest"):
     fig, axes = plt.subplots(1, len(images), sharex=True, sharey=True)
     axes = np.array([axes]) if len(images) == 1 else axes
     for img, ax in zip(images, axes.ravel()):
-        ax.imshow(img, interpolation=interpolation)
+        ax.imshow(img.cpu(), interpolation=interpolation)
         ax.set_axis_off()
 
     return fig, ax
@@ -294,6 +300,7 @@ def plot_reconstructions(dataLoader, model):
     digits = list(allData.targets[subsetIdxs].unique().numpy())
     stacks = []
     for data, label in allData:
+        data = data.to(DEVICE)
         if label == digits[0]:
             with torch.no_grad():
                 reconstruction = model(data)
@@ -305,7 +312,7 @@ def plot_reconstructions(dataLoader, model):
     return showimages(stacks)
 
 
-def A3a(epochs=5, learningRate=1e-3, batchSize=128):
+def A3a(epochs=5, learningRate=1e-3, batchSize=128, verbosity=5):
     """Loads MNIST train and test datasets, batches them, trains a single layer
     linear Autoencoder, reports on the train and test losses and plots the
     reconstructons.
@@ -321,19 +328,18 @@ def A3a(epochs=5, learningRate=1e-3, batchSize=128):
     """
     trainLoader, testLoader = load_mnist_dataset(batchSize=batchSize)
 
-    plots, latentSizes = [], (32, 64, 128)
-    for latentSize in latentSizes:
+    for latentSize in (32, 64, 128):
         AC = A3aAutoencoder(latentSize=latentSize).to(DEVICE)
-        learn(trainLoader, testLoader, AC, epochs, learningRate)
+        learn(trainLoader, testLoader, AC, epochs, learningRate, verbosity)
         fig, axes = plot_reconstructions(trainLoader, AC)
         fig.suptitle("Digit reconstruction, linear \n"
                      f"(h={latentSize}, Nbatch={batchSize}, epochs={epochs}, "
                      f"lr={learningRate})")
-        plots.append((fig, axes))
+        fig.savefig(f"plots/A3a_h{latentSize}.png")
     plt.show()
 
 
-def A3b(epochs=5, learningRate=1e-3, batchSize=128):
+def A3b(epochs=5, learningRate=1e-3, batchSize=128, verbosity=5):
     """Loads MNIST train and test datasets, batches them, trains a single layer
     non-linear Autoencoder, reports on the train and test losses and plots the
     reconstructons.
@@ -349,15 +355,14 @@ def A3b(epochs=5, learningRate=1e-3, batchSize=128):
     """
     trainLoader, testLoader = load_mnist_dataset(batchSize=batchSize)
 
-    plots, latentSizes = [], (32, 64, 128)
-    for latentSize in latentSizes:
+    for latentSize in (32, 64, 128):
         AC = A3bAutoencoder(latentSize=latentSize).to(DEVICE)
-        learn(trainLoader, testLoader, AC, epochs, learningRate)
+        learn(trainLoader, testLoader, AC, epochs, learningRate, verbosity)
         fig, axes = plot_reconstructions(trainLoader, AC)
         fig.suptitle("Digit reconstruction, non-linear \n"
                      f"(h={latentSize}, Nbatch={batchSize}, epochs={epochs}, "
                      f"lr={learningRate})")
-        plots.append((fig, axes))
+        fig.savefig(f"plots/A3b_h{latentSize}.png")
     plt.show()
 
 
@@ -426,7 +431,7 @@ def plot_latent(dataLoader, model, vectors=(0,1)):
             for digit, color in zip(digits, colors):
                 digitMask = labels == digit
                 x, y = vectors
-                plt.scatter(mu[:, x][digitMask], mu[:, y][digitMask],
+                plt.scatter(mu[:, x][digitMask].cpu(), mu[:, y][digitMask].cpu(),
                             c=[color], alpha=0.12)
 
     plt.title("Autoencoders Latent space")
@@ -434,7 +439,7 @@ def plot_latent(dataLoader, model, vectors=(0,1)):
     plt.ylabel(f"Dimension {vectors[1]}")
     plt.xlim(-15, 15)
     plt.ylim(-5, 5)
-    plt.show()
+    return fig, axes
 
 
 
@@ -450,12 +455,15 @@ def extra_autoencoder(epochs=10, learningRate=1e-3, batchSize=1024):
                  f"lr={learningRate})")
     plt.show()
 
-    plot_latent(trainLoader, AC)
+    fig, axes = plot_latent(trainLoader, AC)
+    fig.savefig("plots/MyAutoencoder_LatentSpace1.png")
     plt.show()
-    plot_latent(trainLoader, AC, (0, 2))
+    fig, axes = plot_latent(trainLoader, AC, (0, 2))
+    fig.savefig("plots/MyAutoencoder_LatentSpace2.png")
     plt.show()
-    plot_latent(trainLoader, AC, (1, 2))
+    fig, axes = plot_latent(trainLoader, AC, (1, 2))
+    fig.savefig("plots/MyAutoencoder_LatentSpace3.png")
     plt.show()
 
 
-#extra_autoencoder()
+extra_autoencoder()
