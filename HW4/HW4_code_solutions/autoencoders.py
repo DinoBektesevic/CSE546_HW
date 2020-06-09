@@ -275,7 +275,7 @@ def showimages(images, interpolation="nearest"):
     for img, ax in zip(images, axes.ravel()):
         ax.imshow(img.cpu(), interpolation=interpolation)
         ax.set_axis_off()
-
+    fig.set_tight_layout(True)
     return fig, ax
 
 
@@ -335,7 +335,7 @@ def A3a(epochs=5, learningRate=1e-3, batchSize=128, verbosity=5):
         fig.suptitle("Digit reconstruction, linear \n"
                      f"(h={latentSize}, Nbatch={batchSize}, epochs={epochs}, "
                      f"lr={learningRate})")
-        fig.savefig(f"plots/A3a_h{latentSize}.png")
+        fig.savefig(f"../HW4_plots/A3a_h{latentSize}.png")
     plt.show()
 
 
@@ -362,14 +362,14 @@ def A3b(epochs=5, learningRate=1e-3, batchSize=128, verbosity=5):
         fig.suptitle("Digit reconstruction, non-linear \n"
                      f"(h={latentSize}, Nbatch={batchSize}, epochs={epochs}, "
                      f"lr={learningRate})")
-        fig.savefig(f"plots/A3b_h{latentSize}.png")
+        fig.savefig(f"../HW4_plots/A3b_h{latentSize}.png")
     plt.show()
 
 
 def A3():
     """Runs part a and b of problem A3 in HW4"""
     A3a()
-    A3b()
+#    A3b()
 
 
 if __name__ == "__main__":
@@ -439,6 +439,7 @@ def plot_latent(dataLoader, model, vectors=(0,1)):
     plt.ylabel(f"Dimension {vectors[1]}")
     plt.xlim(-15, 15)
     plt.ylim(-5, 5)
+    plt.tight_layout()
     return fig, axes
 
 
@@ -456,14 +457,14 @@ def extra_autoencoder(epochs=10, learningRate=1e-3, batchSize=1024):
     plt.show()
 
     fig, axes = plot_latent(trainLoader, AC)
-    fig.savefig("plots/MyAutoencoder_LatentSpace1.png")
+    fig.savefig("../HW4_plots/MyAutoencoder_LatentSpace1.png")
     plt.show()
     fig, axes = plot_latent(trainLoader, AC, (0, 2))
-    fig.savefig("plots/MyAutoencoder_LatentSpace2.png")
+    fig.savefig("../HW4_plots/MyAutoencoder_LatentSpace2.png")
     plt.show()
     fig, axes = plot_latent(trainLoader, AC, (1, 2))
-    fig.savefig("plots/MyAutoencoder_LatentSpace3.png")
+    fig.savefig("../HW4_plots/MyAutoencoder_LatentSpace3.png")
     plt.show()
 
 
-extra_autoencoder()
+#extra_autoencoder()
