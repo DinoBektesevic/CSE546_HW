@@ -200,35 +200,6 @@ def test(dataLoader, model):
         100 * totCorrect / total))
 
 
-def learn(trainDataLoader, validationDataLoader, testDataLoader, model, epochs, 
-          learningRate=1e-3, momentum=0.9, verbosity=5):
-    """Trains a model for n epochs using Adam optimizer, and then estimates
-    test dataset losses.
-
-    Parameters
-    ---------
-    trainDataLoader: `torch.DataLoader`
-        Generator that returnes batched train data.
-    testDataLoader: `torch.DataLoader`
-        Generator that returnes batched test data.
-    model : `obj`
-        One of the Autoencoders or some other nn.Module with a loss method.
-    epochs : `int`
-        Number of epochs to train for.
-    learningRate : `float`, optional
-        Learning rate of the SGD optimizer. Default 0.001.
-    momentum : `float`, optional
-        Momentum of the SGD optimizer, default: 0.9
-    verbosity: `int`, optional
-        How often are batch losses printed, larger number means less prints.
-        Epoch average loss is always printed. Default: 20
-    """
-    optimizer = optim.SGD(model.parameters(), lr=learningRate, momentum=momentum)
-    for epoch in range(1, epochs + 1):
-        train(trainDataLoader, model, optimizer, epoch, verbosity=verbosity, 
-              validationLoader=validationDataLoader)
-
-
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
@@ -366,14 +337,49 @@ class ConvLayerNet(ConvolutionalNeuralNet):
         return self.forward2(x)
 
 
+def learn(trainDataLoader, validationDataLoader, model, optimizer=None, 
+          epochs=10, learningRate=1e-3, momentum=0.9, verbosity=5):
+    """Trains a model for n epochs using Adam optimizer, and then estimates
+    test dataset losses.
+
+    Parameters
+    ---------
+    trainDataLoader: `torch.DataLoader`
+        Generator that returnes batched train data.
+    testDataLoader: `torch.DataLoader`
+        Generator that returnes batched test data.
+    model : `obj`
+        One of the Autoencoders or some other nn.Module with a loss method.
+    epochs : `int`
+        Number of epochs to train for.
+    learningRate : `float`, optional
+        Learning rate of the SGD optimizer. Default 0.001.
+    momentum : `float`, optional
+        Momentum of the SGD optimizer, default: 0.9
+    verbosity: `int`, optional
+        How often are batch losses printed, larger number means less prints.
+        Epoch average loss is always printed. Default: 20
+    """
+    if optimizer is None:
+        optimizer = optim.SGD(model.parameters(), lr=learningRate, momentum=momentum)
+
+    acc = []
+    for epoch in range(1, epochs + 1):
+        vac = train(trainDataLoader, model, optimizer, epoch, verbosity=verbosity, 
+                    validationLoader=validationDataLoader)
+        acc.append(vac)
+
+    return acc
+
+
 def A5a():
     netSGD = NoLayerNet()
     netSGD = netSGD.to(DEVICE)
     netAdam = NoLayerNet()
     netAdam = netAdam.to(DEVICE)
 
+    epochs = 3
     batchSizes = np.logspace(1, 4, 5, dtype=int)
-    epochs = np.logspace(1, 2, 10, dtype=int)
     momenta = np.logspace(-1, 1, 5)
     learningRates = np.logspace(-4, -1, 5)
 
@@ -381,15 +387,14 @@ def A5a():
     validationAccuracyAdam = []
     for batchSize in batchSizes:
         trainData, validationData, testData = load_cifar_dataset(batchSize=int(batchSize))
-        for epoch in epochs:
-            for learningRate in learningRates:
-                for momentum in momenta: 
+        for learningRate in learningRates:
+            for momentum in momenta: 
                     SGD = optim.SGD(netSGD.parameters(), lr=learningRate, momentum=momentum)
-                    vac = train(trainData, netSGD, SGD, epoch, validationLoader=validationData)
-                    validationAccuracySGD.append(vac)
+                    accs = learn(trainData, validationData, netSGD, SGD, epochs=epochs)
+                    validationAccuracySGD.append(accs)
             Adam = optim.Adam(netAdam.parameters(), lr=learningRate)
-            vac = train(trainData, netAdam, Adam, epoch, validationLoader=validationData)
-            validationAccuracyAdam.append(vac)
+            accs = learn(trainData, validationData, netAdam, Adam, epochs=epochs)
+            validationAccuracyAdam.append(accs)
 
     np.savez("A5a.npz", batches=batchSizes, epochs=epochs, momenta=momenta, 
              learningRates=learningRates, sgdacc=validationAccuracySGD,
