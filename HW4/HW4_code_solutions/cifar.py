@@ -15,10 +15,11 @@ from torchvision.utils import make_grid
 torch.manual_seed(0)
 np.random.seed(0)
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+PATH = 'data/cifarTrained.pth'
 
 
 def load_cifar_dataset(path="data/cifar_data/", pickClass=None, batchSize=1, 
-                       validationFrac=0.2):
+                       validationFrac=0.2, nWorkers=2):
     """Loads CIFAR data located at path.
 
     CIFAR data are 28x28 pixel large images of numbers.
@@ -72,14 +73,17 @@ def load_cifar_dataset(path="data/cifar_data/", pickClass=None, batchSize=1,
     maskedTrain, maskedValidation = datutils.random_split(maskedTrain,
                                                           [trainLen, validLen])
 
-    trainLoader = datutils.DataLoader(maskedTrain, batch_size=batchSize, shuffle=True)
-    validationLoader = datutils.DataLoader(maskedValidation, batch_size=batchSize, shuffle=False)
-    testLoader = datutils.DataLoader(maskedTest, batch_size=batchSize, shuffle=False)
+    trainLoader = datutils.DataLoader(maskedTrain, batch_size=batchSize, 
+                                      shuffle=True, num_workers=nWorkers)
+    validationLoader = datutils.DataLoader(maskedValidation, batch_size=batchSize,
+                                           shuffle=False, num_workers=nWorkers)
+    testLoader = datutils.DataLoader(maskedTest, batch_size=batchSize, 
+                                     shuffle=False, num_workers=nWorkers)
 
     return trainLoader, validationLoader, testLoader
 
 
-def train(dataLoader, model, optimizer, epoch, verbosity=5, validationLoader=None):
+def train(dataLoader, model, optimizer, epoch, verbosity=5, validationLoader=None, toSTD=False):
     """Trains an epoch of the model using the given batched data. Calculates
     loss for each batch as well as the total average loss across the epoch
     and prints them.
@@ -100,13 +104,15 @@ def train(dataLoader, model, optimizer, epoch, verbosity=5, validationLoader=Non
     validationLoader : `torch.DataLoader`
         Generator that returns batched validation data.
     """
+    if toSTD:
+        verbosity = 1 if nBatches/verbosity < 1 else np.ceil(nBatches/verbosity)
+        trainLoss, avgTrainLoss, trainAcc, avgTrainAcc = 0, 0, 0, 0
+        print(f"Epoch: {epoch}:")
+        
     # DataLoader length is number of batches that fit in the dataset.
     # Length of the dataset is the actual number of data points
     # used (f.e. the total number of CIFAR images)
     nAll, nBatches = len(dataLoader.dataset), len(dataLoader)
-    verbosity = 1 if nBatches/verbosity < 1 else np.ceil(nBatches/verbosity)
-    trainLoss, avgTrainLoss, trainAcc, avgTrainAcc = 0, 0, 0, 0
-    print(f"Epoch: {epoch}:")
     for i, (data, labels) in enumerate(dataLoader):
         data = data.to(DEVICE)
         labels = labels.to(DEVICE)
@@ -120,31 +126,37 @@ def train(dataLoader, model, optimizer, epoch, verbosity=5, validationLoader=Non
         loss.backward()
         optimizer.step()
         
-        acc = model.accuracy(data, labels)
-        lss = loss.item()
-        trainAcc += acc
-        avgTrainAcc += acc
-        trainLoss += lss
-        avgTrainLoss += lss
-        if i % verbosity == 0 and i!=0:
-            # The length of data, loaded by loader, is at most the batch size,
-            # not neccessarily equal for all batches (i.e. last one might be shorter).
-            nBatch = len(data)
-            print(
-                f"    [{i*nBatch:>6}/{nAll:>6} ({100.0*i/nBatches:<5.4}%)]"
-                f"    Loss: {trainLoss/verbosity:>10.8f}    Accuracy: {trainAcc/verbosity:>10.8f}"
-            )
-            trainLoss = 0.0
-            trainAcc = 0.0
+        if toSTD:
+            acc = model.accuracy(data, labels)
+            lss = loss.item()
+            trainAcc += acc
+            avgTrainAcc += acc
+            trainLoss += lss
+            avgTrainLoss += lss
+            if i % verbosity == 0 and i!=0:
+                # The length of data, loaded by loader, is at most the batch size,
+                # not neccessarily equal for all batches (i.e. last one might be shorter).
+                nBatch = len(data)
+                print(
+                    f"    [{i*nBatch:>6}/{nAll:>6} ({100.0*i/nBatches:<5.4}%)]"
+                    f"    Loss: {trainLoss/verbosity:>10.8f}    Accuracy: {trainAcc/verbosity:>10.8f}"
+                )
+                trainLoss = 0.0
+                trainAcc = 0.0
 
-    msg = (f"    Avg train loss: {avgTrainLoss/nBatches:>15.4f} \n"
-           f"    Avg train accuracy: {avgTrainAcc/nBatches:>11.4f}\n")
+            msg = (f"    Avg train loss: {avgTrainLoss/nBatches:>15.4f} \n"
+                   f"    Avg train accuracy: {avgTrainAcc/nBatches:>11.4f}\n")
 
     if validationLoader is not None:
-        validAcc = model.accuracy(validationLoader)
-        msg += f"    Validation accuracy: {validAcc:>10.4f}"
+        validationAccuracy = model.accuracy(validationLoader)
+        if toSTD:
+            msg += f"    Validation accuracy: {validationAccuracy[-1]:>10.4f}"
 
-    print(msg+"\n")
+    if toSTD:
+        print(msg+"\n")
+
+    if validationLoader is not None:
+        return validationAccuracy
 
 
 def test(dataLoader, model):
@@ -308,8 +320,9 @@ class TutorialNet(ConvolutionalNeuralNet):
         return self.forward2(z)
 
 
-class A5a(ConvolutionalNeuralNet):
+class NoLayerNet(ConvolutionalNeuralNet):
     def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
         self.linear = nn.Linear(3072, 10)
 
     def forward(self, x):
@@ -317,8 +330,9 @@ class A5a(ConvolutionalNeuralNet):
         return self.linear(x)
 
 
-class A5b(ConvolutionalNeuralNet):
+class SingleLayerNet(ConvolutionalNeuralNet):
     def __init__(self, N, M, k, *args, **kwargs):
+        super().__init__(**kwargs)
         finSize = int( ((33 - k) / N)**2 * M)
         self.forward1 = nn.Sequential(
             nn.Linear(3072, M),
@@ -331,8 +345,9 @@ class A5b(ConvolutionalNeuralNet):
         return self.forward1(x)
 
 
-class A5c(ConvolutionalNeuralNet):
+class ConvLayerNet(ConvolutionalNeuralNet):
     def __init__(self, N, M, k, *args, **kwargs):
+        super().__init__(**kwargs)
         finSize = int( ((33 - k) / N)**2 * M)
         self.forward1 = nn.Sequential(
             nn.Conv2d(3, M, k),
@@ -351,26 +366,34 @@ class A5c(ConvolutionalNeuralNet):
         return self.forward2(x)
 
 
+def A5a():
+    netSGD = NoLayerNet()
+    netSGD = netSGD.to(DEVICE)
+    netAdam = NoLayerNet()
+    netAdam = netAdam.to(DEVICE)
+
+    batchSizes = np.logspace(1, 4, 5, dtype=int)
+    epochs = np.logspace(1, 2, 10, dtype=int)
+    momenta = np.logspace(-1, 1, 5)
+    learningRates = np.logspace(-4, -1, 5)
+
+    validationAccuracySGD = []
+    validationAccuracyAdam = []
+    for batchSize in batchSizes:
+        trainData, validationData, testData = load_cifar_dataset(batchSize=int(batchSize))
+        for epoch in epochs:
+            for learningRate in learningRates:
+                for momentum in momenta: 
+                    SGD = optim.SGD(netSGD.parameters(), lr=learningRate, momentum=momentum)
+                    vac = train(trainData, netSGD, SGD, epoch, validationLoader=validationData)
+                    validationAccuracySGD.append(vac)
+            Adam = optim.Adam(netAdam.parameters(), lr=learningRate)
+            vac = train(trainData, netAdam, Adam, epoch, validationLoader=validationData)
+            validationAccuracyAdam.append(vac)
+
+    np.savez("A5a.npz", batches=batchSizes, epochs=epochs, momenta=momenta, 
+             learningRates=learningRates, sgdacc=validationAccuracySGD,
+             adamacc=validationAccuracyAdam)
 
 
-
-PATH = 'data/cifarTrained.pth'
-trainData, validationData, testData = load_cifar_dataset(batchSize=4)
-
-
-net = TutorialNet()
-#if torch.cuda.device_count() > 1:
-#    print("Let's use", torch.cuda.device_count(), "GPUs!")
-#    # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-#    net = nn.DataParallel(net)
-net = net.to(DEVICE)
-learn(trainData, validationData, testData, net, 2)
-torch.save(net.state_dict(), PATH)
-
-
-
-
-
-
-
-test(testData, net)
+A5a()
