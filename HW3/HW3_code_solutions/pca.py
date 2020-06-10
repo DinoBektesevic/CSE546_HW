@@ -83,7 +83,7 @@ def plot_eigen_fraction(k, frac):
     plt.show()
 
 
-def plot_errors(k, test, train):
+def plot_errors(k, train, test):
     """Plots test and train error as a function of the number of eigenvectors
     used in reconstruction.
 
