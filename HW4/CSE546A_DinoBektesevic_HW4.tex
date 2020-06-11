@@ -108,23 +108,71 @@ Use optim.Adam for this question. Experiment with different learning rates. Use 
     Run experiments for $h\in \{32,64,128\}$. For each of the different $h$ values, report your  final error and visualize a set of 10 reconstructed digits, side-by-side with the original image. Note: we omit the bias term in the formulation for notational convenience since nn.Linear learns bias parameters alongside weight parameters by default. \\
     \begin{figure}[h!]
         \centering 
-        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h32.png} }}\\
-        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h64.png} }}\\
-        \subfloat[]{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h128.png} }}
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00077440] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h32.png} }}\\
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00077228] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h64.png} }}\\
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00077527] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3a_h128.png} }}
         \caption{MNIST reconstructions using various different hyperparameters.}
     \end{figure}
     
+    
+    \newpage
     \item \points{10} Use a single-layer network with non-linearity. Let $W_e\in\R^{h\times d}$,$W_d\in\R^{d\times h}$, and activation $\sigma:\R\rightarrow\R$. Given some $x\in\R^d$, the forward pass is formulated as 
     $$\F_2(x) = \sigma(W_d\sigma(W_ex))$$
     Report the same findings as asked for in part a for $h\in\{32,64,128\}$.
+    \begin{figure}[h!]
+        \centering 
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00221150] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3b_h32.png} }}\\
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00205961] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3b_h64.png} }}\\
+        \subfloat[After 5 epochs, with 0.001 learning rate, the test loss is 0.00215065] {{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A3b_h128.png} }}
+        \caption{MNIST reconstructions using various different hyperparameters.}
+    \end{figure}
+    
     
     \item \points{5} Now, evaluate $\F_1(x)$ and $\F_2(x)$ (use $h=128$ here) on the test set. Provide the test reconstruction errors in a table.
+    \begin{table}[h!]
+    \centering
+        \begin{tabular}{l|l}
+               &  loss   \\
+        \hline 
+        $\F_1$ &  0.00077527 \\
+        \hline 
+        $F_2$  & 0.00215065   
+        \end{tabular}
+    \end{table}
     
-    \item \points{5} In a few sentences, compare the quality of the reconstructions from these two autoencoders, compare with those of PCA from last assignment. You may want to re-run your code for PCA using the different $h$ values as the number of top-k eigenvalues.
+    \newpage
+    \item \points{5} In a few sentences, compare the quality of the reconstructions from these two autoencoders, compare with those of PCA from last assignment. You may want to re-run your code for PCA using the different $h$ values as the number of top-k eigenvalues. \\
+    Effectively it's a poor-mans PCA in this context - we apply some linear transformation to the dataset and then learn the randomly instantiated weights in the decode step to linearly transform the dataset back. It is not surprising that the reconstructions are nearly identical to the input. Statistically, nonlinear reconstruction performs worse than the linear one. Visually, however, the non-linear reconstruction behaves better. This is because our eyes do not notice the missing bright pixel or two but because of the non-linearity we are able to better ignore the background. \\
+    Plots below showcase my analogy with a 2-component PCA. I project the image all the way down to 3 dimensional latent space and then plot them against each other. Points are colored according to labels. This neatly shows how autoencoder seems to dis-entangle various digits by grouping them in its latent space, similarly to PCA. 
+    \begin{figure}[h!]
+        \centering 
+        \subfloat{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/MyAutoencoder_digits.png} }}
+        \subfloat{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/MyAutoencoder_LatentSpace1.png} }} \\
+        \subfloat{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/MyAutoencoder_LatentSpace2.png} }}
+        \subfloat{{\includegraphics[width=0.47\textwidth]{HW4/HW4_plots/MyAutoencoder_LatentSpace3.png} }}
+        \caption{MNIST reconstructions using my autoencoder. They are visually relatively poor, no doubt due to a low-dimensional latent space. Trained for 10 epochs with learning rate at 0.001 the test loss is 0.00039763.}
+    \end{figure}
+\end{enumerate}
+\newpage
+\lstinputlisting{HW4_code_solutions/autoencoders.py}  
+
+
+
+
+\newpage
+\section*{Unsupervised Learning with Autoencoders}
+
+A5.  In this problem we will explore different deep learning architectures for image classification on the CIFAR-10 dataset. 
+
+For all of the following, apply a hyperparameter tuning method (grid search, random search, etc.) using the validation set, report the hyperparameter configurations you evaluated and the best set of hyperparameters from this set, and plot the training and validation classification accuracy as a function of iteration. Produce a separate line or plot for each hyperparameter configuration  evaluated.  Finally, evaluate your best set of hyperparameters on the test data and report the accuracy. On the larger networks, you should expect to tune hyperparameters and train to at least 70\% accuracy. Here are the network architectures you will construct and compare.
+\begin{enumerate}
+    \item \points{15} Fully-connected output, 0 hidden layers (logistic regression): this network has no hidden layers and linearly maps the input layer to the output layer.
+    \item \points{15} Fully-connected output, 1 fully-connected hidden layer: this network has one hidden layer denoted. M will be a hyperparameter you choose (M could be in the hundreds). The non linearity applied to the hidden layer will be the relu.
+    \item \points{15} Convolutional layer with max-pool and fully-connected output.
+    \item Tuning: Return to the original network you were left with at the end of the tutorial Training a classifier. Tune the different hyperparameters (number of convolutional filters, filter sizes, dimensionality of the fully-connected layers, step size, etc.) and train for a sufficient number of iterations to achieve a test accuracy of at least 70\%. Provide the hyperparameter configuration used to achieve this performance.
 \end{enumerate}
 
-
-
+\lstinputlisting{HW4_code_solutions/cifar.py}  
 
 
 
