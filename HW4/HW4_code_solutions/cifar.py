@@ -119,15 +119,16 @@ def train(dataLoader, model, optimizer, epoch, validationLoader=None,
         If validation dataset is provided validation accuracy is returned,
         otherwise nothing is returned.
     """
+    # DataLoader length is number of batches that fit in the dataset.
+    # Length of the dataset is the actual number of data points
+    # used (f.e. the total number of CIFAR images)
+    nAll, nBatches = len(dataLoader.dataset), len(dataLoader)
+
     if toSTD:
         verbosity = 1 if nBatches/verbosity < 1 else np.ceil(nBatches/verbosity)
         trainLoss, avgTrainLoss, trainAcc, avgTrainAcc = 0, 0, 0, 0
         print(f"Epoch: {epoch}:")
         
-    # DataLoader length is number of batches that fit in the dataset.
-    # Length of the dataset is the actual number of data points
-    # used (f.e. the total number of CIFAR images)
-    nAll, nBatches = len(dataLoader.dataset), len(dataLoader)
     for i, (data, labels) in enumerate(dataLoader):
         data = data.to(DEVICE)
         labels = labels.to(DEVICE)
@@ -165,7 +166,7 @@ def train(dataLoader, model, optimizer, epoch, validationLoader=None,
     if validationLoader is not None:
         validationAccuracy = model.accuracy(validationLoader)
         if toSTD:
-            msg += f"    Validation accuracy: {validationAccuracy[-1]:>10.4f}"
+            msg += f"    Validation accuracy: {validationAccuracy:>10.4f}"
 
     if toSTD:
         print(msg+"\n")
@@ -419,7 +420,7 @@ class ConvLayerNet(ConvolutionalNeuralNet):
 
 
 def learn(trainDataLoader, validationDataLoader, model, optimizer=None,
-          epochs=10, learningRate=1e-3, momentum=0.9, verbosity=5):
+          epochs=10, learningRate=1e-3, momentum=0.9, verbosity=5, toSTD=False):
     """Trains a model for n epochs using given optimizer, and then records
     validation accuracies.
 
@@ -455,7 +456,7 @@ def learn(trainDataLoader, validationDataLoader, model, optimizer=None,
     acc = []
     for epoch in range(1, epochs + 1):
         vac = train(trainDataLoader, model, optimizer, epoch, verbosity=verbosity, 
-                    validationLoader=validationDataLoader)
+                    validationLoader=validationDataLoader, toSTD=toSTD)
         acc.append(vac)
 
     return acc
@@ -465,16 +466,21 @@ def A5a():
     """Runs grid search over different learning rates, batch sizes, momenta for
     both Adam and SGD optimizers and saves the recorded data.
     """
-    netSGD = NoLayerNet()
-    netSGD = netSGD.to(DEVICE)
-    netAdam = NoLayerNet()
-    netAdam = netAdam.to(DEVICE)
+#    netSGD = NoLayerNet()
+#    netSGD = netSGD.to(DEVICE)
+#    netAdam = NoLayerNet()
+#    netAdam = netAdam.to(DEVICE)
 
-    epochs = 15
-    batchSizes = np.logspace(1, 4, 5, dtype=int)
-    momenta = np.logspace(-1, 1, 5)
-    learningRates = np.logspace(-4, -1, 5)
+    #epochs = 15
+    #batchSizes = np.logspace(1, 4, 5, dtype=int)
+    #momenta = np.logspace(-1, 1, 5)
+    #learningRates = np.logspace(-4, -1, 5)
+    epochs = 2
+    batchSizes = [1]
+    momenta = [1, 2]
+    learningRates = [1]
 
+    breakpoint()
     counter = 0
     startt = timeit.default_timer()
     validationAccuracySGD = []
@@ -486,9 +492,13 @@ def A5a():
                   f"    LR: {np.where(learningRates == learningRate)[0][0]}/{len(learningRates)} \n"
                   f"    Time elapsed: {(timeit.default_timer() - startt)/60.0} minutes")
             for momentum in momenta: 
+                    netSGD = NoLayerNet()
+                    netSGD = netSGD.to(DEVICE)
                     SGD = optim.SGD(netSGD.parameters(), lr=learningRate, momentum=momentum)
                     accs = learn(trainData, validationData, netSGD, SGD, epochs=epochs)
                     validationAccuracySGD.append(accs)
+            netAdam = NoLayerNet()
+            netAdam = netAdam.to(DEVICE)
             Adam = optim.Adam(netAdam.parameters(), lr=learningRate)
             accs = learn(trainData, validationData, netAdam, Adam, epochs=epochs)
             validationAccuracyAdam.append(accs)
@@ -498,3 +508,17 @@ def A5a():
              adamacc=validationAccuracyAdam)
 
 A5a()
+
+#trainData, validationData, testData = load_cifar_dataset(batchSize=20)
+#netSGD = NoLayerNet()
+#netSGD = netSGD.to(DEVICE)
+#vacc = []
+#for m in (0.1, 0.2):
+#    SGD = optim.SGD(netSGD.parameters(), lr=0.1, momentum=m)
+#    accs = learn(trainData, validationData, netSGD, SGD, epochs=15)
+#    print(accs)
+#    vacc.append(accs)
+#
+#print()
+#print()
+#print(vacc)
