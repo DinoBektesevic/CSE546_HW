@@ -1,3 +1,5 @@
+import timeit
+
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -468,16 +470,21 @@ def A5a():
     netAdam = NoLayerNet()
     netAdam = netAdam.to(DEVICE)
 
-    epochs = 3
+    epochs = 15
     batchSizes = np.logspace(1, 4, 5, dtype=int)
     momenta = np.logspace(-1, 1, 5)
     learningRates = np.logspace(-4, -1, 5)
 
+    counter = 0
+    startt = timeit.default_timer()
     validationAccuracySGD = []
     validationAccuracyAdam = []
     for batchSize in batchSizes:
         trainData, validationData, testData = load_cifar_dataset(batchSize=int(batchSize))
         for learningRate in learningRates:
+            print(f"Batch: {np.where(batchSizes == batchSize)[0][0]}/{len(batchSizes)} "
+                  f"    LR: {np.where(learningRates == learningRate)[0][0]}/{len(learningRates)} \n"
+                  f"    Time elapsed: {(timeit.default_timer() - startt)/60.0} minutes")
             for momentum in momenta: 
                     SGD = optim.SGD(netSGD.parameters(), lr=learningRate, momentum=momentum)
                     accs = learn(trainData, validationData, netSGD, SGD, epochs=epochs)
