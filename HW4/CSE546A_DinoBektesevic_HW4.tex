@@ -167,11 +167,22 @@ A5.  In this problem we will explore different deep learning architectures for i
 For all of the following, apply a hyperparameter tuning method (grid search, random search, etc.) using the validation set, report the hyperparameter configurations you evaluated and the best set of hyperparameters from this set, and plot the training and validation classification accuracy as a function of iteration. Produce a separate line or plot for each hyperparameter configuration  evaluated.  Finally, evaluate your best set of hyperparameters on the test data and report the accuracy. On the larger networks, you should expect to tune hyperparameters and train to at least 70\% accuracy. Here are the network architectures you will construct and compare.
 \begin{enumerate}
     \item \points{15} Fully-connected output, 0 hidden layers (logistic regression): this network has no hidden layers and linearly maps the input layer to the output layer.
+    \begin{figure}[h!]
+        \centering 
+        \includegraphics[width=0.47\textwidth]{HW4/HW4_plots/A5a.png}
+    \end{figure}
+    \begin{figure}
+    \centering
+        \includegraphics[width=0.85\textwidth]{HW4/HW4_plots/A5a1.png}
+        \caption{SGD optimizer}
+    \end{figure}
+    \newpage
     \item \points{15} Fully-connected output, 1 fully-connected hidden layer: this network has one hidden layer denoted. M will be a hyperparameter you choose (M could be in the hundreds). The non linearity applied to the hidden layer will be the relu.
     \item \points{15} Convolutional layer with max-pool and fully-connected output.
     \item Tuning: Return to the original network you were left with at the end of the tutorial Training a classifier. Tune the different hyperparameters (number of convolutional filters, filter sizes, dimensionality of the fully-connected layers, step size, etc.) and train for a sufficient number of iterations to achieve a test accuracy of at least 70\%. Provide the hyperparameter configuration used to achieve this performance.
 \end{enumerate}
 
+This code produced the above plots and contains the code for the remaining solutions. I ran into a problem with the grid\_search implementation because I opted to use the GPUs to speed up the process. If you look at the SGD plots they are not correct after the first iteration. Running the sampling (commented out code at the end) for the same parameters I get different results than the ones that actually get saved. I don't know hwere the problem is. It obviously should not be constant accuracy across the epoch (and as I said, when I run that sampling manually it isn't) but when I run the A5a sampler then suddenly it is. I've struggled for two days trying to fix that problem but haven't been able to figure out where the problem is. I'm out of time so I'm submitting what I have. The are different when run out of the loop, but in it they all end up being the same. Running on CPU took 558 minutes (9.3 hours) for A5a which means it's just not possible for me to finish this on time unless I run on GPU (about 1.5hours on a Tesla). Hopefully it'll count for some points at least. Things to note from manual runs is that SGD seems to perform better on smaller batches (because averaging over many points tends to get it stuck in some local minima whereas jumps are more erratic on smaller batch sizes) and Adam seems to perform as expected. It's not too difficult to reach 70\% accuracy in those cases for enough epochs. 
 \lstinputlisting{HW4_code_solutions/cifar.py}  
 
 
